@@ -3,12 +3,13 @@ __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
 __version__ = "0.1.0"
 __status__ = "Prototype"
-
+__name__ = "ImagePostprocessing"
 # last edited: 2020/03/12
-from PIL import Image
+
 from math import ceil
-from PIL import ImageOps
-import img2pdf
+
+from PIL import Image
+
 
 class ImagePostProcessing:
     """

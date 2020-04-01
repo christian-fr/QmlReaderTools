@@ -4,12 +4,14 @@ __license__ = "GPL v3"
 __version__ = "0.1.0"
 __status__ = "Prototype"
 __name__ = "Questionnaire"
-# last edited: 2020/03/12
+# last edited: 2020-04-01
 
 import re
 
+
 class QmlPage:
-    def __init__(self, string_pagename, dict_of_transitions=None, dict_of_sources=None, list_of_variables=None, question_string=None,
+    def __init__(self, string_pagename, dict_of_transitions=None, dict_of_sources=None, list_of_variables=None,
+                 question_string=None,
                  instruction_string=None, title_string=None):
         self.pagename = string_pagename
 
@@ -20,7 +22,6 @@ class QmlPage:
         if dict_of_sources is None:
             dict_of_sources = {}
         self.sources = dict_of_sources
-
 
         if list_of_variables is None:
             list_of_variables = []
@@ -127,9 +128,6 @@ class Questionnaire:
     def create_dict_of_variables(self):
         raise NotImplementedError
 
-
-#def file_saver_dialog():
+# def file_saver_dialog():
 #    root = tk.Tk()
 #    save_path = filedialog.asksaveasfilename()
-
-

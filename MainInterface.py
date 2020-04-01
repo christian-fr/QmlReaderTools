@@ -5,16 +5,12 @@ __version__ = "0.1.0"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
-import networkx as nx
-
 import QmlReader
 import Questionnaire
 import tkinter
-from tkinter import filedialog, simpledialog, scrolledtext, IntVar, messagebox
-from os import listdir, mkdir, system
+from tkinter import filedialog, scrolledtext, IntVar, messagebox
+from os import listdir, mkdir
 import os.path
-import pprint
-import re
 import logging
 import networkx as nx
 import errno
@@ -105,7 +101,8 @@ class Window(tkinter.Frame):
         self.button6.grid(row=6, column=2, sticky='N')
         self.__button_dict['btn6'] = self.button6
 
-        self.button7 = tkinter.Button(self.canvas1, width=20, height=1, text='Open Path', state=tkinter.DISABLED, command=self.open_path)
+        self.button7 = tkinter.Button(self.canvas1, width=20, height=1, text='Open Path', state=tkinter.DISABLED,
+                                      command=self.open_path)
         self.button7.grid(row=7, column=2, sticky='N')
         self.__button_dict['open_path'] = self.button7
 
@@ -189,19 +186,6 @@ class Window(tkinter.Frame):
     def no_files_selected(self):
         self.deactivate_all_buttons()
 
-    # def load_file(self):
-    #    temp_file = [filedialog.askopenfile(filetypes=(("xml files", "*.xml"), ("all files", "*.*"))).name]
-    #    if len(temp_file) is 0:
-    #        return
-    #    try:
-    #        assert isinstance(temp_file, list)
-    #    except AssertionError:
-    #        self.logger.exception('Assertion Error: '+ str(temp_file) + ' is not of type list.')
-    #    print(temp_file)
-    #    temp_file.sort()
-    #    self.listOfFiles = temp_file
-    #    self.redraw_file_text()
-
     @staticmethod
     def sort_list_of_files(temp_files):
         temp_files.sort()
@@ -213,7 +197,6 @@ class Window(tkinter.Frame):
         self.logger.info('opening files: ' + str(temp_files))
         if len(temp_files) is 0:
             return
-        # print(temp_files)
         try:
             assert isinstance(temp_files, list)
         except AssertionError:
@@ -269,7 +252,6 @@ class Window(tkinter.Frame):
             self.dict_of_questionnaires[key] = Questionnaire.Questionnaire()
 
             for page in self.dict_of_qmls[key].list_of_pages():
-                # print(page)
                 string_pagename = page
                 dict_of_transitions = self.dict_of_qmls[key].dict_of_transitions[page]
                 dict_of_sources = self.dict_of_qmls[key].dict_of_sources[page]
@@ -449,7 +431,4 @@ class Window(tkinter.Frame):
         fh.setFormatter(fh_format)
         self.logger.addHandler(fh)
 
-
-# self, string_pagename, dict_of_transitions=None, dict_of_sources=None, list_of_variables=None, question_string=None,
-#               instruction_string=None, title_string=None):
 

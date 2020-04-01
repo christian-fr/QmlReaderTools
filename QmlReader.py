@@ -1,24 +1,20 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "0.1.3"
+__version__ = "0.1.5"
 __status__ = "Prototype"
 __name__ = "QmlReader"
-# branch: master
-
-
-# last edited: 2020/03/12
+# last edited: 2020-04-01
 
 from os import path, sys
 from lxml import etree, objectify
 import io
 import copy
 import networkx as nx
+import re
 
 if sys.platform is not 'win32':
     import pygraphviz as pgv
-import re
-
 from Questionnaire import QmlPage, Questionnaire
 
 
@@ -167,65 +163,65 @@ class QmlReader:
                                                                                   self.dict_of_transitions[i][k][
                                                                                       'condition_new'])
 
-
     def transitions_to_nodes_edges(self, truncate=False):
         if truncate:
             # self.DiGraph.add_nodes_from(list(self.dict_of_page_numbers_reversed.keys()))
             for i in self.dict_of_page_numbers_reversed.keys():
                 self.DiGraph.add_node(i, label=i + '\n' + '\n'.join(self.pages_variables[i]))
             dict_transitions = {}
-            for i in self.dict_of_transitions_truncated .keys():
+            for i in self.dict_of_transitions_truncated.keys():
                 cnt = 0
-                for k in self.dict_of_transitions_truncated [i].keys():
+                for k in self.dict_of_transitions_truncated[i].keys():
 
-                    if self.dict_of_transitions_truncated [i][k]['condition'] is not None:
-                        if tuple([i, self.dict_of_transitions_truncated [i][k]['target']]) in dict_transitions.keys():
-                            dict_transitions[tuple([i, self.dict_of_transitions_truncated [i][k]['target']])] = dict_transitions[
-                                                                                                         tuple([i,
-                                                                                                                self.dict_of_transitions_truncated [
-                                                                                                                    i][
-                                                                                                                    k][
-                                                                                                                    'target']])] + ' |\n(' + '[' + str(
-                                cnt) + '] ' + self.dict_of_transitions_truncated [i][k]['condition_new'] + ')'
-                            self.DiGraph.add_edge(i, self.dict_of_transitions_truncated [i][k]['target'],
+                    if self.dict_of_transitions_truncated[i][k]['condition'] is not None:
+                        if tuple([i, self.dict_of_transitions_truncated[i][k]['target']]) in dict_transitions.keys():
+                            dict_transitions[tuple([i, self.dict_of_transitions_truncated[i][k]['target']])] = \
+                            dict_transitions[
+                                tuple([i,
+                                       self.dict_of_transitions_truncated[
+                                           i][
+                                           k][
+                                           'target']])] + ' |\n(' + '[' + str(
+                                cnt) + '] ' + self.dict_of_transitions_truncated[i][k]['condition_new'] + ')'
+                            self.DiGraph.add_edge(i, self.dict_of_transitions_truncated[i][k]['target'],
                                                   label='[' + str(cnt) + '] ' + dict_transitions[
-                                                      tuple([i, self.dict_of_transitions_truncated [i][k]['target']])])
+                                                      tuple([i, self.dict_of_transitions_truncated[i][k]['target']])])
                         else:
-                            dict_transitions[tuple([i, self.dict_of_transitions_truncated [i][k]['target']])] = '(' + \
-                                                                                                     '[' + str(
+                            dict_transitions[tuple([i, self.dict_of_transitions_truncated[i][k]['target']])] = '(' + \
+                                                                                                               '[' + str(
                                 cnt) + '] ' + \
-                                                                                                     self.dict_of_transitions_truncated [
-                                                                                                         i][k][
-                                                                                                         'condition_new'] + ')'
-                        self.DiGraph.add_edge(i, self.dict_of_transitions_truncated [i][k]['target'],
+                                                                                                               self.dict_of_transitions_truncated[
+                                                                                                                   i][
+                                                                                                                   k][
+                                                                                                                   'condition_new'] + ')'
+                        self.DiGraph.add_edge(i, self.dict_of_transitions_truncated[i][k]['target'],
                                               label=dict_transitions[
-                                                  tuple([i, self.dict_of_transitions_truncated [i][k]['target']])])
+                                                  tuple([i, self.dict_of_transitions_truncated[i][k]['target']])])
                         cnt = cnt + 1
 
                     else:
-                        if tuple([i, self.dict_of_transitions_truncated [i][k]['target']]) in dict_transitions.keys():
-                            self.DiGraph.add_edge(i, self.dict_of_transitions_truncated [i][k]['target'],
+                        if tuple([i, self.dict_of_transitions_truncated[i][k]['target']]) in dict_transitions.keys():
+                            self.DiGraph.add_edge(i, self.dict_of_transitions_truncated[i][k]['target'],
                                                   label='')
                         else:
                             if cnt is 0:
-                                self.DiGraph.add_edge(i, self.dict_of_transitions_truncated [i][k]['target'],
+                                self.DiGraph.add_edge(i, self.dict_of_transitions_truncated[i][k]['target'],
                                                       label='')
                             if cnt is not 0:
-                                self.DiGraph.add_edge(i, self.dict_of_transitions_truncated [i][k]['target'],
+                                self.DiGraph.add_edge(i, self.dict_of_transitions_truncated[i][k]['target'],
                                                       label='[' + str(cnt) + ']')
 
                         cnt += 1
 
         else:
-            
-            # self.DiGraph.add_nodes_from(list(self.dict_of_page_numbers_reversed.keys()))
+
             for i in self.dict_of_page_numbers_reversed.keys():
                 self.DiGraph.add_node(i, label=i + '\n' + '\n'.join(self.pages_variables[i]))
             dict_transitions = {}
             for i in self.dict_of_transitions.keys():
                 cnt = 0
                 for k in self.dict_of_transitions[i].keys():
-    
+
                     if self.dict_of_transitions[i][k]['condition'] is not None:
                         if tuple([i, self.dict_of_transitions[i][k]['target']]) in dict_transitions.keys():
                             dict_transitions[tuple([i, self.dict_of_transitions[i][k]['target']])] = dict_transitions[
@@ -240,7 +236,8 @@ class QmlReader:
                                                       tuple([i, self.dict_of_transitions[i][k]['target']])])
                         else:
                             dict_transitions[tuple([i, self.dict_of_transitions[i][k]['target']])] = '(' + \
-                                                                                                     '[' + str(cnt) + '] ' + \
+                                                                                                     '[' + str(
+                                cnt) + '] ' + \
                                                                                                      self.dict_of_transitions[
                                                                                                          i][k][
                                                                                                          'condition_new'] + ')'
@@ -248,7 +245,7 @@ class QmlReader:
                                               label=dict_transitions[
                                                   tuple([i, self.dict_of_transitions[i][k]['target']])])
                         cnt = cnt + 1
-    
+
                     else:
                         if tuple([i, self.dict_of_transitions[i][k]['target']]) in dict_transitions.keys():
                             self.DiGraph.add_edge(i, self.dict_of_transitions[i][k]['target'],
@@ -260,7 +257,7 @@ class QmlReader:
                             if cnt is not 0:
                                 self.DiGraph.add_edge(i, self.dict_of_transitions[i][k]['target'],
                                                       label='[' + str(cnt) + ']')
-    
+
                         cnt += 1
 
         self.init_pgv_graph()
@@ -290,23 +287,19 @@ class QmlReader:
             if flag_transitions:
                 for t in range(0, len(self.root.page[i].transitions.transition)):
                     self.dict_of_transitions[self.dict_of_page_numbers[i]][t] = ''
-                    # print("t")
-                    # print(t)
 
                     try:
                         self.dict_of_transitions[self.dict_of_page_numbers[i]][t] = {
                             'target': self.root.page[i].transitions.transition[t].attrib['target'],
                             'condition': self.root.page[i].transitions.transition[t].attrib['condition']}
-                    except:
+                    except KeyError:
                         self.dict_of_transitions[self.dict_of_page_numbers[i]][t] = {
                             'target': self.root.page[i].transitions.transition[t].attrib['target'],
                             'condition': None}
 
     def extract_page_numbers(self):
         dict_of_page_numbers = {}
-        # print(len(self.root.page))
         for i in range(0, len(self.root.page)):
-            # print(self.root.page[i].attrib['uid'])
             dict_of_page_numbers[i] = self.root.page[i].attrib['uid']
         return dict_of_page_numbers
 
@@ -326,14 +319,8 @@ class QmlReader:
             print('The data passed to the object was not of type: list.')
 
     def extract_data(self, use_variables=True, use_pagenames=True, labels=True):
-        # extracted_data = []
         for pagenr in range(0, len(self.root.page)):
             list_variables_per_page = []
-            # print(self.root.page[pagenr].attrib)
-
-            # if use_pagenames:
-            # extracted_data.append(self.root.page[pagenr].attrib["uid"])
-
             if use_variables:
                 if hasattr(self.root.page[pagenr], 'body'):
                     for i in self.root.page[pagenr].body.iterdescendants():
@@ -386,13 +373,10 @@ class QmlReader:
 
         results_dict = {}
         for i in range(0, len(self.root.page)):
-            # print(i)
-            # print(hasattr(self.root.page[i], 'body'))
             if hasattr(self.root.page[i], 'body'):
                 for child in self.root.page[i].body.iterdescendants():
                     if 'responseDomain' in child.tag and 'variable' in child.attrib:
                         results_dict[child.attrib['variable']] = {'values': [], 'page': self.dict_of_page_numbers[i]}
-                        # print(child.attrib['variable'])
                         for grandchild in child.iterdescendants():
                             if 'uid' in grandchild.attrib:
                                 if grandchild.attrib['uid'] in ao_list and 'value' in grandchild.attrib:
@@ -416,7 +400,6 @@ class QmlReader:
         return self.root.name.text
 
     def extract_sources(self):
-        # init variables
         self.dict_of_sources = {}
         for key in self.dict_of_transitions:
             self.dict_of_sources[key] = []
@@ -425,7 +408,6 @@ class QmlReader:
         for key in self.dict_of_transitions:
             for num in self.dict_of_transitions[key]:
                 target = self.dict_of_transitions[key][num]['target']
-                #print(self.dict_of_sources[target])
                 self.dict_of_sources[target].append(key)
 
         for key in self.dict_of_sources:
@@ -445,9 +427,9 @@ class QmlReader:
     def change_labels_and_delete_pages_to_truncate(self, list_of_pages):
         return
         list_done = []
-        for i in range(0,len(list_of_pages)-1):
+        for i in range(0, len(list_of_pages) - 1):
             page = list_of_pages[i]
-            next_page = list_of_pages[i+1]
+            next_page = list_of_pages[i + 1]
             sucessor = self.dict_of_transitions[page][0]['target']
             temp_str = ''
             cnt = 0
@@ -460,35 +442,38 @@ class QmlReader:
                     if temp_str is '':
                         temp_str = page
                     else:
-                        temp_str = temp_str+','+page
+                        temp_str = temp_str + ',' + page
                     list_done.append(page)
                 else:
-                    print('page:'+str(page))
-                    print('i:'+str(i))
-                    print('next_page:'+str(next_page))
-                    print('temp_str:'+str(temp_str))
-                    self.dict_of_transitions_truncated[list(self.dict_of_sources[list_of_pages[i]].keys())[0]][0]['condition'] = temp_str
+                    print('page:' + str(page))
+                    print('i:' + str(i))
+                    print('next_page:' + str(next_page))
+                    print('temp_str:' + str(temp_str))
+                    self.dict_of_transitions_truncated[list(self.dict_of_sources[list_of_pages[i]].keys())[0]][0][
+                        'condition'] = temp_str
                     break
 
-                if i+cnt+1 < len(list_of_pages):
+                if i + cnt + 1 < len(list_of_pages):
                     page = list_of_pages[i + cnt]
-                    next_page = list_of_pages[i+cnt+1]
+                    next_page = list_of_pages[i + cnt + 1]
                     sucessor = self.dict_of_transitions[page][0]['target']
 
                 else:
-                    self.dict_of_transitions_truncated[list(self.dict_of_sources[list_of_pages[i]].keys())[0]][0]['condition'] = temp_str
+                    self.dict_of_transitions_truncated[list(self.dict_of_sources[list_of_pages[i]].keys())[0]][0][
+                        'condition'] = temp_str
                     break
             self.dict_of_transitions_truncated.pop(list_of_pages[i])
-
 
     def check_for_pages_to_truncate(self):
         list_of_pages = []
         for page in self.dict_of_page_numbers_reversed:
             if page in self.dict_of_sources and page in self.dict_of_transitions:
-                if page is not 'index' and page is not 'end' and len(self.dict_of_sources[page].keys()) is 1 and len(self.dict_of_transitions[page]) is 1:
+                if page is not 'index' and page is not 'end' and len(self.dict_of_sources[page].keys()) is 1 and len(
+                        self.dict_of_transitions[page]) is 1:
                     predecessor = list(self.dict_of_sources[page].keys())[0]
                     successor = self.dict_of_transitions[page][0]['target']
-                    if len(self.dict_of_sources[predecessor].keys()) is 1 and len(self.dict_of_transitions[successor]) is 1:
+                    if len(self.dict_of_sources[predecessor].keys()) is 1 and len(
+                            self.dict_of_transitions[successor]) is 1:
                         list_of_pages.append(page)
                         # predecessor = list(self.dict_of_sources[page].keys())[0]
         return list_of_pages
