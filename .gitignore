@@ -3,3 +3,8 @@
 /docs/
 /.idea/
 /examples/
+/flowcharts/
+*.log
+*.png
+*.pdf
+*.gml
