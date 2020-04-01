@@ -3,6 +3,7 @@
 /docs/
 /.idea/
 /examples/
+/qml/flowcharts/
 /flowcharts/
 *.log
 *.png
