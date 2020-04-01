@@ -1,0 +1,1753 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zofar:questionnaire xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:zofar="http://www.his.de/zofar/xml/questionnaire" xmlns:display="http://www.dzhw.eu/zofar/xml/display"
+	language="de">
+	<zofar:name>TEST</zofar:name>
+	<zofar:description></zofar:description>
+	<zofar:preloads>
+		<zofar:preload password="part1" name="part1"></zofar:preload>
+		<zofar:preload password="part2" name="part2"></zofar:preload>
+		<zofar:preload password="part3" name="part3"></zofar:preload>
+		<zofar:preload password="tester1" name="tester1"></zofar:preload>
+		<zofar:preload password="tester2" name="tester2"></zofar:preload>
+		<zofar:preload password="tester3" name="tester3"></zofar:preload>
+		<zofar:preload password="tester4" name="tester4"></zofar:preload>
+		<zofar:preload password="tester5" name="tester5"></zofar:preload>
+		<zofar:preload password="tester6" name="tester6"></zofar:preload>
+		<zofar:preload password="tester7" name="tester7"></zofar:preload>
+		<zofar:preload password="tester8" name="tester8"></zofar:preload>
+		<zofar:preload password="tester9" name="tester9"></zofar:preload>
+		<zofar:preload password="tester10" name="tester10"></zofar:preload>						
+	</zofar:preloads>
+
+
+
+
+	<zofar:variables>
+		<!-- index		 -->
+		<zofar:variable name="width" type="number"/>
+		<zofar:variable name="height" type="number"/>
+		<zofar:variable name="isMobile" type="boolean"/>
+		<zofar:variable name="jsCheck" type="boolean"/>
+		<zofar:variable name="url" type="string"/>
+		<zofar:variable name="flag_index" type="boolean"/>
+		<zofar:variable name="var01" type="boolean"/>
+		<!-- A01		 -->
+		<zofar:variable name="var02" type="singleChoiceAnswerOption"/>
+		<zofar:variable name="flag_A01" type="boolean"/>
+		<!-- A02 -->
+		<zofar:variable name="var03" type="string"/>
+		<!-- A03 -->
+		<zofar:variable name="var04" type="string"/>
+		<!-- A04 -->
+		<zofar:variable name="var05" type="singleChoiceAnswerOption"/>
+		<!-- A05 -->
+		<zofar:variable name="var06" type="string"/>
+	</zofar:variables>
+ 
+    <zofar:page uid="index">
+        <zofar:header>
+            <zofar:title uid="t1"></zofar:title>
+            <zofar:text uid="t2"></zofar:text>
+        </zofar:header>
+        <zofar:body uid="body">
+        	<zofar:section uid="s1">
+        		<zofar:header>
+        			<zofar:text uid="t3">
+        			#{layout.BOLD_START}Herzlich willkommen!#{layout.BOLD_END}!
+        			#{layout.BREAK}
+        			#{layout.BREAK}
+					#{layout.BOLD_START}For an English version of the survey please click the flag in the header#{layout.BOLD_END}!
+					#{layout.BREAK}
+					#{layout.BREAK}
+					In Abhängigkeit von Ihrer persönlichen Lebenssituation wird die Befragung etwa 25 Minuten dauern. Sie können die Befragung auch am Smartphone ausfüllen, allerdings ist die Beantwortung an einem größeren Bildschirm bequemer und schneller. Sie haben jederzeit die Möglichkeit, die Befragung zu unterbrechen und zu einem späteren Zeitpunkt fortzuführen. Wenn Sie alle Fragen beantwortet haben, haben Sie anschließend die Gelegenheit, an der angekündigten Verlosung teilzunehmen.
+					#{layout.BREAK}#{layout.BREAK}
+					Für Ihre Teilnahme danken wir Ihnen bereits an dieser Stelle ganz herzlich!
+					#{layout.BREAK}#{layout.BREAK}
+					#{layout.BREAK}
+					Ihre Teilnahme ist selbstverständlich freiwillig. Ihre Angaben werden für Forschungs- und Evaluationszwecke genutzt. Sämtliche Nacaps-Daten werden nur in anonymisierter Form publiziert und anderen Wissenschaftler(inne)n nur anonymisiert zur Verfügung gestellt. Ihre Kontaktdaten werden stets getrennt von den Befragungsdaten verarbeitet und gespeichert. Keinesfalls werden Ihre Kontaktdaten an Dritte weitergegeben.
+        			</zofar:text>
+        		</zofar:header>
+        	</zofar:section>
+        	 
+        	<zofar:multipleChoice uid="mc">
+        		<zofar:header>
+        			<zofar:question uid="q" block="true">
+        			</zofar:question>
+        		</zofar:header>
+        		<zofar:responseDomain uid="rd">
+        			<zofar:answerOption variable="var01" uid="ao1" label="Ja, ich habe die Hinweise zum Datenschutz (siehe verlinktes pdf) gelesen und bin damit einverstanden.">
+					</zofar:answerOption>
+        		</zofar:responseDomain>   	
+        	</zofar:multipleChoice>
+        	<zofar:section uid="s2">
+        		<zofar:header>
+        			<zofar:text uid="t4" block="true">
+        				#{layout.BREAK}
+        				#{layout.BREAK}
+        				#{layout.BOLD_START}Kontakt#{layout.BOLD_END}
+        				#{layout.BREAK}
+        				#{layout.BREAK}
+						Bei allen #{layout.BOLD_START}anderen Fragen und Anmerkungen#{layout.BOLD_END} stehen wir Ihnen gerne zur Verfügung.
+        			</zofar:text>
+        		</zofar:header>
+        	</zofar:section>
+        	
+        	<zofar:section uid="sw" visible="navigatorBean.isSame() or zofar.isBooleanSet('flag_index',sessionController.participant)">
+        		<zofar:header>
+        			<zofar:text uid="t5" block="true">
+        				#{layout.BREAK}#{layout.WARNING_START}Bitte beachten Sie, dass ohne	Zustimmung zu den Datenschutzbestimmungen eine Teilnahme an der	Nacaps-Befragung leider nicht möglich ist.#{layout.WARNING_END}
+        			</zofar:text>
+        		</zofar:header>
+        		<zofar:body uid="b"></zofar:body>
+        	</zofar:section>
+		</zofar:body>
+		<zofar:triggers>
+			<zofar:variable variable="flag_index" value="true" direction="same" onExit="false"></zofar:variable>
+			<zofar:variable variable="url" value="zofar.baseUrl()"></zofar:variable>
+			<zofar:jsCheck variable="jsCheck" xvar="width" yvar="height"></zofar:jsCheck>
+			<zofar:variable variable="isMobile" value="zofar.isMobile()"></zofar:variable>
+		</zofar:triggers>
+		
+		<zofar:transitions>
+			<zofar:transition target="index" condition="!var01.value and !flag_index.value"/>
+			<zofar:transition target="cancel1" condition="!var01.value and flag_index.value"/>
+			<zofar:transition target="offer" condition="jsCheck.value and isMobile.value and width.value lt 400 and var01.value"/>
+			<zofar:transition target="A01" condition="var01.value" />
+		</zofar:transitions>
+   	</zofar:page>
+   
+   
+    
+    <zofar:page uid="offer">
+		<zofar:header>
+			<zofar:title uid="t" block="true">
+				Um ein optimales Befragungserlebnis zu erhalten, sollten Sie für die Beantwortung einiger Fragen das Display drehen.
+			</zofar:title>
+		</zofar:header>
+		<zofar:body uid="b">
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A01"/>
+		</zofar:transitions>
+	</zofar:page>
+	
+	
+	
+    <zofar:page uid="A01">
+    	<zofar:header>
+    	</zofar:header>
+    	<zofar:body uid="b">
+    		<zofar:questionSingleChoice uid="sc">
+    			<zofar:header>
+    				<zofar:question uid="q1">
+						Bitte geben Sie an, was aktuell auf Sie zutrifft.
+    				</zofar:question>
+    				<zofar:instruction uid="is">Ihr Promotionsverfahren gilt als abgeschlossen, wenn Sie die letzte Prüfung (in der Regel: Disputation oder Rigorosum) erfolgreich abgelegt haben.
+    				</zofar:instruction>
+    			</zofar:header>
+    			<zofar:responseDomain variable="var02" uid="rd">
+    				<zofar:answerOption uid="ao1" value="1" label="Ich tue nichts."></zofar:answerOption>
+    				<zofar:answerOption uid="ao2" value="2" label="Ich tue viel."></zofar:answerOption>
+    				<zofar:answerOption uid="ao3" value="3" label="Ich habe mal etwas getan."></zofar:answerOption>
+    				<zofar:answerOption uid="ao4" value="4" label="Ich werde wieder etwas tun."></zofar:answerOption>
+    			</zofar:responseDomain>
+    		</zofar:questionSingleChoice>
+    		
+    		<zofar:section uid="sw" visible="navigatorBean.isSame() or zofar.isBooleanSet('flag_A01',sessionController.participant)">
+				<zofar:header>
+					<zofar:text uid="t" block="true">
+						#{layout.BREAK}#{layout.WARNING_START}
+						Für den weiteren Verlauf der Befragung ist diese Frage wichtig. Ohne eine Angabe würden Sie Fragen
+						erhalten, die nicht auf Ihre Situation zutreffen. Beantworten Sie deshalb bitte diese Frage, um fortfahren zu
+						können.
+						#{layout.WARNING_END}
+					</zofar:text>
+				</zofar:header>
+				<zofar:body uid="bb">
+				</zofar:body>
+			</zofar:section>
+    	</zofar:body>
+    	<zofar:triggers>
+    		<zofar:variable variable="flag_A01" value="true" direction="same" onExit="false"></zofar:variable>
+    	</zofar:triggers>
+    	<zofar:transitions>
+			<zofar:transition target="A01" condition="zofar.isMissing(var02) and !flag_A01.value"/>
+			<zofar:transition target="cancel2" condition="zofar.isMissing(var02) and flag_A01.value"/>
+			<zofar:transition target="A02" condition="zofar.asNumber(var02) == 3"/>
+			<zofar:transition target="A03" condition="zofar.asNumber(var02) == 4"/>
+			<zofar:transition target="A05" condition="zofar.asNumber(var02) == 1"/>
+			<zofar:transition target="A04" condition="zofar.asNumber(var02) == 2"/>
+			<zofar:transition target="A04" condition="zofar.asNumber(var02) != 2"/>
+			<zofar:transition target="A06" condition="zofar.isMissing(var02)"/>
+    	</zofar:transitions>
+    </zofar:page>
+    
+
+	<zofar:page uid="A02">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var03" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A04" />
+		</zofar:transitions>
+	</zofar:page>
+
+	<zofar:page uid="A03">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var04" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum taten sie mal etwas?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A05" />
+		</zofar:transitions>
+	</zofar:page>    
+    
+	<zofar:page uid="A04">
+		<zofar:body uid="body">
+			<zofar:questionSingleChoice uid="qsc1">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Handelt es sich um eine offizielle Tätigkeit?
+					</zofar:question>
+				</zofar:header>
+				<zofar:responseDomain variable="var05" uid="rd" itemClasses="true">
+					<zofar:answerOption uid="ao1" value="1" label="Ja"/>
+					<zofar:answerOption uid="ao2" value="2" label="Nein"/>
+				</zofar:responseDomain>
+			</zofar:questionSingleChoice>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A05" />
+		</zofar:transitions>
+	</zofar:page>
+    
+    
+	<zofar:page uid="A05">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A06"/>
+		</zofar:transitions>
+	</zofar:page>
+    
+
+	<zofar:page uid="A06">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A07"/>
+		</zofar:transitions>
+	</zofar:page>
+  
+
+	<zofar:page uid="A07">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A08"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+	<zofar:page uid="A08">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A09"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+	<zofar:page uid="A09">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A10"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+	<zofar:page uid="A10">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A11"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+	<zofar:page uid="A11">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A12"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+	<zofar:page uid="A12">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A13"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+		<zofar:page uid="A13">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A14"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+	<zofar:page uid="A14">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A15"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+	<zofar:page uid="A15">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A16"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+	<zofar:page uid="A16">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A17"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+	<zofar:page uid="A17">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A18"/>
+		</zofar:transitions>
+	</zofar:page>
+
+		<zofar:page uid="A18">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A19"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+
+		<zofar:page uid="A19">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A20"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+	<zofar:page uid="A20">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A21"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+	<zofar:page uid="A21">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A22"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+	<zofar:page uid="A22">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A23"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+		<zofar:page uid="A23">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A24"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+	<zofar:page uid="A24">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A25"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+	<zofar:page uid="A25">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A26"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+	<zofar:page uid="A26">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A27"/>
+		</zofar:transitions>
+	</zofar:page>
+
+		<zofar:page uid="A27">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A29"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+
+
+		<zofar:page uid="A28">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A29"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+
+		<zofar:page uid="A29">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A30"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+
+
+
+
+
+
+
+
+
+	<zofar:page uid="A30">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A31"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+	<zofar:page uid="A31">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A32"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+	<zofar:page uid="A32">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A33"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+		<zofar:page uid="A33">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A34"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+	<zofar:page uid="A34">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A35"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+	<zofar:page uid="A35">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A36"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+	<zofar:page uid="A36">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A37"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+		<zofar:page uid="A37">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A38"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+		<zofar:page uid="A38">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A39"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+
+		<zofar:page uid="A39">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A50"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+
+
+
+
+
+
+
+	<zofar:page uid="A50">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A51"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+	<zofar:page uid="A51">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A52"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+	<zofar:page uid="A52">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A53"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+		<zofar:page uid="A53">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A54"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+	<zofar:page uid="A54">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="end"/>
+		</zofar:transitions>
+	</zofar:page>
+
+
+
+
+
+
+    <zofar:page uid="cancel1">
+    	<zofar:header>
+    	</zofar:header>
+    	<zofar:body uid="b">
+    	</zofar:body>
+    	<zofar:transitions>
+    		<zofar:transition target="end"/>
+    	</zofar:transitions>
+    </zofar:page>
+
+    <zofar:page uid="cancel2">
+    	<zofar:header>
+    	</zofar:header>
+    	<zofar:body uid="b">
+    	</zofar:body>
+    	<zofar:transitions>
+    		<zofar:transition target="end"/>
+    	</zofar:transitions>
+    </zofar:page>
+
+
+    
+    <zofar:page uid="end">
+    	<zofar:header>
+    	</zofar:header>
+    	<zofar:body uid="b">
+    	</zofar:body>
+    </zofar:page>
+    
+</zofar:questionnaire>
