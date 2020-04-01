@@ -5,6 +5,7 @@
 /examples/
 /qml/flowcharts/
 /flowcharts/
+/__pycache__/
 *.log
 *.png
 *.pdf
