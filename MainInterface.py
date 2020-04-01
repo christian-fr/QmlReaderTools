@@ -108,7 +108,7 @@ class Window(tkinter.Frame):
 
     def open_path(self):
         path = os.path.realpath(self.dirText)
-        os.system(f'start {os.path.realpath(path)}')
+        os.system(f'pcmanfm {os.path.realpath(path)}')
 
     def deactivate_all_buttons(self):
         self.activate_button(self.__button_dict.keys(), deactivate=True)
