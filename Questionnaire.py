@@ -106,10 +106,27 @@ class Variable():
         else:
             raise TypeError('Input not of type string')
 
+    def __str__(self):
+        return str(self.varname)
 
 class Variables():
     def __init__(self):
         self.list_of_variables = []
+
+    def __len__(self):
+        return len(self.list_of_variables)
+
+    def __str__(self):
+        return str(self.list_details_str())
+
+    def dict_details(self):
+        """
+        :return: dictionary of {varname: vartype}
+        """
+        dict_tmp = {}
+        for var in self.list_of_variables:
+            dict_tmp[var.varname]=var.vartype
+        return dict_tmp
 
     def list_all_vars(self):
         return [var.varname for var in self.list_of_variables]
@@ -122,28 +139,35 @@ class Variables():
 
     def add_variable(self, variable_object):
         if isinstance(variable_object, Variable):
-            self.list_of_variables.append(variable_object)
+            if variable_object.varname not in [var.varname for var in self.list_of_variables]:
+                self.list_of_variables.append(variable_object)
+            else:
+                raise ValueError('Variable name exists already!')
         else:
             raise TypeError('Input not of type Variable')
 
     def delete_variable(self, varname):
         if isinstance(varname, str):
-            if varname in self.dict_of_variables.keys():
-                self.dict_of_variables.pop(varname)
+            tmp_list = [var.varname for var in self.list_of_variables]
+            tmp_var_list = self.list_of_variables
+            if varname in tmp_list:
+                for var in tmp_var_list:
+                    if var.varname is varname:
+                        self.list_of_variables.remove(var)
             else:
-                raise KeyError('Varname not found!')
+                raise ValueError('Varname not found!')
         else:
             raise TypeError('Input was not of type string!')
 
-    def replace_vartype(self, varname, vartype):
-        pass
-
     def check_if_vartype(self, varname, vartype):
         if isinstance(varname, str) and isinstance(vartype, str):
-            if varname in self.dict_of_variables:
-                return self.dict_of_variables[varname] is vartype
+            if varname in [var.varname for var in self.list_of_variables]:
+                for var in [var for var in self.list_of_variables if var.varname is varname]:
+                    print(str(var))
+
+                    return var.vartype is vartype
             else:
-                raise KeyError('Varname not found!')
+                raise ValueError('Varname not found!')
         else:
             raise TypeError('Input was not of type string!')
 
