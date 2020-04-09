@@ -16,7 +16,7 @@ import re
 if sys.platform is not 'win32':
     import pygraphviz as pgv
 from Questionnaire import QmlPage, Questionnaire
-
+import logging
 
 class QmlReader:
     """
@@ -31,14 +31,19 @@ class QmlReader:
     """
 
     def __init__(self, file, create_graph=False, draw=False, truncate=False):
+        self.logger = logging.getLogger('debug')
+        self.startup_logger(log_level=logging.DEBUG)
+        self.logger.info('starting up QmlReader')
         self.pages_variables = {}
         self.DiGraph = nx.DiGraph()
         self.dict_of_transitions = {}
+        self.list_of_pages_not_declared_but_in_transitions = []
         self.dict_of_sources = {}
         self.sourcepath = path.split(file)[0]
         self.sourcefullfilename = path.split(file)[1]
         self.sourcefilename = path.splitext(self.sourcefullfilename)[0]
         with open(file, 'rb') as f:
+            self.logger.info('reading file: '+str(file))
             self.data = f.read()
 
         self.root = objectify.fromstring(self.data)
@@ -46,9 +51,11 @@ class QmlReader:
         self.title = 'Survey'
         self.set_title()
         self.dict_of_page_numbers = self.extract_page_numbers()
+        self.list_of_pages_declared = list(set([page.attrib['uid'] for page in self.root.page if 'uid' in page.attrib]))
         self.dict_of_page_numbers_reversed = {v: k for k, v in self.dict_of_page_numbers.items()}
         self.extract_transitions()
         self.extract_sources()
+        self.dict_of_variables_per_page = {}
         self.variables_from_declaration = self.extract_variables_from_declaration()
         self.variables_from_pages = self.extract_variables_from_pages()
         self.replace_conditions()
@@ -66,6 +73,18 @@ class QmlReader:
                 if draw:
                     nx.write_gml(self.DiGraph, self.sourcepath + '/' + self.sourcefilename + '.gml')
                     self.draw_pgv_graph(self.sourcepath + '/' + self.sourcefilename + '.png')
+
+    def startup_logger(self, log_level=logging.DEBUG):
+        """
+        CRITICAL: 50, ERROR: 40, WARNING: 30, INFO: 20, DEBUG: 10, NOTSET: 0
+        """
+        logging.basicConfig(level=log_level)
+        fh = logging.FileHandler("{0}.log".format('log_' + __name__))
+        fh.setLevel(log_level)
+        fh_format = logging.Formatter('%(name)s\t%(module)s\t%(funcName)s\t%(asctime)s\t%(lineno)d\t'
+                                      '%(levelname)-8s\t%(message)s')
+        fh.setFormatter(fh_format)
+        self.logger.addHandler(fh)
 
     def list_of_unused_variables(self):
         return list(set(self.list_of_variables_from_declaration()).difference(self.list_of_variables_from_pages()))
@@ -275,6 +294,7 @@ class QmlReader:
     def extract_transitions(self):
         for i in self.dict_of_page_numbers:
             self.dict_of_transitions[self.dict_of_page_numbers[i]] = {}
+            self.list_of_pages_declared.append(self.dict_of_page_numbers[i])
             # print("i")
             # print(i)
             flag_transitions = False
@@ -408,7 +428,12 @@ class QmlReader:
         for key in self.dict_of_transitions:
             for num in self.dict_of_transitions[key]:
                 target = self.dict_of_transitions[key][num]['target']
+                if target not in self.dict_of_sources:
+                    self.dict_of_sources[target] = []
+                    self.list_of_pages_not_declared_but_in_transitions.append(target)
                 self.dict_of_sources[target].append(key)
+
+        self.logger.info('pages added that were not declare within the qml, but found in transitions: '+str(self.list_of_pages_not_declared_but_in_transitions))
 
         for key in self.dict_of_sources:
             tmp_dict = {}

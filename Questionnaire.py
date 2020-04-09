@@ -4,16 +4,158 @@ __license__ = "GPL v3"
 __version__ = "0.1.0"
 __status__ = "Prototype"
 __name__ = "Questionnaire"
+
 # last edited: 2020-04-01
 
 import re
 
 
+class Calendar():
+    def __init__(self):
+        pass
+
+
+class Comparison():
+    def __init__(self):
+        pass
+
+
+class Display():
+    def __init__(self):
+        pass
+
+
+class MatrixDouble():
+    def __init__(self):
+        pass
+
+
+class MatrixMultipleChoice():
+    def __init__(self):
+        pass
+
+
+class MatrixQuestionMixed():
+    def __init__(self):
+        pass
+
+
+class MatrixQuestionOpen():
+    def __init__(self):
+        pass
+
+
+class MatrixQuestionSingleChoice():
+    def __init__(self):
+        pass
+
+
+class MultipleChoice():
+    def __init__(self):
+        pass
+
+
+class QuestionOpen():
+    def __init__(self, type='text'):
+        self.type = type
+
+
+class QuestionSingleChoice():
+    def __init__(self):
+        pass
+
+
+class Unit():
+    def __init__(self):
+        pass
+
+
+class Trigger():
+    def __init__(self):
+        pass
+
+
+class Triggers():
+    def __init__(self):
+        pass
+
+
+class Transition():
+    def __init__(self, source, index, target, condition):
+        self.source = source
+        self.index = index
+        self.target = target
+        self.condition = condition
+        self.condition_python =  None
+
+
+class Transitions():
+    def __init__(self):
+        pass
+
+
+class Variable():
+    def __init__(self, varname, vartype):
+        self.__allowed_vartypes = ['boolean', 'singleChoiceAnswerOption', 'text']
+        if isinstance(varname, str) and isinstance(vartype, str):
+            self.varname = varname
+            if vartype in self.__allowed_vartypes:
+                self.vartype = vartype
+            else:
+                raise ValueError('Vartype unknown/not allowd')
+        else:
+            raise TypeError('Input not of type string')
+
+
+class Variables():
+    def __init__(self):
+        self.list_of_variables = []
+
+    def list_all_vars(self):
+        return [var.varname for var in self.list_of_variables]
+
+    def list_all_vartypes(self):
+        return [var.vartype for var in self.list_of_variables]
+
+    def list_details_str(self):
+        return [str(var.varname)+': '+str(var.vartype) for var in self.list_of_variables]
+
+    def add_variable(self, variable_object):
+        if isinstance(variable_object, Variable):
+            self.list_of_variables.append(variable_object)
+        else:
+            raise TypeError('Input not of type Variable')
+
+    def delete_variable(self, varname):
+        if isinstance(varname, str):
+            if varname in self.dict_of_variables.keys():
+                self.dict_of_variables.pop(varname)
+            else:
+                raise KeyError('Varname not found!')
+        else:
+            raise TypeError('Input was not of type string!')
+
+    def replace_vartype(self, varname, vartype):
+        pass
+
+    def check_if_vartype(self, varname, vartype):
+        if isinstance(varname, str) and isinstance(vartype, str):
+            if varname in self.dict_of_variables:
+                return self.dict_of_variables[varname] is vartype
+            else:
+                raise KeyError('Varname not found!')
+        else:
+            raise TypeError('Input was not of type string!')
+
+
 class QmlPage:
     def __init__(self, string_pagename, dict_of_transitions=None, dict_of_sources=None, list_of_variables=None,
                  question_string=None,
-                 instruction_string=None, title_string=None):
+                 instruction_string=None, title_string=None, declared=True):
+
         self.pagename = string_pagename
+
+        self.declared = declared
 
         if dict_of_transitions is None:
             dict_of_transitions = {}
