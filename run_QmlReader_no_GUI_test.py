@@ -6,7 +6,7 @@ __status__ = "Prototype"
 __name__ = "just for testing purposes"
 
 import QmlReader
-import Questionnaire
+# import Questionnaire
 
 file = "/home/a/PycharmProjects/QmlReaderTools/qml/questionnaire.xml"
 

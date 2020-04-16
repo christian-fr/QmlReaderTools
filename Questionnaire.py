@@ -89,26 +89,23 @@ class Question(HeaderText):
 class Instruction(HeaderText):
     def __init__(self, uid, text):
         super().__init__(uid, text)
-
+    pass
 
 class Introduction(HeaderText):
     def __init__(self, uid, text):
         super().__init__(uid, text)
+    pass
 
-
-class Header(UniqueObject):
-    def __init__(self, uid):
-        super().__init__(uid)
-        self.uid = None
-        self.change_uid(uid)
+class Header():
+    def __init__(self):
         self.dict_of_header_texts = {}
 
     def __str__(self):
-        temp_str = 'item uid: ' + str(self.uid) + '\n'
+        temp_str = 'header: ' + '\n'
         for key in self.dict_of_header_texts.keys():
-            temp_str += 'uid: ' + self.dict_of_header_texts[key].uid + ', text: ' + str(
-                self.dict_of_header_texts[key].text) + ', visible conditons: ' + str(
-                self.dict_of_header_texts[key].visible_conditions)[:10] + '\n'
+            temp_str += 'uid: ' + self.dict_of_header_texts[key].uid + ', type: ' + str(type(self.dict_of_header_texts[key])) + ', text: "' + str(
+                self.dict_of_header_texts[key].text) + '", visible conditions: "' + str(
+                self.dict_of_header_texts[key].visible_conditions)[:10] + '"\n'
         return temp_str
 
     def add_header_text(self, header_text):
@@ -513,3 +510,14 @@ i.add_answeroption(b)
 i.add_answeroption(c)
 
 print(i)
+
+
+q = Question('a','how are you?')
+i = Instruction('i1', 'Please do it this way.')
+intro = Introduction('in1', 'This is a questionnaire.')
+
+head = Header()
+head.add_header_text(q)
+head.add_header_text(i)
+head.add_header_text(intro)
+print(head)
