@@ -31,7 +31,32 @@ class MatrixDouble():
 
 
 class MatrixMultipleChoice():
+    def __init__(self, uid):
+        self.uid = uid
+        self.items = {}
+        self.visible_condition = None
+        pass
+
+    def add_item(item):
+        self.item.uid
+
+
+
+    def list_vars(self):
+
+
+class item():
     def __init__(self):
+        self.uid = ""
+        self.list_of_answeroptions = []
+        pass
+
+    def add_answeroption(self):
+
+
+class answeroption():
+    def __init__(self):
+        self
         pass
 
 
