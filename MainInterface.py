@@ -252,9 +252,13 @@ class Window(tkinter.Frame):
             self.dict_of_questionnaires[key] = Questionnaire.Questionnaire()
 
             for page in self.dict_of_qmls[key].list_of_pages():
-                string_pagename = page
-                dict_of_transitions = self.dict_of_qmls[key].dict_of_transitions[page]
-                dict_of_sources = self.dict_of_qmls[key].dict_of_sources[page]
+                self.read_into_questionnaire_objects(key=key, page=page)
+
+
+    def read_into_page_objects(self, key_page, page):
+                string_pagename = key_page
+                dict_of_transitions = self.dict_of_qmls[key_page].dict_of_transitions[page]
+                dict_of_sources = self.dict_of_qmls[key_page].dict_of_sources[page]
                 list_of_variables = None
                 question_string = None
                 instruction_string = None
@@ -266,7 +270,7 @@ class Window(tkinter.Frame):
                                                   question_string=question_string,
                                                   instruction_string=instruction_string,
                                                   title_string=title_string)
-                self.dict_of_questionnaires[key].add_page(temp_page)
+                self.dict_of_questionnaires[key_page].add_page(temp_page)
 
     def run_qml_details_dialogue(self):
         self.selection_dialogue('details')
@@ -411,6 +415,13 @@ class Window(tkinter.Frame):
         details_string += '\n\n'
         details_string += '\nunused variables:  [' + str(len(qml_reader_object.list_of_unused_variables())) + ']\n'
         details_string += str(qml_reader_object.list_of_unused_variables())
+        details_string += '\n\n'
+        details_string += '\npages declared in qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
+        details_string += str(set(qml_reader_object.list_of_pages_declared))
+        details_string += '\n\n'
+        details_string += '\npages not declared in qml, but mentioned in transitions:  [' + str(len(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))) + ']\n'
+        details_string += str(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))
+
         return details_string
 
     def run_show_page_details_dialogue(self):
