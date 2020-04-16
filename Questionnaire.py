@@ -10,88 +10,265 @@ __name__ = "Questionnaire"
 import re
 
 
-class Calendar():
-    def __init__(self):
-        pass
-
-
-class Comparison():
-    def __init__(self):
-        pass
-
-
-class Display():
-    def __init__(self):
-        pass
-
-
-class MatrixDouble():
-    def __init__(self):
-        pass
-
-
-class MatrixMultipleChoice():
+class UniqueObject():
     def __init__(self, uid):
+        self.uid = None
+        self.change_uid(uid)
+
+    def change_uid(self, uid):
+        assert isinstance(uid, str)
+        self.uid = uid
+
+class Calendar(UniqueObject):
+    def __init__(self):
+        super().__init__(uid)
+        pass
+
+
+class Comparison(UniqueObject):
+    def __init__(self):
+        super().__init__(uid)
+        pass
+
+
+class Display(UniqueObject):
+    def __init__(self):
+        super().__init__(uid)
+        pass
+
+
+class MatrixDouble(UniqueObject):
+    def __init__(self):
+        super().__init__(uid)
+        pass
+
+
+class MatrixMultipleChoice(UniqueObject):
+    def __init__(self, uid):
+        super().__init__(uid)
         self.uid = uid
         self.items = {}
         self.visible_condition = None
         pass
 
     def add_item(item):
-        self.item.uid
-
-
+        # self.item.uid = ""
+        pass
 
     def list_vars(self):
-
-
-class item():
-    def __init__(self):
-        self.uid = ""
-        self.list_of_answeroptions = []
-        pass
-
-    def add_answeroption(self):
-
-
-class answeroption():
-    def __init__(self):
-        self
         pass
 
 
-class MatrixQuestionMixed():
-    def __init__(self):
+class HeaderText(UniqueObject):
+    def __init__(self, uid, text, visible_conditions=None):
+        super().__init__(uid)
+        self.change_uid(uid)
+        self.text = None
+        self.change_text(text)
+        self.visible_conditions = None
+        self.change_visible_conditions(visible_conditions)
+
+    def change_uid(self, uid):
+        assert isinstance(uid, str)
+        self.uid = uid
+
+    def change_text(self, text):
+        assert isinstance(text, str)
+        self.text = text
+
+    def change_visible_conditions(self, visible_conditions):
+        assert isinstance(visible_conditions, str) or visible_conditions is None
+        self.visible_conditions = visible_conditions
+
+
+class Question(HeaderText):
+    def __init__(self, uid, text):
+        super().__init__(uid, text)
+
+
+class Instruction(HeaderText):
+    def __init__(self, uid, text):
+        super().__init__(uid, text)
+
+
+class Introduction(HeaderText):
+    def __init__(self, uid, text):
+        super().__init__(uid, text)
+
+
+class Header(UniqueObject):
+    def __init__(self, uid):
+        super().__init__(uid)
+        self.uid = None
+        self.change_uid(uid)
+        self.dict_of_header_texts = {}
+
+    def __str__(self):
+        temp_str = 'item uid: ' + str(self.uid) + '\n'
+        for key in self.dict_of_header_texts.keys():
+            temp_str += 'uid: ' + self.dict_of_header_texts[key].uid + ', text: ' + str(
+                self.dict_of_header_texts[key].text) + ', visible conditons: ' + str(
+                self.dict_of_header_texts[key].visible_conditions)[:10] + '\n'
+        return temp_str
+
+    def add_header_text(self, header_text):
+        assert isinstance(header_text, Question) or isinstance(header_text, Introduction) or isinstance(header_text, Instruction)
+        self.dict_of_header_texts[header_text.uid] = header_text
+
+    def drop_header_text(self, uid):
+        if uid in self.dict_of_header_texts:
+            x = self.dict_of_header_texts.pop(uid)
+        pass
+
+    def change_uid(self, uid):
+        assert isinstance(uid, str)
+        self.uid = uid
+
+
+class ResponseDomain(UniqueObject):
+    def __init__(self, uid, variable, visible_condition):
+        super().__init__(uid)
+        self.variable = None
+        self.change_variable(variable)
+        self.visible_condition = None
+        self.change_visible_conditions(visible_condition)
+        self.dict_of_items = {}
+        self.dict_of_answeroptions = {}
+
+    def add_item(self, item):
+        assert isinstance(item, Item)
+        if self.dict_of_answeroptions != {}:
+            raise KeyError('Answeroptions already present while trying to add an Item - both are not allowed next to '
+                           'each other at this level!')
+        if item.uid not in self.dict_of_items:
+            self.dict_of_items[item.uid] = item
+        else:
+            raise KeyError('duplicate uid of item: "' + str(item.uid) + '" already present!')
+
+    def add_answeroption(self, answeroption):
+        assert isinstance(answeroption, AnswerOption)
+        if self.dict_of_items != {}:
+            raise KeyError('Items already present while trying to add an AnswerOption - both are not allowed next to '
+                           'each other at this level!')
+        if answeroption.uid not in self.dict_of_answeroptions:
+            self.dict_of_answeroptions[answeroption.uid] = answeroption
+        else:
+            raise KeyError('duplicate uid of item: "' + str(answeroption.uid) + '" already present!')
+
+    def drop_answeroption(self, uid):
+        if uid in self.dict_of_answeroptions:
+            self.dict_of_answeroptions.pop(uid)
+        pass
+
+    def drop_item(self, uid):
+        if uid in self.dict_of_items:
+            x = self.dict_of_items.pop(uid)
+        pass
+
+    def change_variable(self, variable):
+        assert isinstance(variable, str)
+        self.variable = variable
+
+    def change_visible_conditions(self, visible_conditions):
+        assert isinstance(visible_conditions, str)
+        self.visible_condition = visible_conditions
+
+
+class Item(UniqueObject):
+    def __init__(self, uid):
+        super().__init__(uid)
+        self.dict_of_answeroptions = {}
+        pass
+
+    def __str__(self):
+        temp_str = 'item uid: ' + str(self.uid) + '\n'
+        for key in self.dict_of_answeroptions.keys():
+            temp_str += 'uid: ' + self.dict_of_answeroptions[key].uid + ', label: ' + str(
+                self.dict_of_answeroptions[key].labeltext) + ', value: ' + str(
+                self.dict_of_answeroptions[key].value) + ', missing: ' + str(
+                self.dict_of_answeroptions[key].missing) + '\n'
+        return temp_str
+
+    def add_answeroption(self, answeroption):
+        assert isinstance(answeroption, AnswerOption)
+        if answeroption.uid not in self.dict_of_answeroptions:
+            self.dict_of_answeroptions[answeroption.uid] = answeroption
+        else:
+            raise KeyError('duplicate uid of answeroptions: "' + str(answeroption.uid) + '" already present!')
+
+    def drop_answeroption(self):
         pass
 
 
-class MatrixQuestionOpen():
-    def __init__(self):
+class AnswerOption(UniqueObject):
+    def __init__(self, uid, value, labeltext=None, missing=False):
+        super().__init__(uid)
+        self.uid = None
+        self.labeltext = None
+        self.value = None
+        self.missing = False
+        self.change_uid(uid)
+        self.change_labeltext(labeltext)
+        self.change_value(value)
+        self.set_missing(missing)
+        pass
+
+    def __str__(self):
+        return 'label: "' + str(self.labeltext) + '", value: ' + str(self.value) + ', missing: ' + str(self.missing)
+
+    def change_labeltext(self, labeltext):
+        assert isinstance(labeltext, str) or labeltext is None
+        self.labeltext = labeltext
+
+    def change_value(self, value):
+        assert isinstance(value, str) or isinstance(value, int)
+        self.value = value
+
+    def set_missing(self, missing):
+        assert missing is True or missing is False
+        self.missing = missing
+
+
+class MatrixQuestionMixed(UniqueObject):
+    def __init__(self, uid):
+        super().__init__(uid)
         pass
 
 
-class MatrixQuestionSingleChoice():
-    def __init__(self):
+class MatrixQuestionOpen(UniqueObject):
+    def __init__(self, uid):
+        super().__init__(uid)
         pass
 
 
-class MultipleChoice():
-    def __init__(self):
+class MatrixQuestionSingleChoice(UniqueObject):
+    def __init__(self, uid):
+        super().__init__(uid)
+        self.header = Header()
         pass
 
 
-class QuestionOpen():
-    def __init__(self, type='text'):
+class MultipleChoice(UniqueObject):
+    def __init__(self, uid):
+        super().__init__(uid)
+        pass
+
+
+class QuestionOpen(UniqueObject):
+    def __init__(self, uid, type='text'):
+        super().__init__(uid)
         self.type = type
 
 
-class QuestionSingleChoice():
-    def __init__(self):
+class QuestionSingleChoice(UniqueObject):
+    def __init__(self, uid):
+        super().__init__(uid)
         pass
 
 
-class Unit():
-    def __init__(self):
+class Unit(UniqueObject):
+    def __init__(self, uid):
+        super().__init__(uid)
         pass
 
 
@@ -111,7 +288,7 @@ class Transition():
         self.index = index
         self.target = target
         self.condition = condition
-        self.condition_python =  None
+        self.condition_python = None
 
 
 class Transitions():
@@ -134,6 +311,7 @@ class Variable():
     def __str__(self):
         return str(self.varname)
 
+
 class Variables():
     def __init__(self):
         self.list_of_variables = []
@@ -150,7 +328,7 @@ class Variables():
         """
         dict_tmp = {}
         for var in self.list_of_variables:
-            dict_tmp[var.varname]=var.vartype
+            dict_tmp[var.varname] = var.vartype
         return dict_tmp
 
     def list_all_vars(self):
@@ -160,7 +338,7 @@ class Variables():
         return [var.vartype for var in self.list_of_variables]
 
     def list_details_str(self):
-        return [str(var.varname)+': '+str(var.vartype) for var in self.list_of_variables]
+        return [str(var.varname) + ': ' + str(var.vartype) for var in self.list_of_variables]
 
     def add_variable(self, variable_object):
         if isinstance(variable_object, Variable):
@@ -319,6 +497,19 @@ class Questionnaire:
     def create_dict_of_variables(self):
         raise NotImplementedError
 
+
 # def file_saver_dialog():
 #    root = tk.Tk()
 #    save_path = filedialog.asksaveasfilename()
+
+
+a = AnswerOption('ao1', 1)
+b = AnswerOption('ao3', 3, labeltext="heyho")
+c = AnswerOption('ao4', 4, missing=True)
+
+i = Item('it1')
+i.add_answeroption(a)
+i.add_answeroption(b)
+i.add_answeroption(c)
+
+print(i)
