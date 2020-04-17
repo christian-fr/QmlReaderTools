@@ -85,16 +85,26 @@ class Question(HeaderText):
     def __init__(self, uid, text):
         super().__init__(uid, text)
 
+    @staticmethod
+    def print_type():
+        return 'question'
+
 
 class Instruction(HeaderText):
     def __init__(self, uid, text):
         super().__init__(uid, text)
-    pass
+
+    @staticmethod
+    def print_type():
+        return 'instruction'
 
 class Introduction(HeaderText):
     def __init__(self, uid, text):
         super().__init__(uid, text)
-    pass
+
+    @staticmethod
+    def print_type():
+        return 'introduction'
 
 class Header():
     def __init__(self):
@@ -103,7 +113,7 @@ class Header():
     def __str__(self):
         temp_str = 'header: ' + '\n'
         for key in self.dict_of_header_texts.keys():
-            temp_str += 'uid: ' + self.dict_of_header_texts[key].uid + ', type: ' + str(type(self.dict_of_header_texts[key])) + ', text: "' + str(
+            temp_str += 'uid: ' + self.dict_of_header_texts[key].uid + ', type: ' + str(self.dict_of_header_texts[key].print_type()) + ', text: "' + str(
                 self.dict_of_header_texts[key].text) + '", visible conditions: "' + str(
                 self.dict_of_header_texts[key].visible_conditions)[:10] + '"\n'
         return temp_str
@@ -200,11 +210,9 @@ class Item(UniqueObject):
 class AnswerOption(UniqueObject):
     def __init__(self, uid, value, labeltext=None, missing=False):
         super().__init__(uid)
-        self.uid = None
         self.labeltext = None
         self.value = None
         self.missing = False
-        self.change_uid(uid)
         self.change_labeltext(labeltext)
         self.change_value(value)
         self.set_missing(missing)
@@ -214,14 +222,26 @@ class AnswerOption(UniqueObject):
         return 'label: "' + str(self.labeltext) + '", value: ' + str(self.value) + ', missing: ' + str(self.missing)
 
     def change_labeltext(self, labeltext):
+        """
+        :param labeltext: string or none
+        :return: nothing
+        """
         assert isinstance(labeltext, str) or labeltext is None
         self.labeltext = labeltext
 
     def change_value(self, value):
-        assert isinstance(value, str) or isinstance(value, int)
+        """
+        :param value: string value
+        :return: nothing
+        """
+        assert isinstance(value, str)
         self.value = value
 
     def set_missing(self, missing):
+        """
+        :param missing: boolean value
+        :return:
+        """
         assert missing is True or missing is False
         self.missing = missing
 
@@ -500,9 +520,9 @@ class Questionnaire:
 #    save_path = filedialog.asksaveasfilename()
 
 
-a = AnswerOption('ao1', 1)
-b = AnswerOption('ao3', 3, labeltext="heyho")
-c = AnswerOption('ao4', 4, missing=True)
+a = AnswerOption('ao1', '1')
+b = AnswerOption('ao3', '3', labeltext="heyho")
+c = AnswerOption('ao4', '4', missing=True)
 
 i = Item('it1')
 i.add_answeroption(a)
