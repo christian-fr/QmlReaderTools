@@ -10,6 +10,11 @@ __name__ = "Questionnaire"
 import re
 
 
+class Title:
+    def __init__(self):
+        pass
+
+
 class UniqueObject:
     def __init__(self, uid):
         self.uid = None
@@ -329,8 +334,11 @@ class Triggers:
 
 
 class Transition:
-    def __init__(self, source, index, target, condition):
-        self.source = source
+    def __init__(self, index, target, condition):
+        assert isinstance(index, int)
+        assert isinstance(target, str)
+        assert isinstance(condition, str) or condition is None
+
         self.index = index
         self.target = target
         self.condition = condition
@@ -339,18 +347,30 @@ class Transition:
 
 class Transitions:
     def __init__(self):
+        self.transitions = {}
+
+    def add_transitions(self, transition):
+        assert isinstance(transition, Transition)
+        if transition.index not in self.transitions:
+            self.transitions[transition.index] = transition
+        else:
+            raise ValueError('Index "' + '" already present in self.transitions!')
+
+
+class Sources:
+    def __init__(self):
         pass
 
 
 class Variable:
     def __init__(self, varname, vartype):
-        self.__allowed_vartypes = ['boolean', 'singleChoiceAnswerOption', 'text']
+        self.__allowed_vartypes = ['boolean', 'singleChoiceAnswerOption', 'string', 'number']
         if isinstance(varname, str) and isinstance(vartype, str):
             self.varname = varname
             if vartype in self.__allowed_vartypes:
                 self.vartype = vartype
             else:
-                raise ValueError('Vartype unknown/not allowd')
+                raise ValueError('Vartype unknown/not allowed: ' + str(varname) + ', ' + str(vartype))
         else:
             raise TypeError('Input not of type string')
 
@@ -360,10 +380,10 @@ class Variable:
 
 class Variables:
     def __init__(self):
-        self.list_of_variables = []
+        self.dict_of_variables = {}
 
     def __len__(self):
-        return len(self.list_of_variables)
+        return len(self.dict_of_variables)
 
     def __str__(self):
         return str(self.list_details_str())
@@ -373,23 +393,23 @@ class Variables:
         :return: dictionary of {varname: vartype}
         """
         dict_tmp = {}
-        for var in self.list_of_variables:
-            dict_tmp[var.varname] = var.vartype
+        for var in self.dict_of_variables:
+            dict_tmp[var.varname] = self.dict_of_variables[var].vartype
         return dict_tmp
 
     def list_all_vars(self):
-        return [var.varname for var in self.list_of_variables]
+        return [var.varname for var in self.dict_of_variables]
 
     def list_all_vartypes(self):
-        return [var.vartype for var in self.list_of_variables]
+        return [var.vartype for var in self.dict_of_variables]
 
     def list_details_str(self):
-        return [str(var.varname) + ': ' + str(var.vartype) for var in self.list_of_variables]
+        return [str(self.dict_of_variables[var].varname) + ': ' + str(self.dict_of_variables[var].vartype) for var in self.dict_of_variables]
 
     def add_variable(self, variable_object):
         if isinstance(variable_object, Variable):
-            if variable_object.varname not in [var.varname for var in self.list_of_variables]:
-                self.list_of_variables.append(variable_object)
+            if variable_object.varname not in [self.dict_of_variables[var].varname for var in self.dict_of_variables]:
+                self.dict_of_variables[variable_object.varname] = variable_object
             else:
                 raise ValueError('Variable name exists already!')
         else:
@@ -397,12 +417,12 @@ class Variables:
 
     def delete_variable(self, varname):
         if isinstance(varname, str):
-            tmp_list = [var.varname for var in self.list_of_variables]
-            tmp_var_list = self.list_of_variables
+            tmp_list = [self.dict_of_variables[var].varname for var in self.dict_of_variables]
+            tmp_var_list = self.dict_of_variables.keys()
             if varname in tmp_list:
                 for var in tmp_var_list:
                     if var.varname is varname:
-                        self.list_of_variables.remove(var)
+                        self.dict_of_variables.pop(var)
             else:
                 raise ValueError('Varname not found!')
         else:
@@ -410,8 +430,8 @@ class Variables:
 
     def check_if_vartype(self, varname, vartype):
         if isinstance(varname, str) and isinstance(vartype, str):
-            if varname in [var.varname for var in self.list_of_variables]:
-                for var in [var for var in self.list_of_variables if var.varname is varname]:
+            if varname in [self.dict_of_variables[var].varname for var in self.dict_of_variables]:
+                for var in [self.dict_of_variables[var] for var in self.dict_of_variables if var.varname is varname]:
                     print(str(var))
 
                     return var.vartype is vartype
@@ -421,53 +441,73 @@ class Variables:
             raise TypeError('Input was not of type string!')
 
 
-class QmlPage:
-    def __init__(self, string_pagename, dict_of_transitions=None, dict_of_sources=None, list_of_variables=None,
-                 question_string=None,
-                 instruction_string=None, title_string=None, declared=True):
+class QmlPages:
+    def __init__(self):
+        self.pages = {}
 
-        self.pagename = string_pagename
+    def add_page(self, qmlpage):
+        assert isinstance(qmlpage, QmlPage)
+        self.pages[qmlpage.uid] = qmlpage
 
+    def drop_page(self, uid):
+        assert isinstance(uid, str)
+        if uid in self.pages:
+            self.pages.pop(uid)
+        else:
+            raise ValueError('Pagename "' + str(uid) + '" not found in self.pages!')
+
+    def list_of_all_pagenames(self):
+        tmp_list = []
+        for key in self.pages:
+            tmp_list.append(key)
+        return tmp_list
+
+class QmlPage(UniqueObject):
+    def __init__(self, uid, declared=True):
+        super().__init__(uid)
         self.declared = declared
 
-        if dict_of_transitions is None:
-            dict_of_transitions = {}
-        self.transitions = dict_of_transitions
+        self.header = Header()
+        self.transitions = Transitions()
+        self.variables = Variables()
+        self.triggers = Triggers()
 
-        if dict_of_sources is None:
-            dict_of_sources = {}
-        self.sources = dict_of_sources
+    def add_transition(self, transition):
+        self.transitions.add_transitions(transition)
 
-        if list_of_variables is None:
-            list_of_variables = []
-        self.variables = list_of_variables
+    def add_variable(self, variable):
+        self.variables.add_variable(variable)
 
-        self.questions = question_string
-        self.instructions = instruction_string
-        self.title = title_string
+    def add_trigger(self, trigger):
+        self.triggers.add_trigger(trigger)
 
-    def add_transition(self, transition_dict):
-        """
-        :param transition_dict:
-            {order(integer): {'target': string, 'condition': string -> has to be python evaluation}}
-        :return:
-        """
+    def add_header(self, header_text):
+        self.header.add_header_text(header_text)
 
-        if transition_dict is {}:
-            pass
-        elif isinstance(transition_dict, dict):
-            for key in transition_dict.keys():
-                if isinstance(key, int) and isinstance(transition_dict[key], dict) and (
-                        transition_dict[key]['condition'] is None or isinstance(transition_dict[key]['condition'],
-                                                                                str)):
-                    pass
-                else:
-                    raise ValueError
-        else:
-            raise ValueError
+        # self.title = Title()
 
-        self.transitions = transition_dict
-        self.__translate_transition_condition_to_python_syntax()
+    # def add_transition(self, transition_dict):
+    #     """
+    #     :param transition_dict:
+    #         {order(integer): {'target': string, 'condition': string -> has to be python evaluation}}
+    #     :return:
+    #     """
+    #
+    #     if transition_dict is {}:
+    #         pass
+    #     elif isinstance(transition_dict, dict):
+    #         for key in transition_dict.keys():
+    #             if isinstance(key, int) and isinstance(transition_dict[key], dict) and (
+    #                     transition_dict[key]['condition'] is None or isinstance(transition_dict[key]['condition'],
+    #                                                                             str)):
+    #                 pass
+    #             else:
+    #                 raise ValueError
+    #     else:
+    #         raise ValueError
+    #
+    #     self.transitions = transition_dict
+    #     self.__translate_transition_condition_to_python_syntax()
 
     def __translate_transition_condition_to_python_syntax(self):
         regex1 = re.compile(r'==')  # 'is'
@@ -507,60 +547,71 @@ class QmlPage:
                     self.transitions[key]['condition_python'] = regex12.sub(' or ',
                                                                             self.transitions[key]['condition_python'])
 
-    def add_variable(self, variable_dict):
-        """
-        :param variable_dict:
-            {'variablename': string, 'levels': list of integers}
-        :return:
-        """
-        if variable_dict is {}:
-            return
-
-    def add_question(self, question_string):
-        raise NotImplementedError
-
-    def add_instruction(self, instruction_string):
-        raise NotImplementedError
+    # def add_variable(self, variable_dict):
+    #     """
+    #     :param variable_dict:
+    #         {'variablename': string, 'levels': list of integers}
+    #     :return:
+    #     """
+    #     if variable_dict is {}:
+    #         return
+    #
+    # def add_question(self, question_string):
+    #     raise NotImplementedError
+    #
+    # def add_instruction(self, instruction_string):
+    #     raise NotImplementedError
 
 
 class Questionnaire:
-    def __init__(self, pages=None):
+    def __init__(self, filename='questionnaire', title='Zofar Survey'):
         """
-        :param pages: dictionary of Questionnaire.QmlPage objects
+        :param filename: string of source filename
         """
+        self.filename = None
+        self.set_filename(filename)
+        self.title = None
+        self.set_title(title)
 
-        if pages is None:
-            pages = {}
-        self.__pages = pages
-        self.__variables_dict = {}
+        self.variables = Variables()
+        self.pages = QmlPages()
 
-    def add_page(self, page):
-        if isinstance(page, QmlPage):
-            self.__pages[page.pagename] = page
-        else:
-            raise ValueError("Object added was not of type QmlPage")
+    def set_title(self, title):
+        assert isinstance(title, str)
+        self.title = title
+
+    def drop_page(self, uid):
+        pass
 
     def create_dict_of_variables(self):
         raise NotImplementedError
 
+    def set_filename(self, filename):
+        assert isinstance(filename, str)
+        self.filename = filename
 
-a = AnswerOption('ao1', '1')
-b = AnswerOption('ao3', '3', labeltext="hey ho")
-c = AnswerOption('ao4', '4', missing=True)
 
-i = Item('it1')
-i.add_answeroption(a)
-i.add_answeroption(b)
-i.add_answeroption(c)
+def testrun():
+    a = AnswerOption('ao1', '1')
+    b = AnswerOption('ao3', '3', labeltext="hey ho")
+    c = AnswerOption('ao4', '4', missing=True)
 
-print(i)
+    i = Item('it1')
+    i.add_answeroption(a)
+    i.add_answeroption(b)
+    i.add_answeroption(c)
 
-q = Question('a', 'how are you?')
-i = Instruction('i1', 'Please do it this way.')
-intro = Introduction('in1', 'This is a questionnaire.')
+    print(i)
 
-head = Header()
-head.add_header_text(q)
-head.add_header_text(i)
-head.add_header_text(intro)
-print(head)
+    q = Question('a', 'how are you?')
+    i = Instruction('i1', 'Please do it this way.')
+    intro = Introduction('in1', 'This is a questionnaire.')
+
+    head = Header()
+    head.add_header_text(q)
+    head.add_header_text(i)
+    head.add_header_text(intro)
+    print(head)
+    globals().update(locals())
+
+# testrun()
