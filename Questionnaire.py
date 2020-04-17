@@ -10,7 +10,7 @@ __name__ = "Questionnaire"
 import re
 
 
-class UniqueObject():
+class UniqueObject:
     def __init__(self, uid):
         self.uid = None
         self.change_uid(uid)
@@ -19,26 +19,27 @@ class UniqueObject():
         assert isinstance(uid, str)
         self.uid = uid
 
+
 class Calendar(UniqueObject):
-    def __init__(self):
+    def __init__(self, uid):
         super().__init__(uid)
         pass
 
 
 class Comparison(UniqueObject):
-    def __init__(self):
+    def __init__(self, uid):
         super().__init__(uid)
         pass
 
 
 class Display(UniqueObject):
-    def __init__(self):
+    def __init__(self, uid):
         super().__init__(uid)
         pass
 
 
 class MatrixDouble(UniqueObject):
-    def __init__(self):
+    def __init__(self, uid):
         super().__init__(uid)
         pass
 
@@ -51,7 +52,7 @@ class MatrixMultipleChoice(UniqueObject):
         self.visible_condition = None
         pass
 
-    def add_item(item):
+    def add_item(self, item):
         # self.item.uid = ""
         pass
 
@@ -98,6 +99,7 @@ class Instruction(HeaderText):
     def print_type():
         return 'instruction'
 
+
 class Introduction(HeaderText):
     def __init__(self, uid, text):
         super().__init__(uid, text)
@@ -106,30 +108,29 @@ class Introduction(HeaderText):
     def print_type():
         return 'introduction'
 
-class Header():
+
+class Header:
     def __init__(self):
         self.dict_of_header_texts = {}
 
     def __str__(self):
         temp_str = 'header: ' + '\n'
         for key in self.dict_of_header_texts.keys():
-            temp_str += 'uid: ' + self.dict_of_header_texts[key].uid + ', type: ' + str(self.dict_of_header_texts[key].print_type()) + ', text: "' + str(
+            temp_str += 'uid: ' + self.dict_of_header_texts[key].uid + ', type: ' + str(
+                self.dict_of_header_texts[key].print_type()) + ', text: "' + str(
                 self.dict_of_header_texts[key].text) + '", visible conditions: "' + str(
                 self.dict_of_header_texts[key].visible_conditions)[:10] + '"\n'
         return temp_str
 
     def add_header_text(self, header_text):
-        assert isinstance(header_text, Question) or isinstance(header_text, Introduction) or isinstance(header_text, Instruction)
+        assert isinstance(header_text, Question) or isinstance(header_text, Introduction) or isinstance(header_text,
+                                                                                                        Instruction)
         self.dict_of_header_texts[header_text.uid] = header_text
 
     def drop_header_text(self, uid):
         if uid in self.dict_of_header_texts:
-            x = self.dict_of_header_texts.pop(uid)
+            self.dict_of_header_texts.pop(uid)
         pass
-
-    def change_uid(self, uid):
-        assert isinstance(uid, str)
-        self.uid = uid
 
 
 class ResponseDomain(UniqueObject):
@@ -169,7 +170,7 @@ class ResponseDomain(UniqueObject):
 
     def drop_item(self, uid):
         if uid in self.dict_of_items:
-            x = self.dict_of_items.pop(uid)
+            self.dict_of_items.pop(uid)
         pass
 
     def change_variable(self, variable):
@@ -272,9 +273,37 @@ class MultipleChoice(UniqueObject):
 
 
 class QuestionOpen(UniqueObject):
-    def __init__(self, uid, type='text'):
+    def __init__(self, uid, variable, text_type='text', prefix=None, postfix=None):
         super().__init__(uid)
-        self.type = type
+        self.text_type = None
+        self.__allowed_text_types = ['grade', 'number', 'text']
+        self.type = None
+        self.change_text_type(text_type)
+        self.variable = None
+        self.set_variable(variable)
+        self.prefix = None
+        self.postfix = None
+        self.set_prefix(prefix)
+        self.set_postfix(postfix)
+
+    def set_prefix(self, prefix):
+        assert isinstance(prefix, str)
+        self.prefix = prefix
+
+    def set_postfix(self, postfix):
+        assert isinstance(postfix, str)
+        self.postfix = postfix
+
+    def set_variable(self, variable):
+        assert isinstance(variable, Variable)
+        self.variable = variable
+
+    def change_text_type(self, text_type):
+        assert isinstance(text_type, str)
+        if text_type in self.__allowed_text_types:
+            self.text_type = text_type
+        else:
+            raise ValueError('QuestionOpen: text type "' + str(text_type) + '" not allowed.')
 
 
 class QuestionSingleChoice(UniqueObject):
@@ -289,17 +318,17 @@ class Unit(UniqueObject):
         pass
 
 
-class Trigger():
+class Trigger:
     def __init__(self):
         pass
 
 
-class Triggers():
+class Triggers:
     def __init__(self):
         pass
 
 
-class Transition():
+class Transition:
     def __init__(self, source, index, target, condition):
         self.source = source
         self.index = index
@@ -308,12 +337,12 @@ class Transition():
         self.condition_python = None
 
 
-class Transitions():
+class Transitions:
     def __init__(self):
         pass
 
 
-class Variable():
+class Variable:
     def __init__(self, varname, vartype):
         self.__allowed_vartypes = ['boolean', 'singleChoiceAnswerOption', 'text']
         if isinstance(varname, str) and isinstance(vartype, str):
@@ -329,7 +358,7 @@ class Variable():
         return str(self.varname)
 
 
-class Variables():
+class Variables:
     def __init__(self):
         self.list_of_variables = []
 
@@ -455,28 +484,28 @@ class QmlPage:
         regex12 = re.compile(r' OR ')  # ' or '
 
         if self.transitions is not {}:
-            for i in self.transitions.keys():
-                if self.transitions[i]['condition'] is None:
-                    self.transitions[i]['condition_python'] = 'True'
+            for key in self.transitions.keys():
+                if self.transitions[key]['condition'] is None:
+                    self.transitions[key]['condition_python'] = 'True'
                 else:
-                    self.transitions[i]['condition_python'] = regex1.sub('is', self.transitions[i]['condition'])
-                    self.transitions[i]['condition_python'] = regex2.sub('is not',
-                                                                         self.transitions[i]['condition_python'])
-                    self.transitions[i]['condition_python'] = regex3.sub('>', self.transitions[i]['condition_python'])
-                    self.transitions[i]['condition_python'] = regex4.sub('>=', self.transitions[i]['condition_python'])
-                    self.transitions[i]['condition_python'] = regex5.sub('<', self.transitions[i]['condition_python'])
-                    self.transitions[i]['condition_python'] = regex6.sub('<=', self.transitions[i]['condition_python'])
-                    self.transitions[i]['condition_python'] = regex7.sub('int', self.transitions[i]['condition_python'])
-                    self.transitions[i]['condition_python'] = regex8.sub('(\g<1> is None)',
-                                                                         self.transitions[i]['condition_python'])
-                    self.transitions[i]['condition_python'] = regex9.sub('is True',
-                                                                         self.transitions[i]['condition_python'])
-                    self.transitions[i]['condition_python'] = regex10.sub('not ',
-                                                                          self.transitions[i]['condition_python'])
-                    self.transitions[i]['condition_python'] = regex11.sub(' and ',
-                                                                          self.transitions[i]['condition_python'])
-                    self.transitions[i]['condition_python'] = regex12.sub(' or ',
-                                                                          self.transitions[i]['condition_python'])
+                    self.transitions[key]['condition_python'] = regex1.sub('is', self.transitions[key]['condition'])
+                    self.transitions[key]['condition_python'] = regex2.sub('is not',
+                                                                           self.transitions[key]['condition_python'])
+                    self.transitions[key]['condition_python'] = regex3.sub('>', self.transitions[key]['condition_python'])
+                    self.transitions[key]['condition_python'] = regex4.sub('>=', self.transitions[key]['condition_python'])
+                    self.transitions[key]['condition_python'] = regex5.sub('<', self.transitions[key]['condition_python'])
+                    self.transitions[key]['condition_python'] = regex6.sub('<=', self.transitions[key]['condition_python'])
+                    self.transitions[key]['condition_python'] = regex7.sub('int', self.transitions[key]['condition_python'])
+                    self.transitions[key]['condition_python'] = regex8.sub('(\g<1> is None)',
+                                                                           self.transitions[key]['condition_python'])
+                    self.transitions[key]['condition_python'] = regex9.sub('is True',
+                                                                           self.transitions[key]['condition_python'])
+                    self.transitions[key]['condition_python'] = regex10.sub('not ',
+                                                                            self.transitions[key]['condition_python'])
+                    self.transitions[key]['condition_python'] = regex11.sub(' and ',
+                                                                            self.transitions[key]['condition_python'])
+                    self.transitions[key]['condition_python'] = regex12.sub(' or ',
+                                                                            self.transitions[key]['condition_python'])
 
     def add_variable(self, variable_dict):
         """
@@ -496,9 +525,9 @@ class QmlPage:
 
 class Questionnaire:
     def __init__(self, pages=None):
-        '''
+        """
         :param pages: dictionary of Questionnaire.QmlPage objects
-        '''
+        """
 
         if pages is None:
             pages = {}
@@ -515,13 +544,8 @@ class Questionnaire:
         raise NotImplementedError
 
 
-# def file_saver_dialog():
-#    root = tk.Tk()
-#    save_path = filedialog.asksaveasfilename()
-
-
 a = AnswerOption('ao1', '1')
-b = AnswerOption('ao3', '3', labeltext="heyho")
+b = AnswerOption('ao3', '3', labeltext="hey ho")
 c = AnswerOption('ao4', '4', missing=True)
 
 i = Item('it1')
@@ -531,8 +555,7 @@ i.add_answeroption(c)
 
 print(i)
 
-
-q = Question('a','how are you?')
+q = Question('a', 'how are you?')
 i = Instruction('i1', 'Please do it this way.')
 intro = Introduction('in1', 'This is a questionnaire.')
 
