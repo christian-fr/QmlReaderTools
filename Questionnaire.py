@@ -332,6 +332,10 @@ class Triggers:
     def __init__(self):
         pass
 
+    def add_trigger(self, trigger):
+        assert isinstance(trigger, Trigger)
+        pass
+
 
 class Transition:
     def __init__(self, index, target, condition):
@@ -362,9 +366,6 @@ class TransitionLabels:
             else:
                 raise KeyError('Target "' + target + '" already in dictionary!')
 
-    def create_transition_labels(self):
-
-
 class Transitions:
     def __init__(self):
         self.transitions = {}
@@ -377,12 +378,6 @@ class Transitions:
         else:
             raise ValueError('Index "' + '" already present in self.transitions!')
 
-    def list_of_targets(self):
-        self.
-
-    def create_transition_labels(self):
-        self
-        self.targets
 
 class Sources:
     def __init__(self):
@@ -520,32 +515,6 @@ class QmlPage(UniqueObject):
     def add_header(self, header_text):
         self.header.add_header_text(header_text)
 
-
-        # self.title = Title()
-
-    # def add_transition(self, transition_dict):
-    #     """
-    #     :param transition_dict:
-    #         {order(integer): {'target': string, 'condition': string -> has to be python evaluation}}
-    #     :return:
-    #     """
-    #
-    #     if transition_dict is {}:
-    #         pass
-    #     elif isinstance(transition_dict, dict):
-    #         for key in transition_dict.keys():
-    #             if isinstance(key, int) and isinstance(transition_dict[key], dict) and (
-    #                     transition_dict[key]['condition'] is None or isinstance(transition_dict[key]['condition'],
-    #                                                                             str)):
-    #                 pass
-    #             else:
-    #                 raise ValueError
-    #     else:
-    #         raise ValueError
-    #
-    #     self.transitions = transition_dict
-    #     self.__translate_transition_condition_to_python_syntax()
-
     def __translate_transition_condition_to_python_syntax(self):
         regex1 = re.compile(r'==')  # 'is'
         regex2 = re.compile(r'!=')  # 'is not'
@@ -584,21 +553,6 @@ class QmlPage(UniqueObject):
                     self.transitions[key]['condition_python'] = regex12.sub(' or ',
                                                                             self.transitions[key]['condition_python'])
 
-    # def add_variable(self, variable_dict):
-    #     """
-    #     :param variable_dict:
-    #         {'variablename': string, 'levels': list of integers}
-    #     :return:
-    #     """
-    #     if variable_dict is {}:
-    #         return
-    #
-    # def add_question(self, question_string):
-    #     raise NotImplementedError
-    #
-    # def add_instruction(self, instruction_string):
-    #     raise NotImplementedError
-
 
 class Questionnaire:
     def __init__(self, filename='questionnaire', title='Zofar Survey'):
@@ -614,8 +568,6 @@ class Questionnaire:
         self.pages = QmlPages()
 
     def create_readable_conditions(self):
-
-    def replace_conditions(self):
         regex1 = re.compile(r'\s+')
         regex2 = re.compile(r'zofar\.asNumber\(([a-z0-9A-Z_\-]+)\)')
         regex3 = re.compile(r'==([0-9])')
@@ -631,22 +583,22 @@ class Questionnaire:
         regex12 = re.compile(r'\&')
         regex13 = re.compile(r'\|')
 
-        for transition in [page.transitions.transition.values() for page in self.pages.pages.values()]:
-            if transition.condition is not None:
-                transition.condition_new =
-                self.dict_of_transitions[i][k]['condition_new'] = regex1.sub(' ', self.dict_of_transitions[i][k]['condition'])
-                self.dict_of_transitions[i][k]['condition_new'] = regex2.sub(r'\g<1> ', self.dict_of_transitions[i][k]['condition_new'])
-                self.dict_of_transitions[i][k]['condition_new'] = regex3.sub(r'== \g<1>', self.dict_of_transitions[i][k]['condition_new'])
-                self.dict_of_transitions[i][k]['condition_new'] = regex4a.sub(r'\g<1> != MISS', self.dict_of_transitions[i][k]['condition_new'])
-                self.dict_of_transitions[i][k]['condition_new'] = regex4b.sub(r'\g<1> == MISS', self.dict_of_transitions[i][k]['condition_new'])
-                self.dict_of_transitions[i][k]['condition_new'] = regex5.sub(r'\g<1> != 1', self.dict_of_transitions[i][k]['condition_new'])
-                self.dict_of_transitions[i][k]['condition_new'] = regex6.sub(r'\g<1> == 1', self.dict_of_transitions[i][k]['condition_new'])
-                self.dict_of_transitions[i][k]['condition_new'] = regex7.sub(r' & ', self.dict_of_transitions[i][k]['condition_new'])
-                self.dict_of_transitions[i][k]['condition_new'] = regex8.sub(r' | ', self.dict_of_transitions[i][k]['condition_new'])
-                self.dict_of_transitions[i][k]['condition_new'] = regex9.sub(r'', self.dict_of_transitions[i][k]['condition_new'])
-                self.dict_of_transitions[i][k]['condition_new'] = regex10.sub(r'', self.dict_of_transitions[i][k]['condition_new'])
-                self.dict_of_transitions[i][k]['condition_new'] = regex12.sub(r'& \n',self.dict_of_transitions[i][k]['condition_new'])
-                self.dict_of_transitions[i][k]['condition_new'] = regex13.sub(r'| \n',self.dict_of_transitions[i][k]['condition_new'])
+        for page in self.pages.pages.values():
+            for transition in page.transitions.transitions.values():
+                if transition.condition is not None:
+                    transition.condition_new = regex1.sub(' ', transition.condition)
+                    transition.condition_new = regex2.sub(r'\g<1> ', transition.condition_new)
+                    transition.condition_new = regex3.sub(r'== \g<1>', transition.condition_new)
+                    transition.condition_new = regex4a.sub(r'\g<1> != MISS', transition.condition_new)
+                    transition.condition_new = regex4b.sub(r'\g<1> == MISS', transition.condition_new)
+                    transition.condition_new = regex5.sub(r'\g<1> != 1', transition.condition_new)
+                    transition.condition_new = regex6.sub(r'\g<1> == 1', transition.condition_new)
+                    transition.condition_new = regex7.sub(r' & ', transition.condition_new)
+                    transition.condition_new = regex8.sub(r' | ', transition.condition_new)
+                    transition.condition_new = regex9.sub(r'', transition.condition_new)
+                    transition.condition_new = regex10.sub(r'', transition.condition_new)
+                    transition.condition_new = regex12.sub(r'& \n',transition.condition_new)
+                    transition.condition_new = regex13.sub(r'| \n',transition.condition_new)
 
     def set_title(self, title):
         assert isinstance(title, str)
@@ -686,4 +638,3 @@ def testrun():
     print(head)
     globals().update(locals())
 
-# testrun()

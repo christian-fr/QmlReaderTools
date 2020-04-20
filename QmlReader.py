@@ -12,7 +12,12 @@ from lxml import objectify
 import networkx as nx
 import logging
 import Questionnaire
+import pygraphviz as pgv
 from pprint import pprint
+from os import path
+import time
+import errno
+from os import listdir, mkdir
 
 class QmlReader:
     """
@@ -27,6 +32,7 @@ class QmlReader:
     """
 
     def __init__(self, file, create_graph=False, draw=False, truncate=False):
+        self.file = file
         self.tmp = []
         self.logger = logging.getLogger('debug')
         self.startup_logger(log_level=logging.DEBUG)
@@ -45,10 +51,17 @@ class QmlReader:
         self.set_title()
         self.extract_declared_variables()
 
-
         self.tmp_dict_of_pages = {}
+        self.pgv_graph = None
         self.extract_pages_into_tmp_dict()
         self.extract_pages_to_self()
+
+        self.transitions_to_nodes_edges()
+
+        self.init_pgv_graph()
+        nx.write_gml(self.DiGraph, path.splitext(file)[0] + '.gml')
+        self.prepare_pgv_graph()
+        self.draw_pgv_graph(output_file=path.splitext(file)[0] + '.png')
 
     def startup_logger(self, log_level=logging.DEBUG):
         """
@@ -134,7 +147,61 @@ class QmlReader:
         assert isinstance(qml_page, lxml.objectify.ObjectifiedElement)
 
     def transitions_to_nodes_edges(self, truncate=False):
+        print("transitions_nodes_to_edges")
+        self.questionnaire.create_readable_conditions()
+
         for page in self.questionnaire.pages.pages.values():
             self.DiGraph.add_node(page.uid)  # create nodes
+            cnt = 0
+            dict_transitions = {}
+            for transition in page.transitions.transitions.values():
+                if transition.condition is not None:
+                    if tuple([transition.index, transition.target]) in dict_transitions.keys():
+                        dict_transitions[tuple([transition.index, transition.target])] = dict_transitions[tuple([transition.index, transition.target])] + ' |\n(' + '[' + str(cnt) + '] ' + transition.condition_new + ']' + ')'
+                        self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + '] ' + dict_transitions[tuple([transition.index, transition.target])])
+                    else:
+                        dict_transitions[tuple([transition.index, transition.target])] = '(' + '[' + str(cnt) + '] ' + transition.condition_new + ')'
 
+                    self.DiGraph.add_edge(page.uid, transition.target, label=dict_transitions[tuple([transition.index, transition.target])])
 
+                else:
+                    if tuple([page.uid, transition.target]) in dict_transitions.keys():
+                        self.DiGraph.add_edge(page.uid, transition.target, label='')
+                    else:
+                        if cnt is 0:
+                            self.DiGraph.add_edge(page.uid, transition.target, label='')
+                        if cnt is not 0:
+                            self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + ']')
+
+                cnt = cnt + 1
+
+    def init_pgv_graph(self, graph_name='graph'):
+        self.pgv_graph = nx.nx_agraph.to_agraph(self.DiGraph)
+
+        self.pgv_graph.node_attr['shape'] = 'box'
+        self.pgv_graph.graph_attr['label'] = 'title: ' + self.title + '\nfile: ' + self.questionnaire.filename
+        self.pgv_graph.layout("dot")
+
+    def prepare_pgv_graph(self):
+        output_folder = str(path.join(str(path.split(self.file)[0]), 'flowcharts'))
+        self.logger.info('output_folder: ' + output_folder)
+        try:
+            mkdir(output_folder)
+            self.logger.info('"' + output_folder + '" created.')
+        except OSError as exc:
+            self.logger.info('folder could not be created at first attempt: ' + output_folder)
+            if exc.errno == errno.EEXIST and path.isdir(output_folder):
+                self.logger.info('folder exists already: ' + output_folder)
+                pass
+            self.logger.exception('folder could not be created')
+
+        t = time.localtime()
+        timestamp = time.strftime('%Y-%m-%d_%H-%M', t)
+        filename = timestamp + '_' + path.splitext(path.split(self.file)[1])[0]
+        self.logger.info('output_gml: ' + str(path.join(output_folder, filename + '.gml')))
+        nx.write_gml(self.DiGraph, path.join(output_folder, filename + '.gml'))
+        self.logger.info('output_png: ' + str(path.join(output_folder, filename + '.gml')))
+        self.draw_pgv_graph(path.join(output_folder, filename + '.png'))
+
+    def draw_pgv_graph(self, output_file='output_file.png'):
+        self.pgv_graph.draw(output_file)
