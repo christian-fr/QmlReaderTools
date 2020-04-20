@@ -12,7 +12,7 @@ from lxml import objectify
 import networkx as nx
 import logging
 import Questionnaire
-
+from pprint import pprint
 
 class QmlReader:
     """
@@ -83,6 +83,9 @@ class QmlReader:
             self.questionnaire.pages.add_page(Questionnaire.QmlPage(tmp_page_uid))
             self.extract_transitions_from_qml_page_source(tmp_qml_page_source, tmp_page_uid)
 
+        for i in range(0, len(self.root.page)):
+            self.extract_sources_from_questionnaire()
+
     def extract_transitions_from_qml_page_source(self, qml_source_page, uid):
         assert isinstance(qml_source_page, lxml.objectify.ObjectifiedElement)
         assert isinstance(uid, str)
@@ -116,6 +119,10 @@ class QmlReader:
     def extract_answeroptions_from_response_domain(self):
         pass
 
+    def extract_sources_from_questionnaire(self):
+        for page in self.questionnaire.pages.pages.values():
+            for transition in page.transitions.transitions.values():
+                self.questionnaire.pages.pages[transition.target].sources.add_source(page.uid)
 
     def extract_triggers_from_pages(self):
         pass
@@ -125,5 +132,9 @@ class QmlReader:
 
     def extract_triggers_from_qml_page(self, qml_page):
         assert isinstance(qml_page, lxml.objectify.ObjectifiedElement)
+
+    def transitions_to_nodes_edges(self, truncate=False):
+        for page in self.questionnaire.pages.pages.values():
+            self.DiGraph.add_node(page.uid)  # create nodes
 
 
