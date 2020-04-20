@@ -615,26 +615,4 @@ class Questionnaire:
         self.filename = filename
 
 
-def testrun():
-    a = AnswerOption('ao1', '1')
-    b = AnswerOption('ao3', '3', labeltext="hey ho")
-    c = AnswerOption('ao4', '4', missing=True)
-
-    i = Item('it1')
-    i.add_answeroption(a)
-    i.add_answeroption(b)
-    i.add_answeroption(c)
-
-    print(i)
-
-    q = Question('a', 'how are you?')
-    i = Instruction('i1', 'Please do it this way.')
-    intro = Introduction('in1', 'This is a questionnaire.')
-
-    head = Header()
-    head.add_header_text(q)
-    head.add_header_text(i)
-    head.add_header_text(intro)
-    print(head)
-    globals().update(locals())
 

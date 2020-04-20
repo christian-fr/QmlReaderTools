@@ -22,13 +22,6 @@ from os import listdir, mkdir
 class QmlReader:
     """
     Class for Reading and extracting elements from QML-Files.
-
-    self.dict_of_page_numbers:
-        dictionary of: {lfdNr: 'pageNr/Uid'}
-
-    self.dict_of_page_numbers_reversed:
-        dictionary of: {'pageNr/Uid': lfdNr}
-
     """
 
     def __init__(self, file, create_graph=False, draw=False, truncate=False):
