@@ -12,8 +12,6 @@ from lxml import objectify
 import networkx as nx
 import logging
 import Questionnaire
-import pygraphviz as pgv
-from pprint import pprint
 from os import path
 import time
 import errno
