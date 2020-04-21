@@ -47,6 +47,9 @@ class QmlReader:
         self.extract_pages_into_tmp_dict()
         self.extract_pages_to_self()
 
+        self.extract_variables_from_pages_body()
+        self.extract_variables_from_pages_triggers()
+
     def list_of_variables_from_pages(self):
         pass
 
