@@ -50,9 +50,7 @@ class QmlReader:
         self.transitions_to_nodes_edges()
 
         self.init_pgv_graph()
-        nx.write_gml(self.DiGraph, path.splitext(file)[0] + '.gml')
         self.prepare_pgv_graph()
-        self.draw_pgv_graph(output_file=path.splitext(file)[0] + '.png')
 
     def startup_logger(self, log_level=logging.DEBUG):
         """
