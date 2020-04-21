@@ -30,7 +30,7 @@ class Window(tkinter.Frame):
         self.logger.info('starting up')
         tkinter.Frame.__init__(self, master)
         self.dict_of_questionnaires = {}
-        self.questionnaire = Questionnaire.Questionnaire()
+        # self.questionnaire = Questionnaire.Questionnaire()
         self.master = master
         self.dict_of_qmls = {}
         self.listOfFiles = []
@@ -243,7 +243,6 @@ class Window(tkinter.Frame):
         for entry in self.listOfFilesFull:
             print(entry)
             self.dict_of_qmls[os.path.split(entry)[1]] = QmlReader.QmlReader(entry)
-        #self.read_into_questionnaire_objects()
         self.activate_button(['qml_details', 'flowchart', 'open_path'])
 
 #    def read_into_questionnaire_objects(self):
@@ -330,25 +329,7 @@ class Window(tkinter.Frame):
 
     def prepare_flowcharts(self, key):
         self.dict_of_qmls[key].transitions_to_nodes_edges(truncate=False)
-        self.dict_of_qmls[key].init_pgv_graph()
-        print(key)
-        output_folder = str(os.path.join(str(self.dict_of_qmls[key].sourcepath), 'flowcharts'))
-        try:
-            mkdir(output_folder)
-        except OSError as exc:
-            self.logger.info('folder could not be created at first attempt: ' + output_folder)
-            if exc.errno == errno.EEXIST and os.path.isdir(output_folder):
-                self.logger.info('folder exists already: ' + output_folder)
-                pass
-            self.logger.exception('folder could not be created')
-
-        t = time.localtime()
-        timestamp = time.strftime('%Y-%m-%d_%H-%M', t)
-        filename = timestamp + '_' + self.dict_of_qmls[key].sourcefilename
-        self.logger.info('output_gml: ' + str(os.path.join(output_folder, filename + '.gml')))
-        nx.write_gml(self.dict_of_qmls[key].DiGraph, os.path.join(output_folder, filename + '.gml'))
-        self.logger.info('output_png: ' + str(os.path.join(output_folder, filename + '.gml')))
-        self.dict_of_qmls[key].draw_pgv_graph(os.path.join(output_folder, filename + '.png'))
+        self.dict_of_qmls[key].create_graph()
 
     def list_of_filenames_from_selection(self):
         local_list = [self.window_selection.dict_of_vars[i][0] for i in self.window_selection.dict_of_vars if
@@ -402,25 +383,25 @@ class Window(tkinter.Frame):
         details_string = ''
         details_string += '\ntitle:\n'
         details_string += str(qml_reader_object.title)
-        details_string += '\nlist of pages: [' + str(len(qml_reader_object.list_of_pages())) + ']\n'
-        details_string += str(qml_reader_object.list_of_pages())
+        details_string += '\nlist of pages: [' + str(len(qml_reader_object.questionnaire.pages.list_of_all_pagenames())) + ']\n'
+        details_string += str(qml_reader_object.questionnaire.pages.list_of_all_pagenames())
         details_string += '\n\n'
-        details_string += '\nvariables extracted from pages: [' + str(
-            len(qml_reader_object.list_of_variables_from_pages())) + ']\n'
-        details_string += str(qml_reader_object.list_of_variables_from_pages())
+        details_string += '\nvariables: [' + str(
+            len(qml_reader_object.questionnaire.variables.list_all_vars())) + ']\n'
+        details_string += str(qml_reader_object.questionnaire.variables.list_all_vars())
         details_string += '\n\n'
-        details_string += '\nvariables extracted from declaration: [' + str(
-            len(qml_reader_object.list_of_variables_from_declaration())) + ']\n'
-        details_string += str(qml_reader_object.list_of_variables_from_declaration())
-        details_string += '\n\n'
-        details_string += '\nunused variables:  [' + str(len(qml_reader_object.list_of_unused_variables())) + ']\n'
-        details_string += str(qml_reader_object.list_of_unused_variables())
-        details_string += '\n\n'
-        details_string += '\npages declared in qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
-        details_string += str(set(qml_reader_object.list_of_pages_declared))
-        details_string += '\n\n'
-        details_string += '\npages not declared in qml, but mentioned in transitions:  [' + str(len(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))) + ']\n'
-        details_string += str(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))
+     #   details_string += '\nvariables extracted from declaration: [' + str(
+     #       len(qml_reader_object.list_of_variables_from_declaration())) + ']\n'
+     #   details_string += str(qml_reader_object.list_of_variables_from_declaration())
+     #   details_string += '\n\n'
+     #   details_string += '\nunused variables:  [' + str(len(qml_reader_object.list_of_unused_variables())) + ']\n'
+     #   details_string += str(qml_reader_object.list_of_unused_variables())
+     #   details_string += '\n\n'
+     #   details_string += '\npages declared in qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
+     #   details_string += str(set(qml_reader_object.list_of_pages_declared))
+     #   details_string += '\n\n'
+     #   details_string += '\npages not declared in qml, but mentioned in transitions:  [' + str(len(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))) + ']\n'
+     #   details_string += str(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))
 
         return details_string
 

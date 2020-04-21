@@ -390,8 +390,9 @@ class Sources:
 
 
 class Variable:
-    def __init__(self, varname, vartype):
+    def __init__(self, varname, vartype, varplace=None):
         self.__allowed_vartypes = ['boolean', 'singleChoiceAnswerOption', 'string', 'number']
+        self.__allowed_varplaces = ['body', 'triggers', None]
         if isinstance(varname, str) and isinstance(vartype, str):
             self.varname = varname
             if vartype in self.__allowed_vartypes:
@@ -401,16 +402,32 @@ class Variable:
         else:
             raise TypeError('Input not of type string')
 
+        self.set_varplace(varplace)
+
+    def set_varplace(self, varplace):
+        if isinstance(varplace, str) or varplace is None:
+            self.varplace = varplace
+            if varplace in self.__allowed_varplaces:
+                self.varplace = varplace
+            else:
+                raise ValueError('Varplace unknown/not allowed: ' + str(varname) + ', ' + str(varplace))
+        else:
+            raise TypeError('Input not of type string')
+
+        return self
+
+
+
     def __str__(self):
         return str(self.varname)
 
 
 class Variables:
     def __init__(self):
-        self.dict_of_variables = {}
+        self.variables = {}
 
     def __len__(self):
-        return len(self.dict_of_variables)
+        return len(self.variables)
 
     def __str__(self):
         return str(self.list_details_str())
@@ -420,36 +437,38 @@ class Variables:
         :return: dictionary of {varname: vartype}
         """
         dict_tmp = {}
-        for var in self.dict_of_variables:
-            dict_tmp[var.varname] = self.dict_of_variables[var].vartype
+        for var in self.variables:
+            dict_tmp[var.varname] = self.variables[var].vartype
         return dict_tmp
 
     def list_all_vars(self):
-        return [var.varname for var in self.dict_of_variables]
+        return [var.varname for var in self.variables.values()]
 
     def list_all_vartypes(self):
-        return [var.vartype for var in self.dict_of_variables]
+        return [var.vartype for var in self.variables.values()]
 
     def list_details_str(self):
-        return [str(self.dict_of_variables[var].varname) + ': ' + str(self.dict_of_variables[var].vartype) for var in self.dict_of_variables]
+        return [str(self.variables[var].varname) + ': ' + str(self.variables[var].vartype) for var in self.variables]
 
-    def add_variable(self, variable_object):
+    def add_variable(self, variable_object, replace=False):
         if isinstance(variable_object, Variable):
-            if variable_object.varname not in [self.dict_of_variables[var].varname for var in self.dict_of_variables]:
-                self.dict_of_variables[variable_object.varname] = variable_object
+            if variable_object.varname not in [self.variables[var].varname for var in self.variables]:
+                self.variables[variable_object.varname] = variable_object
             else:
-                raise ValueError('Variable name exists already!')
+                if not replace:
+                    raise ValueError('Variable name exists already!')
         else:
             raise TypeError('Input not of type Variable')
 
+
     def delete_variable(self, varname):
         if isinstance(varname, str):
-            tmp_list = [self.dict_of_variables[var].varname for var in self.dict_of_variables]
-            tmp_var_list = self.dict_of_variables.keys()
+            tmp_list = [self.variables[var].varname for var in self.variables]
+            tmp_var_list = self.variables.keys()
             if varname in tmp_list:
                 for var in tmp_var_list:
                     if var.varname is varname:
-                        self.dict_of_variables.pop(var)
+                        self.variables.pop(var)
             else:
                 raise ValueError('Varname not found!')
         else:
@@ -457,8 +476,8 @@ class Variables:
 
     def check_if_vartype(self, varname, vartype):
         if isinstance(varname, str) and isinstance(vartype, str):
-            if varname in [self.dict_of_variables[var].varname for var in self.dict_of_variables]:
-                for var in [self.dict_of_variables[var] for var in self.dict_of_variables if var.varname is varname]:
+            if varname in [self.variables[var].varname for var in self.variables]:
+                for var in [self.variables[var] for var in self.variables if var.varname is varname]:
                     print(str(var))
 
                     return var.vartype is vartype
@@ -489,6 +508,12 @@ class QmlPages:
             tmp_list.append(key)
         return tmp_list
 
+
+class DuplicateVariables(Variables):
+    def __init__(self):
+        super().__init__()
+
+
 class QmlPage(UniqueObject):
     def __init__(self, uid, declared=True):
         super().__init__(uid)
@@ -499,6 +524,7 @@ class QmlPage(UniqueObject):
         self.variables = Variables()
         self.triggers = Triggers()
         self.sources = Sources()
+        self.duplicate_variables = DuplicateVariables()
 
     def add_sources(self, source):
         self.sources.add_source(source)

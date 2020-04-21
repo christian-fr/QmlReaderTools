@@ -19,3 +19,7 @@ x = QmlReader.QmlReader(file, create_graph=False, draw=False, truncate=False)
 
 # y = NewQmlReader(x)
 
+x.extract_variables_from_pages_body()
+x.extract_variables_from_pages_triggers()
+
+x.create_graph()

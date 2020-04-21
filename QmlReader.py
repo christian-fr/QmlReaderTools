@@ -47,8 +47,14 @@ class QmlReader:
         self.extract_pages_into_tmp_dict()
         self.extract_pages_to_self()
 
-        self.transitions_to_nodes_edges()
+    def list_of_variables_from_pages(self):
+        pass
 
+    def list_of_pages(self):
+        return list(self.questionnaire.pages.pages.keys())
+
+    def create_graph(self):
+        self.transitions_to_nodes_edges()
         self.init_pgv_graph()
         self.prepare_pgv_graph()
 
@@ -69,6 +75,40 @@ class QmlReader:
 
     def extract_title(self):
         return self.root.name.text
+
+    def extract_variables_from_pages_body(self):
+        for pagenr in range(0, len(self.root.page)):
+            tmp_pagename = self.root.page[pagenr].attrib['uid']
+            list_variables_per_page = []
+            if hasattr(self.root.page[pagenr], 'body'):
+                for i in self.root.page[pagenr].body.iterdescendants():
+                    try:
+                        tmp_varname = i.attrib['variable']
+                        tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace('body')
+                        if tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].variables.list_all_vars() and tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.list_all_vars():
+                            self.questionnaire.pages.pages[tmp_pagename].variables.add_variable(tmp_var_object)
+                        else:
+                            logging.info('Variable "' + str(tmp_varname) + '" already in self.variables of page "' + str(tmp_pagename) + '". Possible duplicate.')
+                            self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.add_variable(tmp_var_object, replace=True)
+                    except KeyError:
+                        pass
+
+    def extract_variables_from_pages_triggers(self):
+        for pagenr in range(0, len(self.root.page)):
+            tmp_pagename = self.root.page[pagenr].attrib['uid']
+            list_variables_per_page = []
+            if hasattr(self.root.page[pagenr], 'triggers'):
+                for i in self.root.page[pagenr].triggers.iterdescendants():
+                    try:
+                        tmp_varname = i.attrib['variable']
+                        tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace('triggers')
+                        if tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].variables.list_all_vars() and tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.list_all_vars():
+                            self.questionnaire.pages.pages[tmp_pagename].variables.add_variable(tmp_var_object)
+                        else:
+                            logging.info('Variable "' + str(tmp_varname) + '" already in self.variables of page "' + str(tmp_pagename) + '". Possible duplicate.')
+                            self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.add_variable(tmp_var_object, replace=True)
+                    except KeyError:
+                        pass
 
     def extract_declared_variables(self):
         for i in range(0, len(self.root.variables.variable)):
@@ -145,16 +185,16 @@ class QmlReader:
             dict_transitions = {}
             for transition in page.transitions.transitions.values():
                 if transition.condition is not None:
-                    if tuple([transition.index, transition.target]) in dict_transitions.keys():
-                        dict_transitions[tuple([transition.index, transition.target])] = dict_transitions[tuple([transition.index, transition.target])] + ' |\n(' + '[' + str(cnt) + '] ' + transition.condition_new + ']' + ')'
-                        self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + '] ' + dict_transitions[tuple([transition.index, transition.target])])
+                    if transition.target in dict_transitions.keys():
+                        dict_transitions[transition.target] = dict_transitions[transition.target] + ' |\n(' + '[' + str(cnt) + '] ' + transition.condition_new + ']' + ')'
+                        self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + '] ' + dict_transitions[transition.target])
                     else:
-                        dict_transitions[tuple([transition.index, transition.target])] = '(' + '[' + str(cnt) + '] ' + transition.condition_new + ')'
+                        dict_transitions[transition.target] = '(' + '[' + str(cnt) + '] ' + transition.condition_new + ')'
 
-                    self.DiGraph.add_edge(page.uid, transition.target, label=dict_transitions[tuple([transition.index, transition.target])])
+                    self.DiGraph.add_edge(page.uid, transition.target, label=dict_transitions[transition.target])
 
                 else:
-                    if tuple([page.uid, transition.target]) in dict_transitions.keys():
+                    if transition.target in dict_transitions.keys():
                         self.DiGraph.add_edge(page.uid, transition.target, label='')
                     else:
                         if cnt is 0:
@@ -164,11 +204,21 @@ class QmlReader:
 
                 cnt = cnt + 1
 
+
+    def node_labels(self):
+        labeldict = {}
+        for page in self.questionnaire.pages.pages.values():
+            labeldict[page.uid] = page.uid + '\n[' + ['\n'.join(varname) for varname in page.variables.list_all_vars()]
+        return labeldict
+
     def init_pgv_graph(self, graph_name='graph'):
         self.pgv_graph = nx.nx_agraph.to_agraph(self.DiGraph)
 
+        t = time.localtime()
+        timestamp = time.strftime('%Y-%m-%d_%H-%M', t)
+
         self.pgv_graph.node_attr['shape'] = 'box'
-        self.pgv_graph.graph_attr['label'] = 'title: ' + self.title + '\nfile: ' + self.questionnaire.filename
+        self.pgv_graph.graph_attr['label'] = 'title: ' + self.title + '\nfile: ' + self.questionnaire.filename + '\n timestamp: ' + timestamp
         self.pgv_graph.layout("dot")
 
     def prepare_pgv_graph(self):
