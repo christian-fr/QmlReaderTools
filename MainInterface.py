@@ -243,7 +243,6 @@ class Window(tkinter.Frame):
         for entry in self.listOfFilesFull:
             print(entry)
             self.dict_of_qmls[os.path.split(entry)[1]] = QmlReader.QmlReader(entry)
-        self.activate_button(['qml_details', 'flowchart', 'open_path'])
 
 #    def read_into_questionnaire_objects(self):
 #        self.dict_of_questionnaires = {}
@@ -252,6 +251,7 @@ class Window(tkinter.Frame):
 #
 #            for page in self.dict_of_qmls[key].list_of_pages():
 #                self.read_into_questionnaire_objects(key=key, page=page)
+
 
 
     def read_into_page_objects(self, key_page, page):
