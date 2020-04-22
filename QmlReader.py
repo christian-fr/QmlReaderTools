@@ -197,19 +197,19 @@ class QmlReader:
 
 
     def extract_triggers_from_pages(self):
-        logging.info()
+        logging.info("extract_triggers_from_pages")
         pass
 
     def extract_question_from_qml_page(self, qml_page):
-        logging.info()
+        logging.info("extract_question_from_qml_page")
         assert isinstance(qml_page, lxml.objectify.ObjectifiedElement)
 
     def extract_triggers_from_qml_page(self, qml_page):
-        logging.info()
+        logging.info("extract_triggers_from_qml_page")
         assert isinstance(qml_page, lxml.objectify.ObjectifiedElement)
 
     def transitions_to_nodes_edges(self, truncate=False):
-        logging.info()
+        logging.info("transitions_to_nodes_edges")
         print("transitions_nodes_to_edges")
         self.questionnaire.create_readable_conditions()
 
