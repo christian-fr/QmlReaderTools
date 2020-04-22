@@ -456,7 +456,9 @@ class Variables:
                 self.variables[variable_object.varname] = variable_object
             else:
                 if not replace:
-                    raise ValueError('Variable name exists already!')
+                    # ToDo: error handling! maybe error message: yes/no ??
+                    # raise ValueError('Variable name exists already!')
+                    print("Variable " + str(variable_object.varname) + " already exists.")
         else:
             raise TypeError('Input not of type Variable')
 
