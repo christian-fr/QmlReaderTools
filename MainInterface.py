@@ -237,6 +237,7 @@ class Window(tkinter.Frame):
         self.redraw_file_text()
 
     def run_qml_reader(self):
+        print("run_qml_reader")
         self.dict_of_qmls = {}
         if self.listOfFilesFull is []:
             return
@@ -244,13 +245,15 @@ class Window(tkinter.Frame):
             print(entry)
             self.dict_of_qmls[os.path.split(entry)[1]] = QmlReader.QmlReader(entry)
 
-#    def read_into_questionnaire_objects(self):
-#        self.dict_of_questionnaires = {}
-#        for key in self.dict_of_qmls:
-#            self.dict_of_questionnaires[key] = Questionnaire.Questionnaire()##
-#
-#            for page in self.dict_of_qmls[key].list_of_pages():
-#                self.read_into_questionnaire_objects(key=key, page=page)
+        self.activate_button(['qml_details', 'flowchart', 'open_path'])
+
+    def read_into_questionnaire_objects(self):
+        self.dict_of_questionnaires = {}
+        for key in self.dict_of_qmls:
+            self.dict_of_questionnaires[key] = Questionnaire.Questionnaire()
+
+            for page in self.dict_of_qmls[key].list_of_pages():
+                self.read_into_questionnaire_objects(key=key, page=page)
 
 
 

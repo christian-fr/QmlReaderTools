@@ -49,7 +49,7 @@ class QmlReader:
 
         self.extract_variables_from_pages_body()
         self.extract_variables_from_pages_triggers()
-
+        logging.info("QmlReader object is done.")
     def list_of_variables_from_pages(self):
         pass
 
@@ -57,6 +57,7 @@ class QmlReader:
         return list(self.questionnaire.pages.pages.keys())
 
     def create_graph(self):
+        logging.info("create_graph")
         self.transitions_to_nodes_edges()
         self.init_pgv_graph()
         self.prepare_pgv_graph()
@@ -74,12 +75,15 @@ class QmlReader:
         self.logger.addHandler(fh)
 
     def set_title(self):
+        logging.info("set_title")
         self.title = self.extract_title()
 
     def extract_title(self):
+        logging.info("extract_title")
         return self.root.name.text
 
     def extract_variables_from_pages_body(self):
+        logging.info("extract_variables_from_pages_body")
         for pagenr in range(0, len(self.root.page)):
             tmp_pagename = self.root.page[pagenr].attrib['uid']
             list_variables_per_page = []
@@ -97,6 +101,7 @@ class QmlReader:
                         pass
 
     def extract_variables_from_pages_triggers(self):
+        logging.info("extract_variables_from_pages_triggers")
         for pagenr in range(0, len(self.root.page)):
             tmp_pagename = self.root.page[pagenr].attrib['uid']
             list_variables_per_page = []
@@ -114,14 +119,19 @@ class QmlReader:
                         pass
 
     def extract_declared_variables(self):
+        logging.info("extract_declared_variables")
         for i in range(0, len(self.root.variables.variable)):
+            # print(self.questionnaire.filename)
+            # print(self.root.variables.variable[i].attrib['name'])
             self.questionnaire.variables.add_variable(Questionnaire.Variable(self.root.variables.variable[i].attrib["name"], self.root.variables.variable[i].attrib["type"]))
 
     def extract_pages_into_tmp_dict(self):
+        logging.info("extract_pages_into_tmp_dict")
         for i in range(0, len(self.root.page)):
             self.tmp_dict_of_pages[self.root.page[i].attrib['uid']] = self.root.page[i]
 
     def extract_pages_to_self(self):
+        logging.info("extract_pages_to_self")
         for i in range(0, len(self.root.page)):
             tmp_qml_page_source = self.root.page[i]
             tmp_page_uid = tmp_qml_page_source.attrib['uid']
@@ -132,6 +142,7 @@ class QmlReader:
             self.extract_sources_from_questionnaire()
 
     def extract_transitions_from_qml_page_source(self, qml_source_page, uid):
+        logging.info("extract_transitions_from_qml_page_source from page: " + str(uid))
         assert isinstance(qml_source_page, lxml.objectify.ObjectifiedElement)
         assert isinstance(uid, str)
         if hasattr(qml_source_page, 'transitions'):
@@ -150,35 +161,55 @@ class QmlReader:
                     self.questionnaire.pages.pages[uid].transitions.add_transitions(Questionnaire.Transition(index=tmp_index, target=tmp_target, condition=tmp_condition))
 
     def extract_questions_from_pages(self):
+        logging.info("extract_questions_from_pages")
         pass
 
     def extract_headers_from_question(self):
+        logging.info("extract_headers_from_question")
         pass
 
     def extract_response_domains_from_question(self):
+        logging.info("extract_response_domains_from_question")
         pass
 
     def extract_items_from_response_domain(self):
+        logging.info("extract_items_from_response_domain")
         pass
 
     def extract_answeroptions_from_response_domain(self):
+        logging.info("extract_answeroptions_from_response_domain")
         pass
 
     def extract_sources_from_questionnaire(self):
+        logging.info("extract_sources_from_questionnaire")
+        tmp_dict_of_additional_pages = {}
         for page in self.questionnaire.pages.pages.values():
             for transition in page.transitions.transitions.values():
-                self.questionnaire.pages.pages[transition.target].sources.add_source(page.uid)
+                # ToDo: (see below) the following is just a workaround until option "combine" is implemented issue#9
+                if transition.target in self.questionnaire.pages.pages.keys():
+                    self.questionnaire.pages.pages[transition.target].sources.add_source(page.uid)
+                else:
+                    tmp_dict_of_additional_pages[transition.target] = page.uid
+        # ToDo: (see above) the following is just a workaround until option "combine" is implemented issue#9
+        for newpagename in tmp_dict_of_additional_pages.keys():
+            self.questionnaire.pages.add_page(Questionnaire.QmlPage(newpagename))
+            self.questionnaire.pages.pages[newpagename].sources.add_source(tmp_dict_of_additional_pages[newpagename])
+
 
     def extract_triggers_from_pages(self):
+        logging.info("extract_triggers_from_pages")
         pass
 
     def extract_question_from_qml_page(self, qml_page):
+        logging.info("extract_question_from_qml_page")
         assert isinstance(qml_page, lxml.objectify.ObjectifiedElement)
 
     def extract_triggers_from_qml_page(self, qml_page):
+        logging.info("extract_triggers_from_qml_page")
         assert isinstance(qml_page, lxml.objectify.ObjectifiedElement)
 
     def transitions_to_nodes_edges(self, truncate=False):
+        logging.info("transitions_to_nodes_edges")
         print("transitions_nodes_to_edges")
         self.questionnaire.create_readable_conditions()
 
@@ -208,13 +239,14 @@ class QmlReader:
                 cnt = cnt + 1
 
 
-    def node_labels(self):
-        labeldict = {}
-        for page in self.questionnaire.pages.pages.values():
-            labeldict[page.uid] = page.uid + '\n[' + ['\n'.join(varname) for varname in page.variables.list_all_vars()]
-        return labeldict
+    # def node_labels(self):
+    #    labeldict = {}
+    #    for page in self.questionnaire.pages.pages.values():
+    #        labeldict[page.uid] = page.uid + '\n[' + ['\n'.join(varname) for varname in page.variables.list_all_vars()]
+    #    return labeldict
 
     def init_pgv_graph(self, graph_name='graph'):
+        logging.info("init_pgv_graph")
         self.pgv_graph = nx.nx_agraph.to_agraph(self.DiGraph)
 
         t = time.localtime()
@@ -225,6 +257,7 @@ class QmlReader:
         self.pgv_graph.layout("dot")
 
     def prepare_pgv_graph(self):
+        logging.info("prepare_pgv_graph")
         output_folder = str(path.join(str(path.split(self.file)[0]), 'flowcharts'))
         self.logger.info('output_folder: ' + output_folder)
         try:
