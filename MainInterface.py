@@ -33,6 +33,7 @@ class Window(tkinter.Frame):
         # self.questionnaire = Questionnaire.Questionnaire()
         self.master = master
         self.dict_of_qmls = {}
+        self.questionnaire_combined = Questionnaire.Questionnaire()
         self.listOfFiles = []
         self.listOfFilesFull = []
         self.list_of_selected_files = []
@@ -77,15 +78,16 @@ class Window(tkinter.Frame):
         self.button1.grid(row=1, column=2, sticky='N')
         self.__button_dict['read_qml'] = self.button1
 
-        self.button2 = tkinter.Button(self.canvas1, width=20, height=1, text='QML Details', state=tkinter.DISABLED,
-                                      command=self.run_qml_details_dialogue)
-        self.button2.grid(row=2, column=2, sticky='N')
 
-        self.__button_dict['qml_details'] = self.button2
-        self.button3 = tkinter.Button(self.canvas1, width=20, height=1, text='Find Variable', state=tkinter.DISABLED,
-                                      command=self.run_find_variable_dialogue)
+        self.button2 = tkinter.Button(self.canvas1, width=20, height=1, text='Combine QMLs', state=tkinter.DISABLED,
+                                      command=self.run_combine_questionnaires)
+        self.button2.grid(row=2, column=2, sticky='N')
+        self.__button_dict['combine'] = self.button2
+
+        self.button3 = tkinter.Button(self.canvas1, width=20, height=1, text='QML Details', state=tkinter.DISABLED,
+                                      command=self.run_qml_details_dialogue)
         self.button3.grid(row=3, column=2, sticky='N')
-        self.__button_dict['find_variable'] = self.button3
+        self.__button_dict['qml_details'] = self.button3
 
         self.button4 = tkinter.Button(self.canvas1, width=20, height=1, text='Page Details', state=tkinter.DISABLED,
                                       command=self.run_show_page_details_dialogue)
@@ -245,7 +247,12 @@ class Window(tkinter.Frame):
             print(entry)
             self.dict_of_qmls[os.path.split(entry)[1]] = QmlReader.QmlReader(entry)
 
-        self.activate_button(['qml_details', 'flowchart', 'open_path'])
+        self.activate_button(['qml_details', 'combine', 'flowchart', 'open_path'])
+
+    def run_combine_questionnaires(self):
+        print("run_combine_questionnaires")
+        self.questionnaire_combined = Questionnaire.Questionnaire()
+        self.selection_dialogue('combine')
 
     def read_into_questionnaire_objects(self):
         self.dict_of_questionnaires = {}
@@ -254,8 +261,6 @@ class Window(tkinter.Frame):
 
             for page in self.dict_of_qmls[key].list_of_pages():
                 self.read_into_questionnaire_objects(key=key, page=page)
-
-
 
     def read_into_page_objects(self, key_page, page):
                 string_pagename = key_page
@@ -306,12 +311,17 @@ class Window(tkinter.Frame):
         if action is 'details':
             self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                            text='Show details', state=tkinter.NORMAL,
-                                                           command=self.details_show)
+                                                           command=self.action_details_show)
 
         if action is 'flowchart':
             self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                            text='Flowchart(s)', state=tkinter.NORMAL,
-                                                           command=self.flowchart_create)
+                                                           command=self.action_flowchart_create)
+
+        if action is 'combine':
+            self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+                                                           text='Combine QMLs', state=tkinter.NORMAL,
+                                                           command=self.action_combine_questionnaires)
 
         self.window_selection.button2 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                        text='Close', state=tkinter.NORMAL,
@@ -319,15 +329,31 @@ class Window(tkinter.Frame):
         self.window_selection.button1.grid(row=0, column=2, padx=0, sticky='NE')
         self.window_selection.button2.grid(row=1, column=2, padx=0, sticky='NE')
 
-    def flowchart_create(self):
+    def action_combine_questionnaires(self):
+        self.logger.info('list of filenames from selection: ' + str(self.list_of_filenames_from_selection()))
+        temp_list = [os.path.split(path)[1] for path in self.list_of_selected_files]
+
+        for key in temp_list:
+            [self.questionnaire_combined.append_other_questionnaire(self.dict_of_qmls[key].questionnaire) for key in self.dict_of_qmls]
+        tkinter.messagebox.showinfo('Success: questionnaires have been combined.')
+        self.window_selection.destroy()
+
+        # ToDo: fix this dirty, dirty workaround...
+        self.dict_of_qmls['questionnaire_combined'] = self.dict_of_qmls[list(self.dict_of_qmls.keys())[0]]
+        self.dict_of_qmls['questionnaire_combined'].questionnaire = self.questionnaire_combined
+        self.listOfFilesFull.append('questionnaire_combined')
+        self.listOfFiles = [os.path.split(f)[1] for f in self.listOfFilesFull]
+        self.redraw_file_text()
+
+    def action_flowchart_create(self):
         self.logger.info('list of filenames from selection: ' + str(self.list_of_filenames_from_selection()))
         temp_list = [os.path.split(path)[1] for path in self.list_of_selected_files]
         [self.prepare_flowcharts(key) for key in temp_list]
         count = len(self.list_of_selected_files)
         if count is 1:
-            tkinter.messagebox.showinfo('Succes', str(count) + ' flowchart has been created.')
+            tkinter.messagebox.showinfo('Success', str(count) + ' flowchart has been created.')
         if count > 1:
-            tkinter.messagebox.showinfo('Succes', str(count) + ' flowcharts have been created.')
+            tkinter.messagebox.showinfo('Success', str(count) + ' flowcharts have been created.')
         self.window_selection.destroy()
 
     def prepare_flowcharts(self, key):
@@ -342,7 +368,7 @@ class Window(tkinter.Frame):
         self.list_of_selected_files = local_list
         self.window_selection.details_string = self.details_preparation(local_list)
 
-    def details_show(self):
+    def action_details_show(self):
         self.list_of_filenames_from_selection()
 
         for checkbox in self.window_selection.checkbox_list:

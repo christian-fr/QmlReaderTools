@@ -50,6 +50,7 @@ class QmlReader:
         self.extract_variables_from_pages_body()
         self.extract_variables_from_pages_triggers()
         logging.info("QmlReader object is done.")
+
     def list_of_variables_from_pages(self):
         pass
 
@@ -181,7 +182,7 @@ class QmlReader:
         pass
 
     def extract_sources_from_questionnaire(self):
-        logging.info("extract_sources_from_questionnaire")
+        # logging.info("extract_sources_from_questionnaire")
         tmp_dict_of_additional_pages = {}
         for page in self.questionnaire.pages.pages.values():
             for transition in page.transitions.transitions.values():

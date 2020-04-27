@@ -422,6 +422,9 @@ class Variable:
         return str(self.varname)
 
 
+
+
+
 class Variables:
     def __init__(self):
         self.variables = {}
@@ -493,9 +496,15 @@ class QmlPages:
     def __init__(self):
         self.pages = {}
 
-    def add_page(self, qmlpage):
+    def add_page(self, qmlpage, replace=False):
         assert isinstance(qmlpage, QmlPage)
-        self.pages[qmlpage.uid] = qmlpage
+        if qmlpage.uid in self.pages.keys():
+            if not replace:
+                raise KeyError('Page already exists and overwrite is False.')
+            else:
+                print('Page "' + qmlpage.uid + '" will be replaced.')
+        else:
+            self.pages[qmlpage.uid] = qmlpage
 
     def drop_page(self, uid):
         assert isinstance(uid, str)
@@ -594,6 +603,22 @@ class Questionnaire:
 
         self.variables = Variables()
         self.pages = QmlPages()
+
+    def append_other_questionnaire(self, questionnaire_object):
+        """
+
+        :param questionnaire_object: other Questionnaire.Questionnaire object that will be appended; duplicate pages in original Questionnaire will be overwritten by pages of the newly appended Questionnaire.
+        :return: nothing.
+        """
+        assert isinstance(questionnaire_object, Questionnaire)
+
+        for appended_page in questionnaire_object.pages.pages.values():
+            # ToDo: error handling! maybe error message: yes/no ?? output: list of duplicate pages / replaced pages
+            self.pages.add_page(appended_page, replace=True)
+
+        for appended_variable in questionnaire_object.variables.variables.values():
+            # ToDo: error handling! maybe error message: yes/no ?? output: list of duplicate variables / replaced variables
+            self.variables.add_variable(appended_variable)
 
     def create_readable_conditions(self):
         regex1 = re.compile(r'\s+')
