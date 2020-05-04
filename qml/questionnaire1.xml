@@ -21,7 +21,7 @@
 		<!-- A02 -->
 		<zofar:variable name="var03" type="string"/>
 		<!-- A03 -->
-		<zofar:variable name="var04" type="string"/>
+		<zofar:variable name="var04" type="string"/>create_gra
 		<!-- A04 -->
 		<zofar:variable name="var05" type="singleChoiceAnswerOption"/>
 		<!-- A05 -->
@@ -118,13 +118,13 @@
 			</zofar:questionSingleChoice>
 		</zofar:body>
 		<zofar:transitions>
-			<zofar:transition target="A40" />
+			<zofar:transition target="A30" />
 			<zofar:transition target="A59" />
 		</zofar:transitions>
 	</zofar:page>
     
     
-	<zofar:page uid="A59">
+	<zofar:page uid="A59">create_gra
 		<zofar:body uid="body">
 			<zofar:questionOpen variable="var06" uid="qopen1"
 					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."

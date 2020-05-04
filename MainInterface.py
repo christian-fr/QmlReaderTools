@@ -247,6 +247,9 @@ class Window(tkinter.Frame):
             print(entry)
             self.dict_of_qmls[os.path.split(entry)[1]] = QmlReader.QmlReader(entry)
 
+        for key in self.dict_of_qmls:
+            self.read_into_questionnaire_objects(key=key)
+
         self.activate_button(['qml_details', 'combine', 'flowchart', 'open_path'])
 
     def run_combine_questionnaires(self):
@@ -254,14 +257,15 @@ class Window(tkinter.Frame):
         self.questionnaire_combined = Questionnaire.Questionnaire()
         self.selection_dialogue('combine')
 
-    def read_into_questionnaire_objects(self):
+    def read_into_questionnaire_objects(self, key):
         self.dict_of_questionnaires = {}
-        for key in self.dict_of_qmls:
-            self.dict_of_questionnaires[key] = Questionnaire.Questionnaire()
+        for page in self.dict_of_qmls[key].list_of_pages():
+            for key in self.dict_of_qmls:
+                self.dict_of_questionnaires[key] = Questionnaire.Questionnaire()
 
-            for page in self.dict_of_qmls[key].list_of_pages():
-                self.read_into_questionnaire_objects(key=key, page=page)
 
+
+    """
     def read_into_page_objects(self, key_page, page):
                 string_pagename = key_page
                 dict_of_transitions = self.dict_of_qmls[key_page].dict_of_transitions[page]
@@ -277,7 +281,9 @@ class Window(tkinter.Frame):
                                                   question_string=question_string,
                                                   instruction_string=instruction_string,
                                                   title_string=title_string)
+        
                 self.dict_of_questionnaires[key_page].add_page(temp_page)
+    """
 
     def run_qml_details_dialogue(self):
         self.selection_dialogue('details')
@@ -330,22 +336,30 @@ class Window(tkinter.Frame):
         self.window_selection.button2.grid(row=1, column=2, padx=0, sticky='NE')
 
     def action_combine_questionnaires(self):
+        self.logger.info('clicked on "combine"')
         self.logger.info('list of filenames from selection: ' + str(self.list_of_filenames_from_selection()))
         temp_list = [os.path.split(path)[1] for path in self.list_of_selected_files]
 
+        first = True
         for key in temp_list:
-            [self.questionnaire_combined.append_other_questionnaire(self.dict_of_qmls[key].questionnaire) for key in self.dict_of_qmls]
+            if first is True:
+                self.questionnaire_combined.file = self.dict_of_qmls[key].file
+                first = False
+        for key in self.dict_of_qmls.keys():
+            self.questionnaire_combined.append_other_questionnaire(self.dict_of_qmls[key].questionnaire)
         tkinter.messagebox.showinfo('Success: questionnaires have been combined.')
         self.window_selection.destroy()
 
         # ToDo: fix this dirty, dirty workaround...
         self.dict_of_qmls['questionnaire_combined'] = self.dict_of_qmls[list(self.dict_of_qmls.keys())[0]]
         self.dict_of_qmls['questionnaire_combined'].questionnaire = self.questionnaire_combined
+        self.dict_of_questionnaires['questionnaire_combined'] = self.questionnaire_combined
         self.listOfFilesFull.append('questionnaire_combined')
         self.listOfFiles = [os.path.split(f)[1] for f in self.listOfFilesFull]
         self.redraw_file_text()
 
     def action_flowchart_create(self):
+        self.logger.info('clicked on "flowchart"')
         self.logger.info('list of filenames from selection: ' + str(self.list_of_filenames_from_selection()))
         temp_list = [os.path.split(path)[1] for path in self.list_of_selected_files]
         [self.prepare_flowcharts(key) for key in temp_list]
@@ -357,8 +371,8 @@ class Window(tkinter.Frame):
         self.window_selection.destroy()
 
     def prepare_flowcharts(self, key):
-        self.dict_of_qmls[key].transitions_to_nodes_edges(truncate=False)
-        self.dict_of_qmls[key].create_graph()
+        self.dict_of_questionnaires[key].transitions_to_nodes_edges(truncate=False)
+        self.dict_of_questionnaires[key].create_graph()
 
     def list_of_filenames_from_selection(self):
         local_list = [self.window_selection.dict_of_vars[i][0] for i in self.window_selection.dict_of_vars if
@@ -369,6 +383,7 @@ class Window(tkinter.Frame):
         self.window_selection.details_string = self.details_preparation(local_list)
 
     def action_details_show(self):
+        self.logger.info('clicked on "details"')
         self.list_of_filenames_from_selection()
 
         for checkbox in self.window_selection.checkbox_list:
