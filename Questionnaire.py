@@ -1,14 +1,18 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __status__ = "Prototype"
 __name__ = "Questionnaire"
 
 # last edited: 2020-04-01
 
 import re
-
+import networkx as nx
+import logging
+import time
+from os import path, mkdir
+import errno
 
 class Title:
     def __init__(self):
@@ -402,9 +406,9 @@ class Variable:
         else:
             raise TypeError('Input not of type string')
 
-        self.set_varplace(varplace)
+        self.set_varplace(varplace=varplace, varname=varname)
 
-    def set_varplace(self, varplace):
+    def set_varplace(self, varplace, varname):
         if isinstance(varplace, str) or varplace is None:
             self.varplace = varplace
             if varplace in self.__allowed_varplaces:
@@ -413,10 +417,7 @@ class Variable:
                 raise ValueError('Varplace unknown/not allowed: ' + str(varname) + ', ' + str(varplace))
         else:
             raise TypeError('Input not of type string')
-
         return self
-
-
 
     def __str__(self):
         return str(self.varname)
@@ -493,9 +494,16 @@ class QmlPages:
     def __init__(self):
         self.pages = {}
 
-    def add_page(self, qmlpage):
+    def add_page(self, qmlpage, replace=False):
         assert isinstance(qmlpage, QmlPage)
-        self.pages[qmlpage.uid] = qmlpage
+        if qmlpage.uid in self.pages.keys():
+            if not replace:
+                raise KeyError('Page already exists and overwrite is False.')
+            else:
+                ('Page "' + qmlpage.uid + '" will be replaced.')
+                self.pages[qmlpage.uid] = qmlpage
+        else:
+            self.pages[qmlpage.uid] = qmlpage
 
     def drop_page(self, uid):
         assert isinstance(uid, str)
@@ -583,17 +591,134 @@ class QmlPage(UniqueObject):
 
 
 class Questionnaire:
-    def __init__(self, filename='questionnaire', title='Zofar Survey'):
+    def __init__(self, file=None, filename='questionnaire', title='Zofar Survey'):
         """
         :param filename: string of source filename
         """
+        self.logger = logging.getLogger('debug')
+        self.DiGraph = nx.DiGraph()
         self.filename = None
+        self.file = file
         self.set_filename(filename)
         self.title = None
         self.set_title(title)
-
+        self.pgv_graph = None
         self.variables = Variables()
         self.pages = QmlPages()
+
+    def startup_logger(self, log_level=logging.DEBUG):
+        """
+        CRITICAL: 50, ERROR: 40, WARNING: 30, INFO: 20, DEBUG: 10, NOTSET: 0
+        """
+        logging.basicConfig(level=log_level)
+        fh = logging.FileHandler("{0}.log".format('log_' + __name__))
+        fh.setLevel(log_level)
+        fh_format = logging.Formatter('%(name)s\t%(module)s\t%(funcName)s\t%(asctime)s\t%(lineno)d\t'
+                                      '%(levelname)-8s\t%(message)s')
+        fh.setFormatter(fh_format)
+        self.logger.addHandler(fh)
+
+    def transitions_to_nodes_edges(self, truncate=False):
+        logging.info("transitions_to_nodes_edges")
+        print("transitions_nodes_to_edges")
+        self.create_readable_conditions()
+        self.startup_logger(log_level=logging.DEBUG)
+
+        for page in self.pages.pages.values():
+            self.DiGraph.add_node(page.uid)  # create nodes
+            cnt = 0
+            dict_transitions = {}
+            for transition in page.transitions.transitions.values():
+                if transition.condition is not None:
+                    if transition.target in dict_transitions.keys():
+                        dict_transitions[transition.target] = dict_transitions[transition.target] + ' |\n(' + '[' + str(cnt) + '] ' + transition.condition_new + ']' + ')'
+                        self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + '] ' + dict_transitions[transition.target])
+                    else:
+                        dict_transitions[transition.target] = '(' + '[' + str(cnt) + '] ' + transition.condition_new + ')'
+
+                    self.DiGraph.add_edge(page.uid, transition.target, label=dict_transitions[transition.target])
+
+                else:
+                    if transition.target in dict_transitions.keys():
+                        self.DiGraph.add_edge(page.uid, transition.target, label='')
+                    else:
+                        if cnt is 0:
+                            self.DiGraph.add_edge(page.uid, transition.target, label='')
+                        if cnt is not 0:
+                            self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + ']')
+
+                cnt = cnt + 1
+
+    def create_graph(self):
+        """
+        :param: None
+        :return: None
+        """
+        logging.info("create_graph")
+        self.transitions_to_nodes_edges()
+        self.init_pgv_graph()
+        self.prepare_pgv_graph()
+
+    def init_pgv_graph(self, graph_name='graph'):
+        """
+        :param: graph_name: string
+        :return: None
+        """
+        logging.info("init_pgv_graph")
+        self.pgv_graph = nx.nx_agraph.to_agraph(self.DiGraph)
+
+        t = time.localtime()
+        timestamp = time.strftime('%Y-%m-%d_%H-%M', t)
+
+        self.pgv_graph.node_attr['shape'] = 'box'
+        self.pgv_graph.graph_attr['label'] = 'title: ' + self.title + '\nfile: ' + self.filename + '\n timestamp: ' + timestamp
+        self.pgv_graph.layout("dot")
+
+    def prepare_pgv_graph(self):
+        """
+        :param:
+        :return:
+        """
+        logging.info("prepare_pgv_graph")
+        output_folder = str(path.join(str(path.split(self.file)[0]), 'flowcharts'))
+        self.logger.info('output_folder: ' + output_folder)
+        try:
+            mkdir(output_folder)
+            self.logger.info('"' + output_folder + '" created.')
+        except OSError as exc:
+            self.logger.info('folder could not be created at first attempt: ' + output_folder)
+            if exc.errno == errno.EEXIST and path.isdir(output_folder):
+                self.logger.info('folder exists already: ' + output_folder)
+                pass
+            self.logger.exception('folder could not be created')
+
+        t = time.localtime()
+        timestamp = time.strftime('%Y-%m-%d_%H-%M', t)
+        filename = timestamp + '_' + path.splitext(path.split(self.file)[1])[0]
+        self.logger.info('output_gml: ' + str(path.join(output_folder, filename + '.gml')))
+        nx.write_gml(self.DiGraph, path.join(output_folder, filename + '.gml'))
+        self.logger.info('output_png: ' + str(path.join(output_folder, filename + '.gml')))
+        self.draw_pgv_graph(path.join(output_folder, filename + '.png'))
+
+    def draw_pgv_graph(self, output_file='output_file.png'):
+        self.pgv_graph.draw(output_file)
+
+    def append_other_questionnaire(self, questionnaire_object):
+        """
+        :param: questionnaire_object: other Questionnaire.Questionnaire object that will be appended; duplicate pages in original Questionnaire will be overwritten by pages of the newly appended Questionnaire.
+        :return: nothing.
+        """
+        self.logger.info("processing questionnaire: " + str(questionnaire_object.file) + ' / ' + str(questionnaire_object.filename))
+        assert isinstance(questionnaire_object, Questionnaire)
+
+        for appended_page in questionnaire_object.pages.pages.values():
+            self.logger.info("pages added: " + str(appended_page.uid))
+            # ToDo: error handling! maybe error message: yes/no ?? output: list of duplicate pages / replaced pages
+            self.pages.add_page(appended_page, replace=True)
+
+        for appended_variable in questionnaire_object.variables.variables.values():
+            # ToDo: error handling! maybe error message: yes/no ?? output: list of duplicate variables / replaced variables
+            self.variables.add_variable(appended_variable)
 
     def create_readable_conditions(self):
         regex1 = re.compile(r'\s+')

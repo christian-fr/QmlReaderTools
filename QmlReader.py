@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "0.1.5"
+__version__ = "0.2.0"
 __status__ = "Prototype"
 __name__ = "QmlReader"
 
@@ -36,7 +36,7 @@ class QmlReader:
 
         self.root = objectify.fromstring(self.data)
 
-        self.questionnaire = Questionnaire.Questionnaire(file)
+        self.questionnaire = Questionnaire.Questionnaire(file=file)
 
         self.title = 'Survey'
         self.set_title()
@@ -50,6 +50,7 @@ class QmlReader:
         self.extract_variables_from_pages_body()
         self.extract_variables_from_pages_triggers()
         logging.info("QmlReader object is done.")
+
     def list_of_variables_from_pages(self):
         pass
 
@@ -57,6 +58,12 @@ class QmlReader:
         return list(self.questionnaire.pages.pages.keys())
 
     def create_graph(self):
+        """
+        deprecated since version 0.2.0
+        is implemented in Questionnaire.Questionnaire
+        :param
+        :return:
+        """
         logging.info("create_graph")
         self.transitions_to_nodes_edges()
         self.init_pgv_graph()
@@ -91,7 +98,7 @@ class QmlReader:
                 for i in self.root.page[pagenr].body.iterdescendants():
                     try:
                         tmp_varname = i.attrib['variable']
-                        tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace('body')
+                        tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace(varplace='body', varname=tmp_varname)
                         if tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].variables.list_all_vars() and tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.list_all_vars():
                             self.questionnaire.pages.pages[tmp_pagename].variables.add_variable(tmp_var_object)
                         else:
@@ -109,7 +116,7 @@ class QmlReader:
                 for i in self.root.page[pagenr].triggers.iterdescendants():
                     try:
                         tmp_varname = i.attrib['variable']
-                        tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace('triggers')
+                        tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace(varplace='triggers', varname=tmp_varname)
                         if tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].variables.list_all_vars() and tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.list_all_vars():
                             self.questionnaire.pages.pages[tmp_pagename].variables.add_variable(tmp_var_object)
                         else:
@@ -135,11 +142,12 @@ class QmlReader:
         for i in range(0, len(self.root.page)):
             tmp_qml_page_source = self.root.page[i]
             tmp_page_uid = tmp_qml_page_source.attrib['uid']
-            self.questionnaire.pages.add_page(Questionnaire.QmlPage(tmp_page_uid))
+            self.questionnaire.pages.add_page(Questionnaire.QmlPage(tmp_page_uid, declared=True))
             self.extract_transitions_from_qml_page_source(tmp_qml_page_source, tmp_page_uid)
 
-        for i in range(0, len(self.root.page)):
-            self.extract_sources_from_questionnaire()
+        # ToDo: when method self.extract_sources_from_questionnaire() is moved to Questionnaire.py: fix this call
+        #for i in range(0, len(self.root.page)):
+        #    self.extract_sources_from_questionnaire()
 
     def extract_transitions_from_qml_page_source(self, qml_source_page, uid):
         logging.info("extract_transitions_from_qml_page_source from page: " + str(uid))
@@ -180,6 +188,7 @@ class QmlReader:
         logging.info("extract_answeroptions_from_response_domain")
         pass
 
+    # ToDo: move this method to questionnaire, fix the ToDos below
     def extract_sources_from_questionnaire(self):
         logging.info("extract_sources_from_questionnaire")
         tmp_dict_of_additional_pages = {}
@@ -192,9 +201,8 @@ class QmlReader:
                     tmp_dict_of_additional_pages[transition.target] = page.uid
         # ToDo: (see above) the following is just a workaround until option "combine" is implemented issue#9
         for newpagename in tmp_dict_of_additional_pages.keys():
-            self.questionnaire.pages.add_page(Questionnaire.QmlPage(newpagename))
+            self.questionnaire.pages.add_page(Questionnaire.QmlPage(newpagename, declared=False))
             self.questionnaire.pages.pages[newpagename].sources.add_source(tmp_dict_of_additional_pages[newpagename])
-
 
     def extract_triggers_from_pages(self):
         logging.info("extract_triggers_from_pages")
@@ -208,7 +216,14 @@ class QmlReader:
         logging.info("extract_triggers_from_qml_page")
         assert isinstance(qml_page, lxml.objectify.ObjectifiedElement)
 
+    # ToDo: move method to Questionnaire.py - and fix implementation
     def transitions_to_nodes_edges(self, truncate=False):
+        """
+        deprecated since version 0.2.0!
+        is implemented in Questionnaire.Questionnaire
+        :param
+        :return:
+        """
         logging.info("transitions_to_nodes_edges")
         print("transitions_nodes_to_edges")
         self.questionnaire.create_readable_conditions()
@@ -246,6 +261,12 @@ class QmlReader:
     #    return labeldict
 
     def init_pgv_graph(self, graph_name='graph'):
+        """
+        deprecated since version 0.2.0!
+        is implemented in Questionnaire.Questionnaire
+        :param
+        :return:
+        """
         logging.info("init_pgv_graph")
         self.pgv_graph = nx.nx_agraph.to_agraph(self.DiGraph)
 
@@ -257,6 +278,12 @@ class QmlReader:
         self.pgv_graph.layout("dot")
 
     def prepare_pgv_graph(self):
+        """
+        deprecated since version 0.2.0!
+        is implemented in Questionnaire.Questionnaire
+        :param
+        :return:
+        """
         logging.info("prepare_pgv_graph")
         output_folder = str(path.join(str(path.split(self.file)[0]), 'flowcharts'))
         self.logger.info('output_folder: ' + output_folder)

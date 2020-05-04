@@ -1712,7 +1712,7 @@
 			</zofar:questionOpen>
 		</zofar:body>
 		<zofar:transitions>
-			<zofar:transition target="end"/>
+			<zofar:transition target="A55"/>
 		</zofar:transitions>
 	</zofar:page>
 
