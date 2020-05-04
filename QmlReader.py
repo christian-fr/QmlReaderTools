@@ -8,7 +8,7 @@ __name__ = "QmlReader"
 # last edited: 2020-04-16
 
 import lxml
-from lxml import objectify
+from lxml import objectify, etree
 import networkx as nx
 import logging
 import Questionnaire
@@ -16,6 +16,8 @@ from os import path
 import time
 import errno
 from os import listdir, mkdir
+import io
+import codecs
 
 class QmlReader:
     """
@@ -33,6 +35,12 @@ class QmlReader:
         with open(file, 'rb') as f:
             self.logger.info('reading file: ' + str(file))
             self.data = f.read()
+
+        with open(file, 'rb') as f:
+            self.logger.info('reading file (string): ' + str(file))
+            self.data_string = f.read()
+
+        self.tree = etree.fromstring(self.data_string)
 
         self.root = objectify.fromstring(self.data)
 
@@ -280,3 +288,6 @@ class QmlReader:
 
     def draw_pgv_graph(self, output_file='output_file.png'):
         self.pgv_graph.draw(output_file)
+
+    def generate_text_de_properties(self):
+        pass
