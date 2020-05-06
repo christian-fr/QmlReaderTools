@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
@@ -261,7 +261,7 @@ class Window(tkinter.Frame):
         self.dict_of_questionnaires = {}
         for page in self.dict_of_qmls[key].list_of_pages():
             for key in self.dict_of_qmls:
-                self.dict_of_questionnaires[key] = Questionnaire.Questionnaire()
+                self.dict_of_questionnaires[key] = self.dict_of_qmls[key].questionnaire
 
 
 
