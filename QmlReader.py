@@ -302,7 +302,7 @@ class QmlReader:
         filename = timestamp + '_' + path.splitext(path.split(self.file)[1])[0]
         self.logger.info('output_gml: ' + str(path.join(output_folder, filename + '.gml')))
         nx.write_gml(self.DiGraph, path.join(output_folder, filename + '.gml'))
-        self.logger.info('output_png: ' + str(path.join(output_folder, filename + '.gml')))
+        self.logger.info('output_png: ' + str(path.join(output_folder, filename + '.png')))
         self.draw_pgv_graph(path.join(output_folder, filename + '.png'))
 
     def draw_pgv_graph(self, output_file='output_file.png'):
