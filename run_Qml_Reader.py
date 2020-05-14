@@ -11,6 +11,6 @@ from tkinter import Tk
 
 root = Tk()
 app = MainInterface.Window(root)
-root.wm_title("QML Reader")
+root.wm_title("QML Reader " + str(__version__))
 root.geometry('800x600')
 root.mainloop()
