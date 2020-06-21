@@ -11,3 +11,4 @@
 *.pdf
 *.gml
 /qml/
+/questionnaire_generated*.xml
