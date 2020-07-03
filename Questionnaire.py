@@ -1,11 +1,11 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __status__ = "Prototype"
 __name__ = "Questionnaire"
 
-# last edited: 2020-04-01
+# last edited: 2020-07-03
 
 import re
 import networkx as nx
@@ -648,6 +648,22 @@ class Questionnaire:
                             self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + ']')
 
                 cnt = cnt + 1
+        self.add_variables_to_node()
+
+    def add_variables_to_node(self):
+        mapping = {}
+        for pagename in self.pages.list_of_all_pagenames():
+            tmp_output_string = ''
+            tmp_var_list = self.pages.pages[pagename].variables.list_all_vars()
+            if len(tmp_var_list) > 0:
+                while len(tmp_var_list) > 3:
+                    tmp_output_string += ', '.join(tmp_var_list[:3]) + ',\n'
+                    tmp_var_list = tmp_var_list[3:]
+                tmp_output_string += ', '.join(tmp_var_list) + ']'
+                mapping[pagename] = pagename + '\n\n[' + tmp_output_string
+        self.DiGraph = nx.relabel_nodes(self.DiGraph, mapping)
+
+
 
     def create_graph(self):
         """
