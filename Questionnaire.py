@@ -717,6 +717,7 @@ class Questionnaire:
         self.draw_pgv_graph(path.join(output_folder, filename + '.png'))
 
     def draw_pgv_graph(self, output_file='output_file.png'):
+        logging.info("draw_pgv_graph")
         self.pgv_graph.draw(output_file)
 
     def append_other_questionnaire(self, questionnaire_object):
