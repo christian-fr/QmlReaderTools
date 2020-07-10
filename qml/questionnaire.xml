@@ -36,7 +36,17 @@
 		<zofar:variable name="var02" type="singleChoiceAnswerOption"/>
 		<zofar:variable name="flag_A01" type="boolean"/>
 		<!-- A02 -->
-		<zofar:variable name="var03" type="string"/>
+		<zofar:variable name="var03a" type="string"/>
+		<zofar:variable name="var03b" type="string"/>
+		<zofar:variable name="var03c" type="string"/>
+		<zofar:variable name="var03d" type="string"/>
+		<zofar:variable name="var03e" type="string"/>
+		<zofar:variable name="var03f" type="string"/>
+		<zofar:variable name="var03g" type="string"/>
+		<zofar:variable name="var03h" type="string"/>
+		<zofar:variable name="var03i" type="string"/>
+		<zofar:variable name="var03j" type="string"/>
+		<zofar:variable name="var03k" type="string"/>
 		<!-- A03 -->
 		<zofar:variable name="var04" type="string"/>
 		<!-- A04 -->
@@ -186,7 +196,77 @@
 
 	<zofar:page uid="A02">
 		<zofar:body uid="body">
-			<zofar:questionOpen variable="var03" uid="qopen" columns="110" rows="4" smallOption="false">
+			<zofar:questionOpen variable="var03a" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03b" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03c" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03d" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03e" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03f" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03g" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03h" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03i" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03j" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03k" uid="qopen" columns="110" rows="4" smallOption="false">
 				<zofar:header>
 					<zofar:question uid="q1" block="true">
 						Warum haben Sie etwas getan?

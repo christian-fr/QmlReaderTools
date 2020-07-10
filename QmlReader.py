@@ -96,7 +96,7 @@ class QmlReader:
             list_variables_per_page = []
             if hasattr(self.root.page[pagenr], 'body'):
                 for i in self.root.page[pagenr].body.iterdescendants():
-                    try:
+                    if 'variable' in i.attrib:
                         tmp_varname = i.attrib['variable']
                         tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace(varplace='body', varname=tmp_varname)
                         if tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].variables.list_all_vars() and tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.list_all_vars():
@@ -104,8 +104,6 @@ class QmlReader:
                         else:
                             logging.info('Variable "' + str(tmp_varname) + '" already in self.variables of page "' + str(tmp_pagename) + '". Possible duplicate.')
                             self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.add_variable(tmp_var_object, replace=True)
-                    except KeyError:
-                        pass
 
     def extract_variables_from_pages_triggers(self):
         logging.info("extract_variables_from_pages_triggers")
@@ -215,95 +213,6 @@ class QmlReader:
     def extract_triggers_from_qml_page(self, qml_page):
         logging.info("extract_triggers_from_qml_page")
         assert isinstance(qml_page, lxml.objectify.ObjectifiedElement)
-
-    # ToDo: move method to Questionnaire.py - and fix implementation
-    def transitions_to_nodes_edges(self, truncate=False):
-        """
-        deprecated since version 0.2.0!
-        is implemented in Questionnaire.Questionnaire
-        :param
-        :return:
-        """
-        logging.info("transitions_to_nodes_edges")
-        print("transitions_nodes_to_edges")
-        self.questionnaire.create_readable_conditions()
-
-        for page in self.questionnaire.pages.pages.values():
-            self.DiGraph.add_node(page.uid)  # create nodes
-            cnt = 0
-            dict_transitions = {}
-            for transition in page.transitions.transitions.values():
-                if transition.condition is not None:
-                    if transition.target in dict_transitions.keys():
-                        dict_transitions[transition.target] = dict_transitions[transition.target] + ' |\n(' + '[' + str(cnt) + '] ' + transition.condition_new + ']' + ')'
-                        self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + '] ' + dict_transitions[transition.target])
-                    else:
-                        dict_transitions[transition.target] = '(' + '[' + str(cnt) + '] ' + transition.condition_new + ')'
-
-                    self.DiGraph.add_edge(page.uid, transition.target, label=dict_transitions[transition.target])
-
-                else:
-                    if transition.target in dict_transitions.keys():
-                        self.DiGraph.add_edge(page.uid, transition.target, label='')
-                    else:
-                        if cnt is 0:
-                            self.DiGraph.add_edge(page.uid, transition.target, label='')
-                        if cnt is not 0:
-                            self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + ']')
-
-                cnt = cnt + 1
-
-
-    # def node_labels(self):
-    #    labeldict = {}
-    #    for page in self.questionnaire.pages.pages.values():
-    #        labeldict[page.uid] = page.uid + '\n[' + ['\n'.join(varname) for varname in page.variables.list_all_vars()]
-    #    return labeldict
-
-    def init_pgv_graph(self, graph_name='graph'):
-        """
-        deprecated since version 0.2.0!
-        is implemented in Questionnaire.Questionnaire
-        :param
-        :return:
-        """
-        logging.info("init_pgv_graph")
-        self.pgv_graph = nx.nx_agraph.to_agraph(self.DiGraph)
-
-        t = time.localtime()
-        timestamp = time.strftime('%Y-%m-%d_%H-%M', t)
-
-        self.pgv_graph.node_attr['shape'] = 'box'
-        self.pgv_graph.graph_attr['label'] = 'title: ' + self.title + '\nfile: ' + self.questionnaire.filename + '\n timestamp: ' + timestamp
-        self.pgv_graph.layout("dot")
-
-    def prepare_pgv_graph(self):
-        """
-        deprecated since version 0.2.0!
-        is implemented in Questionnaire.Questionnaire
-        :param
-        :return:
-        """
-        logging.info("prepare_pgv_graph")
-        output_folder = str(path.join(str(path.split(self.file)[0]), 'flowcharts'))
-        self.logger.info('output_folder: ' + output_folder)
-        try:
-            mkdir(output_folder)
-            self.logger.info('"' + output_folder + '" created.')
-        except OSError as exc:
-            self.logger.info('folder could not be created at first attempt: ' + output_folder)
-            if exc.errno == errno.EEXIST and path.isdir(output_folder):
-                self.logger.info('folder exists already: ' + output_folder)
-                pass
-            self.logger.exception('folder could not be created')
-
-        t = time.localtime()
-        timestamp = time.strftime('%Y-%m-%d_%H-%M', t)
-        filename = timestamp + '_' + path.splitext(path.split(self.file)[1])[0]
-        self.logger.info('output_gml: ' + str(path.join(output_folder, filename + '.gml')))
-        nx.write_gml(self.DiGraph, path.join(output_folder, filename + '.gml'))
-        self.logger.info('output_png: ' + str(path.join(output_folder, filename + '.png')))
-        self.draw_pgv_graph(path.join(output_folder, filename + '.png'))
 
     def draw_pgv_graph(self, output_file='output_file.png'):
         self.pgv_graph.draw(output_file)
