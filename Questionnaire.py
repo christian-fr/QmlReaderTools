@@ -53,6 +53,11 @@ class MatrixDouble(UniqueObject):
         pass
 
 
+class  QuestionObject():
+    def __init__(self):
+
+
+
 class MatrixMultipleChoice(UniqueObject):
     def __init__(self, uid):
         super().__init__(uid)
