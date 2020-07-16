@@ -13,6 +13,9 @@ import logging
 import time
 from os import path, mkdir
 import errno
+# noinspection PyUnresolvedReferences
+import pygraphviz
+
 
 class Title:
     def __init__(self):
