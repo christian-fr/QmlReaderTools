@@ -145,9 +145,26 @@
 	
 	
     <zofar:page uid="A01">
-    	<zofar:header>
-    	</zofar:header>
-    	<zofar:body uid="b">
+		<zofar:header>
+			<zofar:instruction uid="abc">
+				Blabla instr
+			</zofar:instruction>
+
+			<zofar:introduction uid="abc2" visible="zofar.asNumber(testvar) == 1">
+				blabla intro
+			</zofar:introduction>
+
+			<zofar:text uid="abc3" visible="false">
+				blabla text
+			</zofar:text>
+
+			<zofar:title uid="abc4" visible="true">
+				bla bla bkla title
+			</zofar:title>
+
+
+		</zofar:header>
+		<zofar:body uid="b">
     		<zofar:questionSingleChoice uid="sc">
     			<zofar:header>
     				<zofar:question uid="q1">
