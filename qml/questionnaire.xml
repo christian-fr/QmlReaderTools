@@ -165,7 +165,7 @@
 
 		</zofar:header>
 		<zofar:body uid="b">
-    		<zofar:questionSingleChoice uid="sc">
+    		<zofar:questionSingleChoice uid="sc1">
     			<zofar:header>
     				<zofar:question uid="q1">
 						Bitte geben Sie an, was aktuell auf Sie zutrifft.
@@ -180,7 +180,23 @@
     				<zofar:answerOption uid="ao4" value="4" label="Ich werde wieder etwas tun."></zofar:answerOption>
     			</zofar:responseDomain>
     		</zofar:questionSingleChoice>
-    		
+
+    	  		<zofar:questionSingleChoice uid="sc2">
+    			<zofar:header>
+    				<zofar:question uid="q1">
+						Bitte geben Sie an, was aktuell auf Sie zutrifft.
+    				</zofar:question>
+    				<zofar:instruction uid="is">Ihr Promotionsverfahren gilt als abgeschlossen, wenn Sie die letzte Prüfung (in der Regel: Disputation oder Rigorosum) erfolgreich abgelegt haben.
+    				</zofar:instruction>
+    			</zofar:header>
+    			<zofar:responseDomain variable="var02" uid="rd">
+    				<zofar:answerOption uid="ao1" value="1" label="Ich tue nichts."></zofar:answerOption>
+    				<zofar:answerOption uid="ao2" value="2" label="Ich tue viel."></zofar:answerOption>
+    				<zofar:answerOption uid="ao3" value="3" label="Ich habe mal etwas getan."></zofar:answerOption>
+    				<zofar:answerOption uid="ao4" value="4" label="Ich werde wieder etwas tun."></zofar:answerOption>
+    			</zofar:responseDomain>
+    		</zofar:questionSingleChoice>
+
     		<zofar:section uid="sw" visible="navigatorBean.isSame() or zofar.isBooleanSet('flag_A01',sessionController.participant)">
 				<zofar:header>
 					<zofar:text uid="t" block="true">
