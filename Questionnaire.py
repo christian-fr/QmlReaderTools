@@ -22,7 +22,7 @@ class Title:
         pass
 
 
-class UniqueObject:
+class UniqueObject(object):
     def __init__(self, uid):
         self.uid = None
         self.change_uid(uid)
@@ -31,121 +31,106 @@ class UniqueObject:
         assert isinstance(uid, str)
         self.uid = uid
 
-
-class Calendar(UniqueObject):
+class HeaderObject(UniqueObject):
     def __init__(self, uid):
         super().__init__(uid)
-        pass
+        self.set_uid(uid)
 
-
-class Comparison(UniqueObject):
-    def __init__(self, uid):
-        super().__init__(uid)
-        pass
-
-
-class Display(UniqueObject):
-    def __init__(self, uid):
-        super().__init__(uid)
-        pass
-
-
-class MatrixDouble(UniqueObject):
-    def __init__(self, uid):
-        super().__init__(uid)
-        pass
-
-
-class  QuestionObject():
-    def __init__(self):
-        pass
-
-class MatrixMultipleChoice(UniqueObject):
-    def __init__(self, uid):
-        super().__init__(uid)
-        self.uid = uid
-        self.items = {}
-        self.visible_condition = None
-        pass
-
-    def add_item(self, item):
-        # self.item.uid = ""
-        pass
-
-    def list_vars(self):
-        pass
-
-
-class HeaderText(UniqueObject):
-    def __init__(self, uid, text, visible_conditions=None):
-        super().__init__(uid)
-        self.change_uid(uid)
         self.text = None
-        self.change_text(text)
+        self.index = None
+        self.tag = None
+        self.allowed_tags_list = None
         self.visible_conditions = None
-        self.change_visible_conditions(visible_conditions)
 
-    def change_uid(self, uid):
+    def set_tag(self, tag_str):
+        assert isinstance(tag_str, str)
+        if tag_str in self.allowed_tags_list:
+            self.tag = tag_str
+        else:
+            raise KeyError('tag "' + str(tag_str) + '" not found in self.allowed_tags_list: ' + str(self.allowed_tags_list))
+
+    def set_uid(self, uid):
         assert isinstance(uid, str)
         self.uid = uid
 
-    def change_text(self, text):
+    def set_text(self, text):
         assert isinstance(text, str)
         self.text = text
 
-    def change_visible_conditions(self, visible_conditions):
+    def set_visible_conditions(self, visible_conditions):
         assert isinstance(visible_conditions, str) or visible_conditions is None
         self.visible_conditions = visible_conditions
 
+    def set_index(self, index):
+        assert isinstance(index, int)
+        self.index = index
 
-class Question(HeaderText):
-    def __init__(self, uid, text):
-        super().__init__(uid, text)
-
-    @staticmethod
-    def print_type():
-        return 'question'
+    def __str__(self):
+        return str(type(self).__name__) + '\n tag: ' + str(self.tag) + '\n index: ' + str(self.index) + '\n uid: ' + str(self.uid) + '\n visible: ' + str(self.visible_conditions) + '\n text: "' + str(self.text) + '"'
 
 
-class Instruction(HeaderText):
-    def __init__(self, uid, text):
-        super().__init__(uid, text)
+class PageHeaderObject(HeaderObject):
+    def __init__(self, uid, text, tag, index, visible_conditions=None):
+        super().__init__(uid)
 
-    @staticmethod
-    def print_type():
-        return 'instruction'
+        self.allowed_tags_list = ['instruction', 'introduction', 'text', 'title']
+        self.set_tag(tag)
+
+        self.set_text(text)
+        self.set_index(index)
+        self.set_visible_conditions(visible_conditions)
 
 
-class Introduction(HeaderText):
-    def __init__(self, uid, text):
-        super().__init__(uid, text)
+class QuestionHeaderObject(HeaderObject):
+    def __init__(self, uid, text, tag, index, visible_conditions=None):
+        super().__init__(uid)
 
-    @staticmethod
-    def print_type():
-        return 'introduction'
+        self.allowed_tags_list = ['instruction', 'introduction', 'question', 'text', 'title']
+        self.set_tag(tag)
 
+        self.set_text(text)
+        self.set_index(index)
+        self.set_visible_conditions(visible_conditions)
 
 class Header:
     def __init__(self):
-        self.dict_of_header_texts = {}
+        self.dict_of_header_objects = {}
 
     def __str__(self):
         temp_str = 'header: ' + '\n'
-        for key in self.dict_of_header_texts.keys():
-            temp_str += 'uid: ' + self.dict_of_header_texts[key].uid + ', type: ' + str(
-                self.dict_of_header_texts[key].print_type()) + ', text: "' + str(
-                self.dict_of_header_texts[key].text) + '", visible conditions: "' + str(
-                self.dict_of_header_texts[key].visible_conditions)[:10] + '"\n'
+        for key in self.dict_of_header_objects.keys():
+            temp_str += 'uid: ' + self.dict_of_header_objects[key].uid + ', type: ' + str(
+                self.dict_of_header_objects[key].print_type()) + ', text: "' + str(
+                self.dict_of_header_objects[key].text) + '", visible conditions: "' + str(
+                self.dict_of_header_objects[key].visible_conditions)[:10] + '"\n'
         return temp_str
 
-    def add_header_text(self, header_text):
-        assert isinstance(header_text, Question) or isinstance(header_text, Introduction) or isinstance(header_text,
-                                                                                                        Instruction)
-        self.dict_of_header_texts[header_text.uid] = header_text
+    def add_header_object(self, page_header_object):
+        '''
+        :param header_text: Object of Type PageHeaderInstruction, PageHeaderIntroduction, PageHeaderTitle or PageHeaderText
+        :return: None
+        '''
+        assert isinstance(page_header_object, self.reference_object_for_assertion)
+        self.dict_of_header_objects[page_header_object.uid] = page_header_object
 
-    def drop_header_text(self, uid):
-        if uid in self.dict_of_header_texts:
-            self.dict_of_header_texts.pop(uid)
+    def drop_header_object(self, uid):
+        assert isinstance(uid, str)
+        if uid in self.dict_of_header_objects:
+            self.dict_of_header_objects.pop(uid)
+        else:
+            raise KeyError('UID ' + str(uid) + 'not found!')
+
+
+class PageHeader(Header):
+    def __init__(self):
+        super().__init__()
+        self.reference_object_for_assertion = PageHeaderObject
+
+
+class QuestionHeader(Header):
+    def __init__(self):
+        super().__init__()
+        self.reference_object_for_assertion = QuestionHeaderObject
         pass
 
 
@@ -262,33 +247,118 @@ class AnswerOption(UniqueObject):
         assert missing is True or missing is False
         self.missing = missing
 
+class QuestionTypes:
+    def __init__(self):
+        self.list_of_available_question_types = [BodyCalendar, BodyComparison, BodyMatrixDouble, BodyMatrixMultipleChoice, BodyMatrixQuestionMixed, ]
+        self.dict_of_question_types = {}
 
-class MatrixQuestionMixed(UniqueObject):
+
+    def self_add_body_question_class(self):
+        self.dict_of_question_types
+
+class Questions:
+    def __init__(self):
+        self.dict_of_question_objects = {}
+
+    def add_question_object(self, question_object):
+        assert isinstance(question_object, tuple(QuestionObject.__subclasses__()))
+        assert question_object.uid not in self.dict_of_question_objects.keys()
+        self.dict_of_question_objects[question_object.uid] = question_object
+
+    def __str__(self):
+        print('Question Objects')
+        print(self.dict_of_question_objects)
+
+
+class QuestionObject(UniqueObject):
+    def __init__(self, uid, index, tag):
+        super().__init__(uid)
+        self.variables = Variables()
+        self.header = QuestionHeader()
+        self.index = None
+        self.tag = None
+        self.set_tag(tag)
+        self.set_index(index)
+
+    def set_index(self, index):
+        assert isinstance(index, int)
+        self.index = index
+
+    def set_tag(self, tag):
+        if tag == '':
+            pass
+
+class BodyQuestionCalendar(QuestionObject):
     def __init__(self, uid):
         super().__init__(uid)
         pass
 
 
-class MatrixQuestionOpen(UniqueObject):
+class BodyCalendar(QuestionObject):
     def __init__(self, uid):
         super().__init__(uid)
         pass
 
 
-class MatrixQuestionSingleChoice(UniqueObject):
-    def __init__(self, uid):
-        super().__init__(uid)
-        self.header = Header()
-        pass
-
-
-class MultipleChoice(UniqueObject):
+class BodyComparison(QuestionObject):
     def __init__(self, uid):
         super().__init__(uid)
         pass
 
 
-class QuestionOpen(UniqueObject):
+class Display(QuestionObject):
+    def __init__(self, uid):
+        super().__init__(uid)
+        pass
+
+
+class BodyMatrixDouble(QuestionObject):
+    def __init__(self, uid):
+        super().__init__(uid)
+        pass
+
+
+class BodyMatrixMultipleChoice(QuestionObject):
+    def __init__(self, uid):
+        super().__init__(uid)
+        self.uid = uid
+        self.items = {}
+        self.visible_condition = None
+        pass
+
+    def add_item(self, item):
+        # self.item.uid = ""
+        pass
+
+    def list_vars(self):
+        pass
+
+
+class BodyMatrixQuestionMixed(QuestionObject):
+    def __init__(self, uid):
+        super().__init__(uid)
+        pass
+
+
+class BodyMatrixQuestionOpen(QuestionObject):
+    def __init__(self, uid):
+        super().__init__(uid)
+        pass
+
+
+class BodyMatrixQuestionSingleChoice(QuestionObject):
+    def __init__(self, uid):
+        super().__init__(uid)
+        pass
+
+
+class BodyMultipleChoice(QuestionObject):
+    def __init__(self, uid):
+        super().__init__(uid)
+        pass
+
+
+class BodyQuestionOpen(QuestionObject):
     def __init__(self, uid, variable, text_type='text', prefix=None, postfix=None):
         super().__init__(uid)
         self.text_type = None
@@ -322,10 +392,21 @@ class QuestionOpen(UniqueObject):
             raise ValueError('QuestionOpen: text type "' + str(text_type) + '" not allowed.')
 
 
-class QuestionSingleChoice(UniqueObject):
+class BodyQuestionPretest(QuestionObject):
     def __init__(self, uid):
         super().__init__(uid)
         pass
+
+
+class BodyQuestionSingleChoice(QuestionObject):
+    def __init__(self, uid):
+        super().__init__(uid)
+        pass
+
+
+class BodySection(UniqueObject):
+    def __init__(self, uid):
+        super().__init__(uid)
 
 
 class Unit(UniqueObject):
@@ -536,12 +617,13 @@ class QmlPage(UniqueObject):
         super().__init__(uid)
         self.declared = declared
 
-        self.header = Header()
+        self.header = PageHeader()
         self.transitions = Transitions()
         self.variables = Variables()
         self.triggers = Triggers()
         self.sources = Sources()
         self.duplicate_variables = DuplicateVariables()
+        self.questions = Questions()
 
     def add_sources(self, source):
         self.sources.add_source(source)
@@ -556,7 +638,7 @@ class QmlPage(UniqueObject):
         self.triggers.add_trigger(trigger)
 
     def add_header(self, header_text):
-        self.header.add_header_text(header_text)
+        self.header.add_header_object(header_text)
 
     def __translate_transition_condition_to_python_syntax(self):
         regex1 = re.compile(r'==')  # 'is'
