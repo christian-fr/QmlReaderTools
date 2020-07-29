@@ -17,12 +17,13 @@ import time
 import errno
 from os import listdir, mkdir
 
+
 class QmlReader:
     """
     Class for Reading and extracting elements from QML-Files.
     """
 
-    def __init__(self, file, create_graph=False, draw=False, truncate=False):
+    def __init__(self, file):
         self.file = file
         self.tmp = []
         self.logger = logging.getLogger('debug')
@@ -49,6 +50,8 @@ class QmlReader:
 
         self.extract_variables_from_pages_body()
         self.extract_variables_from_pages_triggers()
+
+        self.extract_headers_and_questions_from_pages()
         logging.info("QmlReader object is done.")
 
     def list_of_variables_from_pages(self):
@@ -57,17 +60,17 @@ class QmlReader:
     def list_of_pages(self):
         return list(self.questionnaire.pages.pages.keys())
 
-    def create_graph(self):
-        """
-        deprecated since version 0.2.0
-        is implemented in Questionnaire.Questionnaire
-        :param
-        :return:
-        """
-        logging.info("create_graph")
-        self.transitions_to_nodes_edges()
-        self.init_pgv_graph()
-        self.prepare_pgv_graph()
+    # def create_graph(self):
+    #     """
+    #     deprecated since version 0.2.0
+    #     is implemented in Questionnaire.Questionnaire
+    #     :param
+    #     :return:
+    #     """
+    #     logging.info("create_graph")
+    #     self.transitions_to_nodes_edges()
+    #     self.init_pgv_graph()
+    #     self.prepare_pgv_graph()
 
     def startup_logger(self, log_level=logging.DEBUG):
         """
@@ -93,7 +96,6 @@ class QmlReader:
         logging.info("extract_variables_from_pages_body")
         for pagenr in range(0, len(self.root.page)):
             tmp_pagename = self.root.page[pagenr].attrib['uid']
-            list_variables_per_page = []
             if hasattr(self.root.page[pagenr], 'body'):
                 for i in self.root.page[pagenr].body.iterdescendants():
                     if 'variable' in i.attrib:
@@ -109,7 +111,6 @@ class QmlReader:
         logging.info("extract_variables_from_pages_triggers")
         for pagenr in range(0, len(self.root.page)):
             tmp_pagename = self.root.page[pagenr].attrib['uid']
-            list_variables_per_page = []
             if hasattr(self.root.page[pagenr], 'triggers'):
                 for i in self.root.page[pagenr].triggers.iterdescendants():
                     try:
@@ -144,7 +145,7 @@ class QmlReader:
             self.extract_transitions_from_qml_page_source(tmp_qml_page_source, tmp_page_uid)
 
         # ToDo: when method self.extract_sources_from_questionnaire() is moved to Questionnaire.py: fix this call
-        #for i in range(0, len(self.root.page)):
+        # for i in range(0, len(self.root.page)):
         #    self.extract_sources_from_questionnaire()
 
     def extract_transitions_from_qml_page_source(self, qml_source_page, uid):
@@ -170,8 +171,114 @@ class QmlReader:
         logging.info("extract_questions_from_pages")
         pass
 
-    def extract_headers_from_question(self):
-        logging.info("extract_headers_from_question")
+    def extract_headers_and_questions_from_pages(self):
+        logging.info("extract_headers_from_pages")
+        for i in range(0, len(self.root.page)):
+            tmp_qml_page_source = self.root.page[i]
+            tmp_page_uid = tmp_qml_page_source.attrib['uid']
+            self.extract_page_headers_from_qml_page_source(tmp_qml_page_source, tmp_page_uid)
+            self.extract_question_objects_from_qml_page_source(tmp_qml_page_source, tmp_page_uid)
+
+    def extract_page_headers_from_qml_page_source(self, qml_source_page, page_uid):
+        logging.info("extract_page_headers_from_page_sources; uid: " + str(page_uid))
+        assert isinstance(qml_source_page, lxml.objectify.ObjectifiedElement)
+        assert isinstance(page_uid, str)
+        if hasattr(qml_source_page, 'header'):
+            logging.info("  found page header")
+            i = -1
+            if len([i for i in qml_source_page.header.iterchildren()]) > 0:
+                logging.info("  page header has length > 0")
+                for header in qml_source_page.header.iterchildren():
+                    tmp_object = None
+                    i += 1
+                    tmp_index = i
+                    logging.info("  page header object - index: " + str(i))
+                    tmp_uid = header.attrib['uid']
+                    logging.info("  page header object - uid: " + str(tmp_uid))
+                    if header.text is not None:
+                        tmp_text = header.text
+                    else:
+                        tmp_text = ''
+                    logging.info("  page header object - text: '" + str(tmp_text) + "'")
+
+                    if 'visible' in header.attrib:
+                        tmp_visible_conditions = header.attrib['visible']
+                        logging.info("  found visible condition: " + str(tmp_visible_conditions))
+                    else:
+                        tmp_visible_conditions = None
+                        logging.info("  found visible condition: None")
+
+                    tmp_tag = header.tag[header.tag.rfind('}') + 1:]
+                    logging.info("  found tag: '" + str(tmp_tag) + "'")
+                    tmp_object = Questionnaire.PageHeaderObject(uid=tmp_uid, tag=tmp_tag, text=tmp_text, index=tmp_index, visible_conditions=tmp_visible_conditions)
+
+                    logging.info("  adding PageHeaderObject: '" + str(tmp_object.tag) + "' to page: " + str(page_uid))
+                    self.questionnaire.pages.pages[page_uid].header.add_header_object(tmp_object)
+
+            else:
+                logging.info("  page header has length == 0 and will be ignored")
+
+        else:
+            logging.info("  no page header found")
+
+    def extract_question_objects_from_qml_page_source(self, qml_source_page, page_uid):
+        logging.info("extract_question_objects_from_qml_page_source; uid: " + str(page_uid))
+        assert isinstance(qml_source_page, lxml.objectify.ObjectifiedElement)
+        assert isinstance(page_uid, str)
+        if hasattr(qml_source_page, 'body'):
+            i = 0
+            logging.info('  body found on page "' + str(page_uid) + '".')
+            tmp_body_uid = qml_source_page.body.attrib['uid']
+            for element in qml_source_page.body.iterchildren():
+                tmp_tag = element.tag[element.tag.rfind('}') + 1:]
+
+                if tmp_tag == 'calendar':
+                    tmp_question_header_object = self.extract_question_header_from_qml_element_source(element, page_uid)
+                    tmp_index = i
+                    i += 1
+                if tmp_tag == 'comparison':
+                    tmp_index = i
+                    i += 1
+                if tmp_tag == 'display':
+                    tmp_index = i
+                    i += 1
+                if tmp_tag == 'matrixDouble':
+                    tmp_index = i
+                    i += 1
+                if tmp_tag == 'matrixMultipleChoice':
+                    tmp_index = i
+                    i += 1
+                if tmp_tag == 'matrixQuestionMixed':
+                    tmp_index = i
+                    i += 1
+                if tmp_tag == 'matrixQuestionOpen':
+                    tmp_index = i
+                    i += 1
+                if tmp_tag == 'matrixQuestionSingleChoice':
+                    tmp_index = i
+                    i += 1
+                if tmp_tag == 'multipleChoice':
+                    tmp_index = i
+                    i += 1
+                if tmp_tag == 'questionOpen':
+                    tmp_index = i
+                    i += 1
+                if tmp_tag == 'questionPretest':
+                    tmp_index = i
+                    i += 1
+                if tmp_tag == 'questionSingleChoice':
+                    tmp_index = i
+                    i += 1
+                    # ToDo
+                    ## self.questionnaire.pages.pages[page_uid].questions.add_question_object()
+
+                    (self.extract_question_header_from_qml_element_source(element, page_uid))
+                if tmp_tag == 'section':
+                    tmp_index = i
+                    i += 1
+                if tmp_tag == 'section':
+                    tmp_index = i
+                    i += 1
         pass
 
     def extract_response_domains_from_question(self):
@@ -216,3 +323,46 @@ class QmlReader:
 
     def draw_pgv_graph(self, output_file='output_file.png'):
         self.pgv_graph.draw(output_file)
+
+    def extract_question_header_from_qml_element_source(self, qml_source_element, page_uid):
+        flag_question = False
+        flag_instruction = False
+        flag_introduction = False
+        tmp_header = Questionnaire.QuestionHeader()
+        if hasattr(qml_source_element, 'header'):
+            for header_question_object in qml_source_element.header.iterchildren():
+                j = 0
+                if hasattr(header_question_object, 'tag'):
+                    if header_question_object.tag[header_question_object.tag.rfind('}') + 1:] == 'question':
+                        logging.info('  tag "question" found')
+                    elif header_question_object.tag[header_question_object.tag.rfind('}') + 1:] == 'instruction':
+                        logging.info('  tag "instruction" found')
+                    elif header_question_object.tag[header_question_object.tag.rfind('}') + 1:] == 'introduction':
+                        logging.info('  tag "introduction" found')
+                    else:
+                        logging.info('  unexpected tag found: "' + + '" in header on page ' + str(page_uid))
+                        raise ValueError('  unexpected tag found: "' + + '" in header on page ' + str(page_uid))
+
+                tmp_index = j
+                j += 1
+
+                tmp_uid = header_question_object.attrib['uid']
+                tmp_text = header_question_object.text
+                if 'visible' in header_question_object.attrib:
+                    tmp_visible = header_question_object.attrib['visible']
+                else:
+                    tmp_visible = None
+                tmp_tag = header_question_object.tag[header_question_object.tag.rfind('}') + 1:]
+                tmp_header.add_header_object(Questionnaire.QuestionHeaderObject(uid=tmp_uid, text=tmp_text, tag=tmp_tag, index=tmp_index, visible_conditions=tmp_visible))
+        return tmp_header
+
+
+           # for header_element in qml_source_element.header:
+           #     tmp_uid = header_element.uid
+           #     tmp_text = header_element.text
+           #     tmp_tag = header.tag[header.tag.rfind('}') + 1:]
+           #     tmp_index =
+           #     tmp_page_header_object = Questionnaire.PageHeaderObject()
+           #     tmp_header.add_header_object()
+        pass
+
