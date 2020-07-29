@@ -167,10 +167,15 @@
 		<zofar:body uid="b">
     		<zofar:questionSingleChoice uid="sc1">
     			<zofar:header>
-    				<zofar:question uid="q1">
+    				<zofar:question uid="q1" visible="true">
 						Bitte geben Sie an, was aktuell auf Sie zutrifft.
     				</zofar:question>
-    				<zofar:instruction uid="is">Ihr Promotionsverfahren gilt als abgeschlossen, wenn Sie die letzte Prüfung (in der Regel: Disputation oder Rigorosum) erfolgreich abgelegt haben.
+					<zofar:question uid="q2" visible="false">
+						Bitte geben Sie an, was aktuell auf Sie zutrifft.
+    				</zofar:question>
+    				<zofar:instruction uid="is1" visible="true">Ihr Promotionsverfahren gilt als abgeschlossen, wenn Sie die letzte Prüfung (in der Regel: Disputation oder Rigorosum) erfolgreich abgelegt haben.
+    				</zofar:instruction>
+    				<zofar:instruction uid="is2" visible="false">Ihr Promotionsverfahren gilt als abgeschlossen, wenn Sie die letzte Prüfung (in der Regel: Disputation oder Rigorosum) erfolgreich abgelegt haben.
     				</zofar:instruction>
     			</zofar:header>
     			<zofar:responseDomain variable="var02" uid="rd">
