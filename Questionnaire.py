@@ -684,6 +684,9 @@ class Questionnaire:
         """
         :param filename: string of source filename
         """
+        self.__flowchart_show_conditions = True
+        self.__flowchart_show_variablenames = True
+        self.__flowchart_bidirectional_edges = False
         self.logger = logging.getLogger('debug')
         self.DiGraph = nx.DiGraph()
         self.filename = None
@@ -707,7 +710,44 @@ class Questionnaire:
         fh.setFormatter(fh_format)
         self.logger.addHandler(fh)
 
+    def flowchart_set_show_variablenames(self, show_variablenames=True):
+        """
+
+        :param show_variablenames: True shows varnames, False omits them
+        :return: none
+        """
+        assert isinstance(show_variablenames, bool)
+        self.__flowchart_show_variablenames = show_variablenames
+
+    def flowchart_set_show_conditions(self, show_conditions=True):
+        """
+
+        :param show_conditions: True shows conditions, False omits them
+        :return: none
+        """
+        assert isinstance(show_conditions, bool)
+        self.__flowchart_show_conditions = show_conditions
+
+    def flowchart_set_bidirectional(self, set_biderectional=False):
+        """
+
+        :param set_biderectional: True duplicates all edges in opposing direction, False does nothing such.
+        :return: none
+        """
+        assert isinstance(set_biderectional, bool)
+        self.__flowchart_bidirectional_edges = set_biderectional
+
+    def flowchart_create_birectional_edges(self):
+        """
+        duplicates the existing edges in opposing direction - only useful for weighted graphs/charts
+        :return: none
+        """
+        for edge in self.DiGraph.edges():
+            if edge[0] != edge[1]:
+                self.DiGraph.add_edge(edge[1], edge[0])
+
     def transitions_to_nodes_edges(self, truncate=False):
+        self.DiGraph = nx.DiGraph()
         logging.info("transitions_to_nodes_edges")
         print("transitions_nodes_to_edges")
         self.create_readable_conditions()
@@ -715,29 +755,48 @@ class Questionnaire:
 
         for page in self.pages.pages.values():
             self.DiGraph.add_node(page.uid)  # create nodes
+
             cnt = 0
             dict_transitions = {}
             for transition in page.transitions.transitions.values():
                 if transition.condition is not None:
                     if transition.target in dict_transitions.keys():
-                        dict_transitions[transition.target] = dict_transitions[transition.target] + ' |\n(' + '[' + str(cnt) + '] ' + transition.condition_new + ']' + ')'
-                        self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + '] ' + dict_transitions[transition.target])
+                            dict_transitions[transition.target] = dict_transitions[transition.target] + ' |\n(' + '[' + str(cnt) + '] ' + transition.condition_new + ']' + ')'
+                            if self.__flowchart_show_conditions:
+                                self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + '] ' + dict_transitions[transition.target])
+                            else:
+                                self.DiGraph.add_edge(page.uid, transition.target)
                     else:
                         dict_transitions[transition.target] = '(' + '[' + str(cnt) + '] ' + transition.condition_new + ')'
 
-                    self.DiGraph.add_edge(page.uid, transition.target, label=dict_transitions[transition.target])
+                    if self.__flowchart_show_conditions:
+                        self.DiGraph.add_edge(page.uid, transition.target, label=dict_transitions[transition.target])
+                    else:
+                        self.DiGraph.add_edge(page.uid, transition.target)
 
                 else:
                     if transition.target in dict_transitions.keys():
-                        self.DiGraph.add_edge(page.uid, transition.target, label='')
+                        if self.__flowchart_show_conditions:
+                            self.DiGraph.add_edge(page.uid, transition.target, label='')
+                        else:
+                            self.DiGraph.add_edge(page.uid, transition.target)
                     else:
                         if cnt is 0:
-                            self.DiGraph.add_edge(page.uid, transition.target, label='')
+                            if self.__flowchart_show_conditions:
+                                self.DiGraph.add_edge(page.uid, transition.target, label='')
+                            else:
+                                self.DiGraph.add_edge(page.uid, transition.target)
                         if cnt is not 0:
-                            self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + ']')
+                            if self.__flowchart_show_conditions:
+                                self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + ']')
+                            else:
+                                self.DiGraph.add_edge(page.uid, transition.target)
 
-                cnt = cnt + 1
-        self.add_variables_to_node()
+            cnt = cnt + 1
+        if self.__flowchart_show_variablenames:
+            self.add_variables_to_node()
+        if self.__flowchart_bidirectional_edges:
+            self.flowchart_create_birectional_edges()
 
     def add_variables_to_node(self):
         mapping = {}
@@ -754,7 +813,7 @@ class Questionnaire:
 
 
 
-    def create_graph(self):
+    def flowchart_create_graph(self):
         """
         :param: None
         :return: None
@@ -763,6 +822,7 @@ class Questionnaire:
         self.transitions_to_nodes_edges()
         self.init_pgv_graph()
         self.prepare_pgv_graph()
+
 
     def init_pgv_graph(self, graph_name='graph'):
         """
