@@ -103,10 +103,22 @@ class Window(tkinter.Frame):
         self.button6.grid(row=6, column=2, sticky='N')
         self.__button_dict['btn6'] = self.button6
 
-        self.button7 = tkinter.Button(self.canvas1, width=20, height=1, text='Open Path', state=tkinter.DISABLED,
-                                      command=self.open_path)
+        self.button7 = tkinter.Button(self.canvas1, width=20, height=1, text='', state=tkinter.DISABLED)
         self.button7.grid(row=7, column=2, sticky='N')
-        self.__button_dict['open_path'] = self.button7
+        self.__button_dict['btn7'] = self.button7
+
+        self.button8 = tkinter.Button(self.canvas1, width=20, height=1, text='', state=tkinter.DISABLED)
+        self.button8.grid(row=8, column=2, sticky='N')
+        self.__button_dict['btn8'] = self.button8
+
+        self.button9 = tkinter.Button(self.canvas1, width=20, height=1, text='', state=tkinter.DISABLED)
+        self.button9.grid(row=9, column=2, sticky='N')
+        self.__button_dict['btn9'] = self.button8
+
+        self.button10 = tkinter.Button(self.canvas1, width=20, height=1, text='Open Path', state=tkinter.DISABLED,
+                                       command=self.open_path)
+        self.button10.grid(row=7, column=2, sticky='N')
+        self.__button_dict['open_path'] = self.button10
 
     def open_path(self):
         path = os.path.realpath(self.dirText)
@@ -320,20 +332,31 @@ class Window(tkinter.Frame):
                                                            command=self.action_details_show)
 
         if action is 'flowchart':
-            self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
-                                                           text='Flowchart(s)', state=tkinter.NORMAL,
-                                                           command=self.action_flowchart_create)
+            self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
+                                                           text='Flowchart(s) w/ var & cond', state=tkinter.NORMAL,
+                                                           command=self.action_delay_flowchart_creation_show_var_show_cond_create_biderectional)
+
+            self.window_selection.button2 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
+                                                           text='Flowchart(s) w/o', state=tkinter.NORMAL,
+                                                           command=self.action_delay_flowchart_creation_omit_var_omit_cond_no_biderectional)
 
         if action is 'combine':
             self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                            text='Combine QMLs', state=tkinter.NORMAL,
                                                            command=self.action_combine_questionnaires)
 
-        self.window_selection.button2 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+        self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                        text='Close', state=tkinter.NORMAL,
                                                        command=self.window_selection.destroy)
         self.window_selection.button1.grid(row=0, column=2, padx=0, sticky='NE')
         self.window_selection.button2.grid(row=1, column=2, padx=0, sticky='NE')
+        self.window_selection.button3.grid(row=2, column=2, padx=0, sticky='NE')
+
+    def action_delay_flowchart_creation_show_var_show_cond_create_biderectional(self):
+        self.action_flowchart_create(show_conditions=True, show_varnames=True, create_biderectional_edges=False)
+
+    def action_delay_flowchart_creation_omit_var_omit_cond_no_biderectional(self):
+        self.action_flowchart_create(show_conditions=False, show_varnames=False, create_biderectional_edges=True)
 
     def action_combine_questionnaires(self):
         self.logger.info('clicked on "combine"')
@@ -358,10 +381,17 @@ class Window(tkinter.Frame):
         self.listOfFiles = [os.path.split(f)[1] for f in self.listOfFilesFull]
         self.redraw_file_text()
 
-    def action_flowchart_create(self):
+    def action_flowchart_create(self, show_varnames=True, show_conditions=True, create_biderectional_edges=False):
         self.logger.info('clicked on "flowchart"')
         self.logger.info('list of filenames from selection: ' + str(self.list_of_filenames_from_selection()))
         temp_list = [os.path.split(path)[1] for path in self.list_of_selected_files]
+        if not show_varnames:
+           [self.__flowcharts_omit_varnames(key) for key in temp_list]
+        if not show_conditions:
+            [self.__flowcharts_omit_conditions(key) for key in temp_list]
+        if create_biderectional_edges:
+            [self.__flowcharts_create_bidirectional_edges(key) for key in temp_list]
+
         [self.prepare_flowcharts(key) for key in temp_list]
         count = len(self.list_of_selected_files)
         if count is 1:
@@ -372,7 +402,16 @@ class Window(tkinter.Frame):
 
     def prepare_flowcharts(self, key):
         self.dict_of_questionnaires[key].transitions_to_nodes_edges(truncate=False)
-        self.dict_of_questionnaires[key].create_graph()
+        self.dict_of_questionnaires[key].flowchart_create_graph()
+
+    def __flowcharts_omit_varnames(self, key):
+        self.dict_of_questionnaires[key].flowchart_set_show_variablenames(False)
+
+    def __flowcharts_omit_conditions(self, key):
+        self.dict_of_questionnaires[key].flowchart_set_show_conditions(False)
+
+    def __flowcharts_create_bidirectional_edges(self, key):
+        self.dict_of_questionnaires[key].flowchart_set_bidirectional(True)
 
     def list_of_filenames_from_selection(self):
         local_list = [self.window_selection.dict_of_vars[i][0] for i in self.window_selection.dict_of_vars if
