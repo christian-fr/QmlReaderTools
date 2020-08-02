@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "0.2.0"
+__version__ = "0.3.0"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
@@ -99,9 +99,9 @@ class Window(tkinter.Frame):
         self.button5.grid(row=5, column=2, sticky='N')
         self.__button_dict['flowchart'] = self.button5
 
-        self.button6 = tkinter.Button(self.canvas1, width=20, height=1, text='', state=tkinter.DISABLED)
+        self.button6 = tkinter.Button(self.canvas1, width=20, height=1, text='weighted Flowchart', state=tkinter.DISABLED)
         self.button6.grid(row=6, column=2, sticky='N')
-        self.__button_dict['btn6'] = self.button6
+        self.__button_dict['weighted_flowchart'] = self.button6
 
         self.button7 = tkinter.Button(self.canvas1, width=20, height=1, text='', state=tkinter.DISABLED)
         self.button7.grid(row=7, column=2, sticky='N')
@@ -398,6 +398,7 @@ class Window(tkinter.Frame):
             tkinter.messagebox.showinfo('Success', str(count) + ' flowchart has been created.')
         if count > 1:
             tkinter.messagebox.showinfo('Success', str(count) + ' flowcharts have been created.')
+        self.activate_button(['weighted_flowchart'])
         self.window_selection.destroy()
 
     def prepare_flowcharts(self, key):
