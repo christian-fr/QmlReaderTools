@@ -1,3 +1,8 @@
+# POSTGRESQL QUERY to get a csv of all relevant transitionss
+# SELECT DISTINCT (p.token) as token, (SELECT '["' || string_agg(s.page, '" , "' ORDER BY s.timestamp asc)||'"]' FROM surveyhistory s WHERE participant_id=p.id) as history FROM participant p, surveyhistory s WHERE p.id=s.participant_id;
+
+
+
 import pandas as pd
 import networkx as nx
 from networkx.drawing.nx_agraph import write_dot, graphviz_layout
