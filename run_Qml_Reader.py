@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 # last edited 2020-04-01
