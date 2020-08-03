@@ -12,3 +12,4 @@
 *.gml
 /qml/
 /questionnaire_generated*.xml
+/data/
