@@ -863,6 +863,7 @@ class Questionnaire:
         self.logger.info('output_gml: ' + str(path.join(output_folder, filename + '.gml')))
         nx.write_gml(self.DiGraph, path.join(output_folder, filename + '.gml'))
         self.logger.info('output_png: ' + str(path.join(output_folder, filename + '.gml')))
+        self.pgv_graph.write(path.join(output_folder, filename + '.dot'))
         self.draw_pgv_graph(path.join(output_folder, filename + '.png'))
 
     def draw_pgv_graph(self, output_file='output_file.png'):

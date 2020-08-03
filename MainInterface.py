@@ -356,7 +356,7 @@ class Window(tkinter.Frame):
         self.action_flowchart_create(show_conditions=True, show_varnames=True, create_biderectional_edges=False)
 
     def action_delay_flowchart_creation_omit_var_omit_cond_no_biderectional(self):
-        self.action_flowchart_create(show_conditions=False, show_varnames=False, create_biderectional_edges=True)
+        self.action_flowchart_create(show_conditions=False, show_varnames=False, create_biderectional_edges=False)
 
     def action_combine_questionnaires(self):
         self.logger.info('clicked on "combine"')
