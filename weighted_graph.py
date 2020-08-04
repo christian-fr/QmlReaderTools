@@ -142,6 +142,22 @@ flowchart_graph.read(input_graph_file)
 flowchart_graph.layout('dot')
 
 
+import matplotlib as mpl
+import numpy as np
+
+
+def colorFader(c1,c2,mix=0): #fade (linear interpolate) from color c1 (at mix=0) to c2 (mix=1)
+    c1=np.array(mpl.colors.to_rgb(c1))
+    c2=np.array(mpl.colors.to_rgb(c2))
+    return mpl.colors.to_hex((1-mix)*c1 + mix*c2)
+
+c1='blue'
+c2='red'
+n=256
+
+colorfader = [colorFader(c1, c2, i/n) for i in range(0, n)]
+
+
 def create_trail(graph, dict_of_weights_of_edges):
     """
 
@@ -157,7 +173,8 @@ def create_trail(graph, dict_of_weights_of_edges):
         if edge in dict_of_weights_of_effective_edges_normalized.keys():
             list_of_used_edges_tuples.append(tuple(edge))
             print('weigth from dict: ' + str(dict_of_weights_of_effective_edges_normalized[edge]))
-            edge.attr['penwidth'] = ceil(dict_of_weights_of_effective_edges_normalized[edge] * 10)
+            edge.attr['penwidth'] = ceil(dict_of_weights_of_effective_edges_normalized[edge] * 10 + 1)
+            edge.attr['color'] = colorfader[ceil(dict_of_weights_of_effective_edges_normalized[edge] * 255)]
             print('penwidth at edge: ' + str(edge.attr['penwidth']))
 
         else:
@@ -182,9 +199,12 @@ def create_highlight_points_of_return(graph, dict_of_weights_of_nodes):
     list_of_unused_nodes_tuples = []
     for node in flowchart_graph.nodes():
         if node in dict_of_weights_of_nodes.keys():
+            print(node.name)
             list_of_used_nodes_tuples.append(tuple(node))
             print('weight from dict: ' + str(dict_of_weights_of_nodes[node]))
-            node.attr['penwidth'] = ceil(dict_of_weights_of_nodes[node] * 10)
+            node.attr['penwidth'] = ceil(dict_of_weights_of_nodes[node] * 10 + 1)
+            print('color: ' + str(colorfader[ceil(dict_of_weights_of_nodes[node] * 255)]))
+            node.attr['color'] = colorfader[ceil(dict_of_weights_of_nodes[node] * 255)]
             print('penwidth at node: ' + str(node.attr['penwidth']))
 
         else:
@@ -195,33 +215,5 @@ def create_highlight_points_of_return(graph, dict_of_weights_of_nodes):
 
 create_highlight_points_of_return(flowchart_graph, dict_weights_of_returning_points_normalized)
 
-# flowchart_graph.edges()[0].attr['width'] = 100
-# flowchart_graph.edges()[0].attr['penwidth'] = 4
-# flowchart_graph.edges()[0].attr['color'] = 'red'
-# flowchart_graph.edges()[0].attr['weight'] = 100
-
 flowchart_graph.draw(outputfile_graph)
 
-
-
-
-from colormath.color_objects import sRGBColor, LabColor
-from colormath.color_conversions import convert_color
-from colormath.color_diff import delta_e_cie2000
-
-# Red Color
-color1_rgb = sRGBColor(1.0, 0.0, 0.0);
-
-# Blue Color
-color2_rgb = sRGBColor(0.0, 0.0, 1.0);
-
-# Convert from RGB to Lab Color Space
-color1_lab = convert_color(color1_rgb, LabColor);
-
-# Convert from RGB to Lab Color Space
-color2_lab = convert_color(color2_rgb, LabColor);
-
-# Find the color difference
-delta_e = delta_e_cie2000(color1_lab, color2_lab);
-
-print("The difference between the 2 color = ", delta_e)
