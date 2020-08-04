@@ -37,10 +37,10 @@ class QmlReader:
 
         self.root = objectify.fromstring(self.data)
 
-        self.questionnaire = Questionnaire.Questionnaire(file=file)
-
-        self.title = 'Survey'
+        self.title = None
         self.set_title()
+        self.questionnaire = Questionnaire.Questionnaire(file=self.file, title=self.title)
+
         self.extract_declared_variables()
 
         self.tmp_dict_of_pages = {}

@@ -1,21 +1,23 @@
+__author__ = "Christian Friedrich"
+__maintainer__ = "Christian Friedrich"
+__license__ = "GPL v3"
+__version__ = "0.0.1"
+__status__ = "Prototype"
+__name__ = "WeightedGraph"
+
+
 # POSTGRESQL QUERY to get a csv of all relevant transitionss
 # SELECT DISTINCT (p.token) as token, (SELECT '["' || string_agg(s.page, '" , "' ORDER BY s.timestamp asc)||'"]' FROM surveyhistory s WHERE participant_id=p.id) as history FROM participant p, surveyhistory s WHERE p.id=s.participant_id;
 
-
-
-#import sys
 import os
 import pandas as pd
-import networkx as nx
-import math
-# from networkx.drawing.nx_agraph import write_dot, graphviz_layout
 import pygraphviz
-# import matplotlib.pyplot as plt
 from math import ceil
 
-data_input_file = r'wide_dataset_with_page_history_as_list.csv'
+data_input_file = r'data/wide_dataset_with_page_history_as_list.csv'
 
 
+# ToDo: rewrite this docstring-like stuff - data structure etc.
 """
 Data structure necessary for the csv input file::
 
@@ -52,10 +54,12 @@ for entry in list(data['page_history']):
 
 
 def create_stack_list(input_list):
+    # print('#################')
+    # print(input_list)
     stack_list = []
 
     for i in range(0, len(input_list)):
-        if i > 0 and input_list[i] == input_list[-i]:
+        if i > 0 and input_list[i] == input_list[i-1]:
             continue
 
         if input_list[i] not in stack_list:
@@ -63,28 +67,31 @@ def create_stack_list(input_list):
         else:
             stack_list.pop()
 
+    # print(stack_list)
     return stack_list
 
 
-x = [(len(i), len(set(i)), len(create_stack_list(i))) for i in history_liste]
+# x = [(len(i), len(set(i)), len(create_stack_list(i))) for i in history_liste]
 
-index = 0
-for length, length_set, length_stack in x:
-    if length_set != length_stack:
-        print(str(index), str(length_set), str(length_stack), str(length_stack -length_set))
-    index += 1
+# index = 0
+# for length, length_set, length_stack in x:
+#     if length_set != length_stack:
+#         print(str(index), str(length_set), str(length_stack), str(length_stack - length_set))
+#     index += 1
 
 # Create a list and dict of returning points, i.e. pages that have once been visited, but then the respondent has
 #  gone back, changed an answer and took a different path
 
-list_of_returning_points = [set(i) ^ set(create_stack_list(i)) for i in history_liste]
+list_of_returning_points = [set(i) - set(create_stack_list(i)) for i in history_liste]
+
+list_of_returning_points_clean = [i for i in filter(None, list_of_returning_points)]
 
 dict_weights_of_returning_points = {}
 
-for liste in history_liste:
-    for key in liste:
+for liste in list_of_returning_points_clean:
+    for key in list(liste):
         if key in dict_weights_of_returning_points:
-            if liste.index(key) != len(liste)-1:
+            if list(liste).index(key) != len(liste)-1:
                 dict_weights_of_returning_points[key] += 1
         else:
             dict_weights_of_returning_points[key] = 1
@@ -126,7 +133,7 @@ for key in dict_of_weights_of_effective_edges.keys():
 
 outputfile_graph = r'output_graph.png'
 
-input_graph_file = os.path.join(os.getcwd(), '2020-08-03_11-39_questionnaire_corona-sid_final.dot')
+input_graph_file = os.path.join(os.getcwd(), 'data/2020-08-03_11-39_questionnaire_corona-sid_final.dot')
 
 flowchart_graph = pygraphviz.agraph.AGraph()
 

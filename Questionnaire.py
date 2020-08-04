@@ -791,8 +791,8 @@ class Questionnaire:
                                 self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + ']')
                             else:
                                 self.DiGraph.add_edge(page.uid, transition.target)
+                cnt = cnt + 1
 
-            cnt = cnt + 1
         if self.__flowchart_show_variablenames:
             self.add_variables_to_node()
         if self.__flowchart_bidirectional_edges:
