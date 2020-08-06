@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __status__ = "Prototype"
 __name__ = "QmlReader"
 
@@ -339,9 +339,12 @@ class QmlReader:
                         logging.info('  tag "instruction" found')
                     elif header_question_object.tag[header_question_object.tag.rfind('}') + 1:] == 'introduction':
                         logging.info('  tag "introduction" found')
+                    elif header_question_object.tag[header_question_object.tag.rfind('}') + 1:] == 'comment':
+                        logging.info('  comment found, ignored')
+                        continue
                     else:
-                        logging.info('  unexpected tag found: "' + + '" in header on page ' + str(page_uid))
-                        raise ValueError('  unexpected tag found: "' + + '" in header on page ' + str(page_uid))
+                        logging.info('  unexpected tag found: "' + str(header_question_object.tag) + '" in header on page ' + str(page_uid))
+                        raise ValueError('  unexpected tag found: "'  + str(header_question_object.tag) +  '" in header on page ' + str(page_uid))
 
                 tmp_index = j
                 j += 1
