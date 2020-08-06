@@ -14,7 +14,14 @@ import pandas as pd
 import pygraphviz
 from math import ceil
 
-data_input_file = r'data/wide_dataset_with_page_history_as_list.csv'
+data_input_file = r'data/nacaps2020_wide_dataset_with_page_history_as_list.csv'
+
+input_graph_file = os.path.join(os.getcwd(), r'data/2020-08-06_10-13_questionnaire_Nacaps2020.dot')
+
+outputfile_graph_effective_trail = r'output_graph_trail.png'
+outputfile_graph_backwards_jumps = r'output_graph_backwards.png'
+outputfile_graph_points_of_return = r'output_graph_points_of_return.png'
+
 
 
 # ToDo: rewrite this docstring-like stuff - data structure etc.
@@ -72,7 +79,9 @@ def create_stack_list(input_list):
             stack_list.append(input_list[i])
         else:
             list_of_backward_jumps.append((stack_list.pop(), input_list[i]))
-
+    if 'end' in input_list:
+        print('sprünge nach "end":')
+        print(input_list[input_list.index('end'):])
 
     # print(stack_list)
     return stack_list, list_of_backward_jumps
@@ -89,9 +98,13 @@ def create_stack_list(input_list):
 # Create a list and dict of returning points, i.e. pages that have once been visited, but then the respondent has
 #  gone back, changed an answer and took a different path
 
+print('create list of returning points')
+
 list_of_returning_points = [set(i) - set(create_stack_list(i)[0]) for i in history_liste]
 
 list_of_returning_points_clean = [i for i in filter(None, list_of_returning_points)]
+
+print('create dict of weight of returning points')
 
 dict_weights_of_returning_points = {}
 
@@ -103,10 +116,13 @@ for liste in list_of_returning_points_clean:
         else:
             dict_weights_of_returning_points[key] = 1
 
+print('create tuple range of weights of returning points')
 
 tuple_range_of_weights_of_returning_points = tuple([min(dict_weights_of_returning_points.values()), max(dict_weights_of_returning_points.values())])
 
 # normalize values.
+
+print('normalize values of dict of weight of returning points')
 
 dict_weights_of_returning_points_normalized = {}
 for key in dict_weights_of_returning_points.keys():
@@ -116,9 +132,14 @@ for key in dict_weights_of_returning_points.keys():
 # Create a list and dict of effective paths / edges, i.e. paths that have, in the end (and possibly after subsequent changes)
 # been taken through the questionnaire.
 
+print('create list of effective paths')
+
 list_of_effective_paths = [create_stack_list(i)[0] for i in history_liste]
 
 # ToDo: als function definieren; input: list_of_lists von history-daten (bspw. stacks, backwards, etc.)
+
+print('create dict of weights of effective paths')
+
 dict_of_weights_of_effective_edges = {}
 
 for entry in list_of_effective_paths:
@@ -130,17 +151,24 @@ for entry in list_of_effective_paths:
             dict_of_weights_of_effective_edges[tuple([entry[index], entry[index + 1]])] = 1
         index += 1
 
+print('create tuple of range of weights of effective paths')
 tuple_range_of_weights_of_effective_edges = tuple([min(dict_of_weights_of_effective_edges.values()), max(dict_of_weights_of_effective_edges.values())])
 
 # normalize values.
+
+print('normalize values of dict of weights of effective paths')
+
 
 dict_of_weights_of_effective_edges_normalized = {}
 for key in dict_of_weights_of_effective_edges.keys():
     dict_of_weights_of_effective_edges_normalized[key] = (dict_of_weights_of_effective_edges[key] - tuple_range_of_weights_of_effective_edges[0])/(tuple_range_of_weights_of_effective_edges[1]-tuple_range_of_weights_of_effective_edges[0])
 
 
+print('create list of backwards jumps')
 
 list_of_backwards_jumps = [create_stack_list(i)[1] for i in history_liste]
+
+print('create dict of weights of backward jumping edges')
 
 dict_of_weights_of_backwards_jumping_edges = {}
 
@@ -151,27 +179,33 @@ for liste in list_of_backwards_jumps:
         else:
             dict_of_weights_of_backwards_jumping_edges[entry] = 1
 
+print('create tuple of range of weights of backward jumping edges')
+
 tuple_range_of_weights_of_backwards_jumping_edges = tuple([min(dict_of_weights_of_backwards_jumping_edges.values()), max(dict_of_weights_of_backwards_jumping_edges.values())])
 
 # normalize values.
+
+print('normalize values of dict weights of backward jumping edges')
 
 dict_of_weights_of_backwards_jumping_edges_normalized = {}
 for key in dict_of_weights_of_backwards_jumping_edges.keys():
     dict_of_weights_of_backwards_jumping_edges_normalized[key] = (dict_of_weights_of_backwards_jumping_edges[key] - tuple_range_of_weights_of_backwards_jumping_edges[0])/(tuple_range_of_weights_of_backwards_jumping_edges[1]-tuple_range_of_weights_of_backwards_jumping_edges[0])
 
 
-
-outputfile_graph_effective_trail = r'output_graph_trail.png'
-outputfile_graph_backwards_jumps = r'output_graph_backwards.png'
-outputfile_graph_points_of_return = r'output_graph_points_of_return.png'
-
-input_graph_file = os.path.join(os.getcwd(), 'data/2020-08-03_11-39_questionnaire_corona-sid_final.dot')
+print('initializing graph')
 
 flowchart_graph = pygraphviz.agraph.AGraph()
 
+print('reading input graph')
+
 flowchart_graph.read(input_graph_file)
 
+
+print('set graph layout')
+
 flowchart_graph.layout('dot')
+
+print('copy graphs')
 
 flowchart_graph_effective_trail = flowchart_graph.copy()
 flowchart_graph_effective_trail.layout('dot')
@@ -195,6 +229,8 @@ c1='blue'
 c2='red'
 n=256
 
+print('create colorfader')
+
 colorfader = [colorFader(c1, c2, i/n) for i in range(0, n)]
 
 
@@ -212,7 +248,7 @@ def create_trail(graph, dict_of_weights_of_edges, colorfader_list, max_line_widt
     list_of_used_edges_tuples = []
     list_of_unused_edges_tuples = []
     for edge in graph.edges():
-        if edge in dict_of_weights_of_edges.keys():
+        if (edge[1], edge[0]) in dict_of_weights_of_edges.keys():
             list_of_used_edges_tuples.append(tuple(edge))
             print('weigth from dict: ' + str(dict_of_weights_of_edges[edge]))
             edge.attr['penwidth'] = ceil(dict_of_weights_of_edges[edge] * max_line_width + 1)
@@ -224,10 +260,13 @@ def create_trail(graph, dict_of_weights_of_edges, colorfader_list, max_line_widt
     print('edges in graph without corresponding edges in data: \n' + str(list_of_unused_edges_tuples))
     return list_of_used_edges_tuples, list_of_unused_edges_tuples
 
+print('create trail graph of backwards jumps')
 
-create_trail(flowchart_graph_backwards_jumps, dict_of_weights_of_backwards_jumping_edges_normalized, colorfader)
+backwards_used_unused_edges = create_trail(flowchart_graph_backwards_jumps, dict_of_weights_of_backwards_jumping_edges_normalized, colorfader)
 
-create_trail(flowchart_graph_effective_trail, dict_of_weights_of_effective_edges_normalized, colorfader)
+print('create trail graph of effectige edges')
+
+effective_trail_used_unused_edges = create_trail(flowchart_graph_effective_trail, dict_of_weights_of_effective_edges_normalized, colorfader)
 
 
 def create_highlight_points_of_return(graph, dict_of_weights_of_nodes):
@@ -256,6 +295,7 @@ def create_highlight_points_of_return(graph, dict_of_weights_of_nodes):
     print('edges in graph without corresponding edges in data: \n' + str(list_of_unused_nodes_tuples))
     return list_of_used_nodes_tuples, list_of_unused_nodes_tuples
 
+print('create graph with highlightes points of return')
 
 create_highlight_points_of_return(flowchart_graph_points_of_return, dict_weights_of_returning_points_normalized)
 
@@ -263,8 +303,11 @@ def invert_arrowheads(graph):
     for edge in graph.edges():
         edge.attr['arrowhead'] = 'inv'
 
+print('invert arrowheads for backwards jumps graph')
 
 invert_arrowheads(flowchart_graph_backwards_jumps)
+
+print('draw graphs / flowcharts')
 
 flowchart_graph_effective_trail.draw(outputfile_graph_effective_trail)
 flowchart_graph_backwards_jumps.draw(outputfile_graph_backwards_jumps)
