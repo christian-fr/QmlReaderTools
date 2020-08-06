@@ -234,9 +234,8 @@ print('create colorfader')
 colorfader = [colorFader(c1, c2, i/n) for i in range(0, n)]
 
 
-def create_trail(graph, dict_of_weights_of_edges, colorfader_list, max_line_width=10):
+def create_trail(graph, dict_of_weights_of_edges, colorfader_list, max_line_width=10, backwards=False):
     """
-
     :param max_line_width: max penwidth of line
     :param colorfader: list of
     :param graph: input graph, DiGraph form networkx
@@ -247,26 +246,31 @@ def create_trail(graph, dict_of_weights_of_edges, colorfader_list, max_line_widt
     assert isinstance(dict_of_weights_of_edges, dict)
     list_of_used_edges_tuples = []
     list_of_unused_edges_tuples = []
+    tmp_edge = ()
     for edge in graph.edges():
-        if (edge[1], edge[0]) in dict_of_weights_of_edges.keys():
-            list_of_used_edges_tuples.append(tuple(edge))
-            print('weigth from dict: ' + str(dict_of_weights_of_edges[edge]))
-            edge.attr['penwidth'] = ceil(dict_of_weights_of_edges[edge] * max_line_width + 1)
-            edge.attr['color'] = colorfader_list[ceil(dict_of_weights_of_edges[edge] * (len(colorfader_list)-1))]
-            print('penwidth at edge: ' + str(edge.attr['penwidth']))
+        if backwards:
+            tmp_edge = (edge[1], edge[0])
+        else:
+            tmp_edge = edge
+        if tmp_edge in dict_of_weights_of_edges.keys():
+            list_of_used_edges_tuples.append(tmp_edge)h
+            # print('weigth from dict: ' + str(dict_of_weights_of_edges[(edge[1], edge[0])]))
+            edge.attr['penwidth'] = ceil(dict_of_weights_of_edges[tmp_edge] * max_line_width + 1)
+            edge.attr['color'] = colorfader_list[ceil(dict_of_weights_of_edges[tmp_edge] * (len(colorfader_list)-1))]
+            # print('penwidth at edge: ' + str(edge.attr['penwidth']))
 
         else:
-            list_of_unused_edges_tuples.append(tuple(edge))
+            list_of_unused_edges_tuples.append(tmp_edge)
     print('edges in graph without corresponding edges in data: \n' + str(list_of_unused_edges_tuples))
     return list_of_used_edges_tuples, list_of_unused_edges_tuples
 
 print('create trail graph of backwards jumps')
 
-backwards_used_unused_edges = create_trail(flowchart_graph_backwards_jumps, dict_of_weights_of_backwards_jumping_edges_normalized, colorfader)
+backwards_used_unused_edges = create_trail(flowchart_graph_backwards_jumps, dict_of_weights_of_backwards_jumping_edges_normalized, colorfader, backwards=True)
 
 print('create trail graph of effectige edges')
 
-effective_trail_used_unused_edges = create_trail(flowchart_graph_effective_trail, dict_of_weights_of_effective_edges_normalized, colorfader)
+effective_trail_used_unused_edges = create_trail(flowchart_graph_effective_trail, dict_of_weights_of_effective_edges_normalized, colorfader, backwards=False)
 
 
 def create_highlight_points_of_return(graph, dict_of_weights_of_nodes):
@@ -274,16 +278,16 @@ def create_highlight_points_of_return(graph, dict_of_weights_of_nodes):
 
     :param graph: input graph, DiGraph form networkx
     :param dict_of_weights_of_nodes: dictionary of weights
-    :return: tuple of two lists: list of used nodes from graph, list of unused nodes from graph
+    :return: tuple of two lists: list of used nodes from graph, list of unused nodes from graphb
     """
     assert isinstance(graph, pygraphviz.agraph.AGraph)
     assert isinstance(dict_of_weights_of_nodes, dict)
-    list_of_used_nodes_tuples = []
-    list_of_unused_nodes_tuples = []
+    list_of_used_nodes_strings = []
+    list_of_unused_nodes_strings = []
     for node in graph.nodes():
         if node in dict_of_weights_of_nodes.keys():
             print(node.name)
-            list_of_used_nodes_tuples.append(tuple(node))
+            list_of_used_nodes_strings.append(node)
             print('weight from dict: ' + str(dict_of_weights_of_nodes[node]))
             node.attr['penwidth'] = ceil(dict_of_weights_of_nodes[node] * 10 + 1)
             print('color: ' + str(colorfader[ceil(dict_of_weights_of_nodes[node] * 255)]))
@@ -291,9 +295,9 @@ def create_highlight_points_of_return(graph, dict_of_weights_of_nodes):
             print('penwidth at node: ' + str(node.attr['penwidth']))
 
         else:
-            list_of_unused_nodes_tuples.append(tuple(node))
-    print('edges in graph without corresponding edges in data: \n' + str(list_of_unused_nodes_tuples))
-    return list_of_used_nodes_tuples, list_of_unused_nodes_tuples
+            list_of_unused_nodes_strings.append(node)
+    print('nodes in graph without corresponding nodes in data: \n' + str(list_of_unused_nodes_strings))
+    return list_of_used_nodes_strings, list_of_unused_nodes_strings
 
 print('create graph with highlightes points of return')
 
