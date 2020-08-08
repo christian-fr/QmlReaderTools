@@ -66,7 +66,6 @@ def create_stack_list(input_list):
 
 def create_blue_red_color_gradient_list(steps=256):
     """
-
     :param steps:
     :return: list of color values
     """
@@ -78,10 +77,8 @@ def create_blue_red_color_gradient_list(steps=256):
     color_gradient_list = [color_fader(c1, c2, i / n) for i in range(0, n)]
     return color_gradient_list
 
-
 def color_fader(c1, c2, mix=0):  # fade (linear interpolate) from color c1 (at mix=0) to c2 (mix=1)
     """
-
     :param c2:
     :param c1:
     :type mix: float
@@ -151,6 +148,57 @@ class AdvancedFlowchart:
                 list_of_unused_edges_tuples.append(tmp_edge)
         print('edges in graph without corresponding edges in data: \n' + str(list_of_unused_edges_tuples))
         return list_of_used_edges_tuples, list_of_unused_edges_tuples
+
+    def modify_graph(self, graph, title, dict_of_weights_of_nodes=None, dict_of_weights_of_edges=None, func_for_penwidth_edges=None, func_for_colorfader_edges=None,func_for_penwidth_nodes=None, func_for_colorfader_nodes=None, reverse_edges=False):
+        """
+
+        :param graph:
+        :param title:
+        :param dict_of_weights_of_nodes:
+        :param dict_of_weights_of_edges:
+        :param func_for_penwidth:
+        :param func_for_colorfader:
+        :return:
+        """
+        assert isinstance(graph, pygraphviz.agraph.AGraph)
+        assert isinstance(dict_of_weights_of_nodes, dict)
+        list_of_used_edges_tuples = []
+        list_of_unused_edges_tuples = []
+        tmp_edge = ()
+        if dict_of_weights_of_edges is not None:
+            for edge in graph.edges():
+                if reverse_edges:
+                    tmp_edge = (edge[1], edge[0])
+                else:
+                    tmp_edge = edge
+                if tmp_edge in dict_of_weights_of_edges.keys():
+                    list_of_used_edges_tuples.append(tmp_edge)
+                    if func_for_penwidth_edges is not None:
+                        edge.attr['penwidth'] = func_for_penwidth_edges(dict_of_weights_of_edges[tmp_edge])
+                    # ceil(dict_of_weights_of_edges[tmp_edge] * max_line_width + 1)
+                    if func_for_colorfader_edges is not None:
+                        edge.attr['color'] = func_for_colorfader_edges(dict_of_weights_of_edges[tmp_edge])
+                    # colorfader_list[ceil(dict_of_weights_of_edges[tmp_edge] * (len(colorfader_list) - 1))]
+                else:
+                    list_of_unused_edges_tuples.append(tmp_edge)
+
+        list_of_used_nodes_strings = []
+        list_of_unused_nodes_strings = []
+        if dict_of_weights_of_nodes is not None:
+            for node in graph.nodes():
+                if node in dict_of_weights_of_nodes.keys():
+                    list_of_used_nodes_strings.append(node)
+                    if func_for_penwidth_nodes is not None:
+                        node.attr['penwidth'] = func_for_penwidth_nodes(dict_of_weights_of_nodes[node])
+                    # ceil(dict_of_weights_of_nodes[node] * 10 + 1)
+                    if func_for_colorfader_nodes is not None:
+                    node.attr['color'] = func_for_colorfader_nodes(dict_of_weights_of_edges[tmp_edge])
+                    # self.colorfader[ceil(dict_of_weights_of_nodes[node] * 255)]
+                else:
+                    list_of_unused_nodes_strings.append(node)
+
+        return list_of_used_nodes_strings, list_of_unused_nodes_strings, list_of_used_edges_tuples, list_of_unused_edges_tuples
+
 
     def create_graph_highlight_points_of_return(self, graph, dict_of_weights_of_nodes):
         """
