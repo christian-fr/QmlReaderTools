@@ -13,6 +13,12 @@ from math import ceil
 import matplotlib as mpl
 import numpy as np
 
+def check_if_two_consecutive_entries_in_list_of_lists(entry1, entry2, input_list):
+    tmp_list_of_all_tuples = []
+    if (entry1, entry2) in [item for elem in [list(zip(i, i[1:])) for i in input_list] for item in elem]:
+        return True
+    else:
+        return False
 
 def invert_arrowheads(graph):
     """
@@ -192,7 +198,7 @@ class AdvancedFlowchart:
                         node.attr['penwidth'] = func_for_penwidth_nodes(dict_of_weights_of_nodes[node])
                     # ceil(dict_of_weights_of_nodes[node] * 10 + 1)
                     if func_for_colorfader_nodes is not None:
-                    node.attr['color'] = func_for_colorfader_nodes(dict_of_weights_of_edges[tmp_edge])
+                        node.attr['color'] = func_for_colorfader_nodes(dict_of_weights_of_edges[tmp_edge])
                     # self.colorfader[ceil(dict_of_weights_of_nodes[node] * 255)]
                 else:
                     list_of_unused_nodes_strings.append(node)
