@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __status__ = "Prototype"
 __name__ = "QmlReader"
 
@@ -37,10 +37,10 @@ class QmlReader:
 
         self.root = objectify.fromstring(self.data)
 
-        self.questionnaire = Questionnaire.Questionnaire(file=file)
-
-        self.title = 'Survey'
+        self.title = None
         self.set_title()
+        self.questionnaire = Questionnaire.Questionnaire(file=self.file, title=self.title)
+
         self.extract_declared_variables()
 
         self.tmp_dict_of_pages = {}
@@ -339,12 +339,15 @@ class QmlReader:
                         logging.info('  tag "instruction" found')
                     elif header_question_object.tag[header_question_object.tag.rfind('}') + 1:] == 'introduction':
                         logging.info('  tag "introduction" found')
+                    elif header_question_object.tag[header_question_object.tag.rfind('}') + 1:] == 'comment':
+                        logging.info('  comment found, ignored')
+                        continue
                     elif header_question_object.tag == 'comment':
                         logging.info('  xml comment found - will be ignored')
                         continue
                     else:
-                        logging.info('  unexpected tag found: "' + header_question_object.tag + '" in header on page ' + str(page_uid))
-                        raise ValueError('  unexpected tag found: "' + header_question_object.tag + '" in header on page ' + str(page_uid))
+                        logging.info('  unexpected tag found: "' + str(header_question_object.tag) + '" in header on page ' + str(page_uid))
+                        raise ValueError('  unexpected tag found: "'  + str(header_question_object.tag) +  '" in header on page ' + str(page_uid))
 
                 tmp_index = j
                 j += 1

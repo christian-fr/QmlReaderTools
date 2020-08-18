@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 __status__ = "Prototype"
 __name__ = "Questionnaire"
 
@@ -791,8 +791,8 @@ class Questionnaire:
                                 self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + ']')
                             else:
                                 self.DiGraph.add_edge(page.uid, transition.target)
+                cnt = cnt + 1
 
-            cnt = cnt + 1
         if self.__flowchart_show_variablenames:
             self.add_variables_to_node()
         if self.__flowchart_bidirectional_edges:
@@ -862,7 +862,9 @@ class Questionnaire:
         filename = timestamp + '_' + path.splitext(path.split(self.file)[1])[0]
         self.logger.info('output_gml: ' + str(path.join(output_folder, filename + '.gml')))
         nx.write_gml(self.DiGraph, path.join(output_folder, filename + '.gml'))
-        self.logger.info('output_png: ' + str(path.join(output_folder, filename + '.gml')))
+        self.logger.info('output_png: ' + str(path.join(output_folder, filename + '.png')))
+        self.pgv_graph.write(path.join(output_folder, filename + '.dot'))
+        self.logger.info('output_dot: ' + str(path.join(output_folder, filename + '.dot')))
         self.draw_pgv_graph(path.join(output_folder, filename + '.png'))
 
     def draw_pgv_graph(self, output_file='output_file.png'):
