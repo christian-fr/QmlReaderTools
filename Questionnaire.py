@@ -774,19 +774,19 @@ class Questionnaire:
                     else:
                         self.DiGraph.add_edge(page.uid, transition.target)
 
-                else:
+                else:  # if transition.condition is None
                     if transition.target in dict_transitions.keys():
                         if self.__flowchart_show_conditions:
                             self.DiGraph.add_edge(page.uid, transition.target, label='')
                         else:
                             self.DiGraph.add_edge(page.uid, transition.target)
                     else:
-                        if cnt is 0:
+                        if cnt == 0:
                             if self.__flowchart_show_conditions:
                                 self.DiGraph.add_edge(page.uid, transition.target, label='')
                             else:
                                 self.DiGraph.add_edge(page.uid, transition.target)
-                        if cnt is not 0:
+                        if cnt != 0:
                             if self.__flowchart_show_conditions:
                                 self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + ']')
                             else:
