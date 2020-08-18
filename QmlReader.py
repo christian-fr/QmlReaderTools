@@ -339,9 +339,12 @@ class QmlReader:
                         logging.info('  tag "instruction" found')
                     elif header_question_object.tag[header_question_object.tag.rfind('}') + 1:] == 'introduction':
                         logging.info('  tag "introduction" found')
+                    elif header_question_object.tag == 'comment':
+                        logging.info('  xml comment found - will be ignored')
+                        continue
                     else:
-                        logging.info('  unexpected tag found: "' + + '" in header on page ' + str(page_uid))
-                        raise ValueError('  unexpected tag found: "' + + '" in header on page ' + str(page_uid))
+                        logging.info('  unexpected tag found: "' + header_question_object.tag + '" in header on page ' + str(page_uid))
+                        raise ValueError('  unexpected tag found: "' + header_question_object.tag + '" in header on page ' + str(page_uid))
 
                 tmp_index = j
                 j += 1
