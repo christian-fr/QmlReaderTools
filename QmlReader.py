@@ -193,6 +193,13 @@ class QmlReader:
                     i += 1
                     tmp_index = i
                     self.logger.info("  page header object - index: " + str(i))
+                    if 'uid' not in header.attrib:
+                        if hasattr(header, 'tag'):
+                            if header.tag == 'comment':
+                                self.logger.info("  found page header object: xml comment, ignored")
+                        else:
+                            self.logger.error('   found object in page header of ' + str(page_uid) + ' that could not be read.')
+                        continue
                     tmp_uid = header.attrib['uid']
                     self.logger.info("  page header object - uid: " + str(tmp_uid))
                     if header.text is not None:
