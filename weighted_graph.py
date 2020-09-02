@@ -253,7 +253,7 @@ def create_trail(graph, dict_of_weights_of_edges, colorfader_list, max_line_widt
         else:
             tmp_edge = edge
         if tmp_edge in dict_of_weights_of_edges.keys():
-            list_of_used_edges_tuples.append(tmp_edge)h
+            list_of_used_edges_tuples.append(tmp_edge)
             # print('weigth from dict: ' + str(dict_of_weights_of_edges[(edge[1], edge[0])]))
             edge.attr['penwidth'] = ceil(dict_of_weights_of_edges[tmp_edge] * max_line_width + 1)
             edge.attr['color'] = colorfader_list[ceil(dict_of_weights_of_edges[tmp_edge] * (len(colorfader_list)-1))]
