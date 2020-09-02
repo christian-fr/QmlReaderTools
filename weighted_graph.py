@@ -13,14 +13,16 @@ import os
 import pandas as pd
 import pygraphviz
 from math import ceil
+import matplotlib as mpl
+import numpy as np
 
 data_input_file = r'data/nacaps2020_wide_dataset_with_page_history_as_list.csv'
 
 input_graph_file = os.path.join(os.getcwd(), r'data/2020-08-06_10-13_questionnaire_Nacaps2020.dot')
 
-outputfile_graph_effective_trail = r'output_graph_trail.png'
-outputfile_graph_backwards_jumps = r'output_graph_backwards.png'
-outputfile_graph_points_of_return = r'output_graph_points_of_return.png'
+outputfile_graph_effective_trail = r'graphs/output_graph_trail.png'
+outputfile_graph_backwards_jumps = r'graphs/output_graph_backwards.png'
+outputfile_graph_points_of_return = r'graphs/output_graph_points_of_return.png'
 
 
 
@@ -214,10 +216,6 @@ flowchart_graph_backwards_jumps.layout('dot')
 flowchart_graph_points_of_return = flowchart_graph.copy()
 flowchart_graph_points_of_return.layout('dot')
 
-
-
-import matplotlib as mpl
-import numpy as np
 
 
 def colorFader(c1,c2,mix=0): #fade (linear interpolate) from color c1 (at mix=0) to c2 (mix=1)
