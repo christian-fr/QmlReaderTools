@@ -29,7 +29,7 @@ class QmlReader:
         self.logger = logging.getLogger('debug')
         self.startup_logger(log_level=logging.DEBUG)
         self.logger.info('starting up QmlReader')
-        self.DiGraph = nx.DiGraph()
+        # self.DiGraph = nx.DiGraph()
 
         with open(file, 'rb') as f:
             self.logger.info('reading file: ' + str(file))
@@ -44,7 +44,7 @@ class QmlReader:
         self.extract_declared_variables()
 
         self.tmp_dict_of_pages = {}
-        self.pgv_graph = None
+        # self.pgv_graph = None
         self.extract_pages_into_tmp_dict()
         self.extract_pages_to_self()
 
@@ -59,18 +59,6 @@ class QmlReader:
 
     def list_of_pages(self):
         return list(self.questionnaire.pages.pages.keys())
-
-    # def create_graph(self):
-    #     """
-    #     deprecated since version 0.2.0
-    #     is implemented in Questionnaire.Questionnaire
-    #     :param
-    #     :return:
-    #     """
-    #     self.logger.info("create_graph")
-    #     self.transitions_to_nodes_edges()
-    #     self.init_pgv_graph()
-    #     self.prepare_pgv_graph()
 
     def startup_logger(self, log_level=logging.DEBUG):
         """
@@ -328,8 +316,8 @@ class QmlReader:
         self.logger.info("extract_triggers_from_qml_page")
         assert isinstance(qml_page, lxml.objectify.ObjectifiedElement)
 
-    def draw_pgv_graph(self, output_file='output_file.png'):
-        self.pgv_graph.draw(output_file)
+    # def draw_pgv_graph(self, output_file='output_file.png'):
+    #     self.pgv_graph.draw(output_file)
 
     def extract_question_header_from_qml_element_source(self, qml_source_element, page_uid):
         flag_question = False
