@@ -365,32 +365,32 @@ class BodyMatrixMultipleChoice(QuestionObject):
 
 
 class BodyMatrixQuestionMixed(QuestionObject):
-    def __init__(self, uid, index, tag):
-        super().__init__(uid, index, tag='matrixQuestionMixed')
+    def __init__(self, uid, index, items_list, tag='matrixQuestionMixed'):
+        super().__init__(uid, index, tag)
         pass
 
 
 class BodyMatrixQuestionOpen(QuestionObject):
-    def __init__(self, uid, index, tag):
-        super().__init__(uid, index, tag='matrixQuestionOpen')
+    def __init__(self, uid, index, variable, tag='matrixQuestionOpen'):
+        super().__init__(uid, index, tag)
         pass
 
 
 class BodyMatrixQuestionSingleChoice(QuestionObject):
-    def __init__(self, uid, index, tag):
-        super().__init__(uid, index, tag='matrixQuestionSingleChoice')
+    def __init__(self, uid, index, dict_of_body_question_single_choice, tag='matrixQuestionSingleChoice'):
+        super().__init__(uid, index, tag)
         pass
 
 
 class BodyMultipleChoice(QuestionObject):
-    def __init__(self, uid, index, tag):
-        super().__init__(uid, index, tag='multipleChoice')
+    def __init__(self, uid, index, items_list, tag='multipleChoice'):
+        super().__init__(uid, index, tag)
         pass
 
 
 class BodyQuestionOpen(QuestionObject):
-    def __init__(self, uid, index, variable, text_type='text', prefix=None, postfix=None):
-        super().__init__(uid, index, tag='questionOpen')
+    def __init__(self, uid, index, variable, tag='questionOpen', text_type='text', prefix=None, postfix=None):
+        super().__init__(uid, index, tag)
         self.text_type = None
         self.__allowed_text_types = ['grade', 'number', 'text']
         self.type = None
@@ -423,13 +423,13 @@ class BodyQuestionOpen(QuestionObject):
 
 
 class BodyQuestionPretest(QuestionObject):
-    def __init__(self, uid, index, tag):
+    def __init__(self, uid, index, tag='questionPretest'):
         super().__init__(uid, index, tag)
         pass
 
 
 class BodyQuestionSingleChoice(QuestionObject):
-    def __init__(self, uid, index, tag):
+    def __init__(self, uid, index, tag='questionSingleChoice'):
         super().__init__(uid, index, tag)
         pass
 
