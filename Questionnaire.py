@@ -1,11 +1,16 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 __status__ = "Prototype"
 __name__ = "Questionnaire"
 
 # last edited: 2020-07-03
+
+
+"""
+Docstring
+"""
 
 import re
 import networkx as nx
@@ -31,6 +36,7 @@ class UniqueObject(object):
         assert isinstance(uid, str)
         self.uid = uid
 
+
 class HeaderObject(UniqueObject):
     def __init__(self, uid):
         super().__init__(uid)
@@ -41,6 +47,10 @@ class HeaderObject(UniqueObject):
         self.tag = None
         self.allowed_tags_list = None
         self.visible_conditions = None
+
+    def set_allowed_tags_list(self, allowed_tags_list):
+        assert(isinstance(allowed_tags_list, list) and [isinstance(tag, str) for tag in allowed_tags_list])
+        self.allowed_tags_list = allowed_tags_list
 
     def set_tag(self, tag_str):
         assert isinstance(tag_str, str)
@@ -68,29 +78,6 @@ class HeaderObject(UniqueObject):
     def __str__(self):
         return str(type(self).__name__) + '\n tag: ' + str(self.tag) + '\n index: ' + str(self.index) + '\n uid: ' + str(self.uid) + '\n visible: ' + str(self.visible_conditions) + '\n text: "' + str(self.text) + '"'
 
-
-class PageHeaderObject(HeaderObject):
-    def __init__(self, uid, text, tag, index, visible_conditions=None):
-        super().__init__(uid)
-
-        self.allowed_tags_list = ['instruction', 'introduction', 'text', 'title']
-        self.set_tag(tag)
-
-        self.set_text(text)
-        self.set_index(index)
-        self.set_visible_conditions(visible_conditions)
-
-
-class QuestionHeaderObject(HeaderObject):
-    def __init__(self, uid, text, tag, index, visible_conditions=None):
-        super().__init__(uid)
-
-        self.allowed_tags_list = ['instruction', 'introduction', 'question', 'text', 'title']
-        self.set_tag(tag)
-
-        self.set_text(text)
-        self.set_index(index)
-        self.set_visible_conditions(visible_conditions)
 
 class Header:
     def __init__(self, reference_object_for_assertion):
@@ -125,12 +112,37 @@ class Header:
 
 class PageHeader(Header):
     def __init__(self):
-        super().__init__(PageHeaderObject)
+        super().__init__(PageHeaderObject)  # as an object reference for the add method
 
 
 class QuestionHeader(Header):
     def __init__(self):
-        super().__init__(QuestionHeaderObject)
+        super().__init__(QuestionHeaderObject)  # as an object reference for the add method
+
+
+class PageHeaderObject(HeaderObject):
+    def __init__(self, uid, text, tag, index, visible_conditions=None):
+        super().__init__(uid)
+
+        self.set_allowed_tags_list(['instruction', 'introduction', 'text', 'title'])
+        self.set_tag(tag)
+
+        self.set_text(text)
+        self.set_index(index)
+        self.set_visible_conditions(visible_conditions)
+
+
+class QuestionHeaderObject(HeaderObject):
+    def __init__(self, uid, text, tag, index, visible_conditions=None):
+        super().__init__(uid)
+
+        self.set_allowed_tags_list(['instruction', 'introduction', 'question', 'text', 'title'])
+        self.set_tag(tag)
+
+        self.set_text(text)
+        self.set_index(index)
+        self.set_visible_conditions(visible_conditions)
+
 
 
 class ResponseDomain(UniqueObject):
@@ -275,14 +287,23 @@ class Questions:
 
 
 class QuestionObject(UniqueObject):
-    def __init__(self, uid, index, tag):
+    def __init__(self, uid, index, tag, response_domain=None, question_header_object=None):
         super().__init__(uid)
         self.variables = Variables()
-        self.header = QuestionHeader()
+        self.header = None
+        self.set_header(question_header_object)
         self.index = None
         self.tag = None
         self.set_tag(tag)
         self.set_index(index)
+
+    def set_header(self, question_header_object):
+        if question_header_object is None:
+            self.header = None
+
+        else:
+            assert (isinstance(question_header_object, QuestionHeader))
+            self.header = QuestionHeader(question_header_object)
 
     def set_index(self, index):
         assert isinstance(index, int)
@@ -943,4 +964,4 @@ class Questionnaire:
 
 
 
-x = BodyQuestionTypes()
+# x = BodyQuestionTypes()
