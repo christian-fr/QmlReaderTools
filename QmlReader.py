@@ -227,54 +227,59 @@ class QmlReader:
             for element in qml_source_page.body.iterchildren():
                 tmp_tag = element.tag[element.tag.rfind('}') + 1:]
 
+                if tmp_tag in ['calendar', 'comparison', 'display', 'matrixDouble', 'matrixQuestionMixed', 'matrixQuestionOpen', 'matrixQuestionSingleChoice', 'multipleChoice', 'questionOpen', 'questionPretest', 'questionSingleChoice']:
+                    tmp_index = i
+                    i += 1
+
                 if tmp_tag == 'calendar':
                     tmp_question_header_object = self.extract_question_header_from_qml_element_source(element, page_uid)
-                    tmp_index = i
-                    i += 1
-                if tmp_tag == 'comparison':
-                    tmp_index = i
-                    i += 1
-                if tmp_tag == 'display':
-                    tmp_index = i
-                    i += 1
-                if tmp_tag == 'matrixDouble':
-                    tmp_index = i
-                    i += 1
-                if tmp_tag == 'matrixMultipleChoice':
-                    tmp_index = i
-                    i += 1
-                if tmp_tag == 'matrixQuestionMixed':
-                    tmp_index = i
-                    i += 1
-                if tmp_tag == 'matrixQuestionOpen':
-                    tmp_index = i
-                    i += 1
-                if tmp_tag == 'matrixQuestionSingleChoice':
-                    tmp_index = i
-                    i += 1
-                if tmp_tag == 'multipleChoice':
-                    tmp_index = i
-                    i += 1
-                if tmp_tag == 'questionOpen':
-                    tmp_index = i
-                    i += 1
-                if tmp_tag == 'questionPretest':
-                    tmp_index = i
-                    i += 1
-                if tmp_tag == 'questionSingleChoice':
-                    tmp_index = i
-                    i += 1
+
+                elif tmp_tag == 'comparison':
+                    pass
+
+                elif tmp_tag == 'display':
+                    pass
+
+                elif tmp_tag == 'matrixDouble':
+                    pass
+
+                elif tmp_tag == 'matrixMultipleChoice':
+                    pass
+
+                elif tmp_tag == 'matrixQuestionMixed':
+                    pass
+
+                elif tmp_tag == 'matrixQuestionOpen':
+                    pass
+
+                elif tmp_tag == 'matrixQuestionSingleChoice':
+                    pass
+
+                elif tmp_tag == 'multipleChoice':
+                    pass
+
+                elif tmp_tag == 'questionOpen':
+                    pass
+
+                elif tmp_tag == 'questionPretest':
+                    pass
+
+                elif tmp_tag == 'questionSingleChoice':
+                    pass
+
                     # ToDo
                     ## self.questionnaire.pages.pages[page_uid].questions.add_question_object()
 
                     (self.extract_question_header_from_qml_element_source(element, page_uid))
                 if tmp_tag == 'section':
-                    tmp_index = i
-                    i += 1
-                if tmp_tag == 'section':
-                    tmp_index = i
-                    i += 1
+                    pass
+
         pass
+
+    @staticmethod
+    def find_question_type_class_to_tag_string(string):
+        # tmp_dict = {'calendar': Questionnaire.BodyCalendar, 'comparison': Questionnaire.BodyComparison, 'display':, 'matrixDouble':, 'matrixQuestionMixed':, 'matrixQuestionOpen':, 'matrixQuestionSingleChoice':, 'multipleChoice':, 'questionOpen':, 'questionPretest':, 'questionSingleChoice':}
+        return()
 
     def extract_response_domains_from_question(self):
         self.logger.info("extract_response_domains_from_question")

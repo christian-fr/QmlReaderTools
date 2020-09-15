@@ -122,7 +122,7 @@ print('create tuple range of weights of returning points')
 
 tuple_range_of_weights_of_returning_points = tuple([min(dict_weights_of_returning_points.values()), max(dict_weights_of_returning_points.values())])
 
-# normalize values.
+# normalize values - linear normalization to output values with a range from 0 to 1.
 
 print('normalize values of dict of weight of returning points')
 
@@ -156,7 +156,7 @@ for entry in list_of_effective_paths:
 print('create tuple of range of weights of effective paths')
 tuple_range_of_weights_of_effective_edges = tuple([min(dict_of_weights_of_effective_edges.values()), max(dict_of_weights_of_effective_edges.values())])
 
-# normalize values.
+# normalize values - linear normalization to output values with a range from 0 to 1.
 
 print('normalize values of dict of weights of effective paths')
 
@@ -185,7 +185,7 @@ print('create tuple of range of weights of backward jumping edges')
 
 tuple_range_of_weights_of_backwards_jumping_edges = tuple([min(dict_of_weights_of_backwards_jumping_edges.values()), max(dict_of_weights_of_backwards_jumping_edges.values())])
 
-# normalize values.
+# normalize values - linear normalization to output values with a range from 0 to 1.
 
 print('normalize values of dict weights of backward jumping edges')
 
@@ -235,7 +235,7 @@ colorfader = [colorFader(c1, c2, i/n) for i in range(0, n)]
 def create_trail(graph, dict_of_weights_of_edges, colorfader_list, max_line_width=10, backwards=False):
     """
     :param max_line_width: max penwidth of line
-    :param colorfader: list of
+    :param colorfader: list of color steps
     :param graph: input graph, DiGraph form networkx
     :param dict_of_weights_of_edges: dictionary of weights
     :return: tuple of two lists: list of used edges from graph, list of unused edges from graph
