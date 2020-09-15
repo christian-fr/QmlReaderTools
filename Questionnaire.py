@@ -262,11 +262,14 @@ class AnswerOption(UniqueObject):
 class BodyQuestionTypes:
     def __init__(self):
         self.list_of_available_question_types = [BodyCalendar, BodyComparison, BodyMatrixDouble, BodyMatrixMultipleChoice, BodyMatrixQuestionMixed, BodyMatrixQuestionSingleChoice, BodyQuestionOpen]
-        self.dict_of_question_tags = {}
+
         self.dict_of_question_types = {}
         for body_question_type_class in QuestionObject.__subclasses__():
             self.dict_of_question_types[getattr(body_question_type_class, '__name__')] = body_question_type_class
             # self.dict_of_question_tags[body_question_type_class.tag] = body_question_type_class
+
+        self.dict_of_question_tags = {}
+
 
     def __str__(self):
         return str(self.dict_of_question_types.keys())
@@ -323,25 +326,25 @@ class BodyQuestionCalendar(QuestionObject):
 
 class BodyCalendar(QuestionObject):
     def __init__(self, uid, index, tag):
-        super().__init__(uid, index, tag)
+        super().__init__(uid, index, tag='calendar')
         pass
 
 
 class BodyComparison(QuestionObject):
     def __init__(self, uid, index, tag):
-        super().__init__(uid, index, tag)
+        super().__init__(uid, index, tag='comparison')
         pass
 
 
 class Display(QuestionObject):
     def __init__(self, uid, index, tag):
-        super().__init__(uid, index, tag)
+        super().__init__(uid, index, tag='display')
         pass
 
 
 class BodyMatrixDouble(QuestionObject):
     def __init__(self, uid, index, tag):
-        super().__init__(uid, index, tag)
+        super().__init__(uid, index, tag='matrixDouble')
         pass
 
 
@@ -363,31 +366,31 @@ class BodyMatrixMultipleChoice(QuestionObject):
 
 class BodyMatrixQuestionMixed(QuestionObject):
     def __init__(self, uid, index, tag):
-        super().__init__(uid, index, tag)
+        super().__init__(uid, index, tag='matrixQuestionMixed')
         pass
 
 
 class BodyMatrixQuestionOpen(QuestionObject):
     def __init__(self, uid, index, tag):
-        super().__init__(uid, index, tag)
+        super().__init__(uid, index, tag='matrixQuestionOpen')
         pass
 
 
 class BodyMatrixQuestionSingleChoice(QuestionObject):
     def __init__(self, uid, index, tag):
-        super().__init__(uid, index, tag)
+        super().__init__(uid, index, tag='matrixQuestionSingleChoice')
         pass
 
 
 class BodyMultipleChoice(QuestionObject):
     def __init__(self, uid, index, tag):
-        super().__init__(uid, index, tag)
+        super().__init__(uid, index, tag='multipleChoice')
         pass
 
 
 class BodyQuestionOpen(QuestionObject):
-    def __init__(self, uid, variable, text_type='text', prefix=None, postfix=None):
-        super().__init__(uid)
+    def __init__(self, uid, index, variable, text_type='text', prefix=None, postfix=None):
+        super().__init__(uid, index, tag='questionOpen')
         self.text_type = None
         self.__allowed_text_types = ['grade', 'number', 'text']
         self.type = None
