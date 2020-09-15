@@ -13,14 +13,16 @@ import os
 import pandas as pd
 import pygraphviz
 from math import ceil
+import matplotlib as mpl
+import numpy as np
 
 data_input_file = r'data/nacaps2020_wide_dataset_with_page_history_as_list.csv'
 
 input_graph_file = os.path.join(os.getcwd(), r'data/2020-08-06_10-13_questionnaire_Nacaps2020.dot')
 
-outputfile_graph_effective_trail = r'output_graph_trail.png'
-outputfile_graph_backwards_jumps = r'output_graph_backwards.png'
-outputfile_graph_points_of_return = r'output_graph_points_of_return.png'
+outputfile_graph_effective_trail = r'graphs/output_graph_trail.png'
+outputfile_graph_backwards_jumps = r'graphs/output_graph_backwards.png'
+outputfile_graph_points_of_return = r'graphs/output_graph_points_of_return.png'
 
 
 
@@ -120,7 +122,7 @@ print('create tuple range of weights of returning points')
 
 tuple_range_of_weights_of_returning_points = tuple([min(dict_weights_of_returning_points.values()), max(dict_weights_of_returning_points.values())])
 
-# normalize values.
+# normalize values - linear normalization to output values with a range from 0 to 1.
 
 print('normalize values of dict of weight of returning points')
 
@@ -154,7 +156,7 @@ for entry in list_of_effective_paths:
 print('create tuple of range of weights of effective paths')
 tuple_range_of_weights_of_effective_edges = tuple([min(dict_of_weights_of_effective_edges.values()), max(dict_of_weights_of_effective_edges.values())])
 
-# normalize values.
+# normalize values - linear normalization to output values with a range from 0 to 1.
 
 print('normalize values of dict of weights of effective paths')
 
@@ -183,7 +185,7 @@ print('create tuple of range of weights of backward jumping edges')
 
 tuple_range_of_weights_of_backwards_jumping_edges = tuple([min(dict_of_weights_of_backwards_jumping_edges.values()), max(dict_of_weights_of_backwards_jumping_edges.values())])
 
-# normalize values.
+# normalize values - linear normalization to output values with a range from 0 to 1.
 
 print('normalize values of dict weights of backward jumping edges')
 
@@ -216,10 +218,6 @@ flowchart_graph_points_of_return.layout('dot')
 
 
 
-import matplotlib as mpl
-import numpy as np
-
-
 def colorFader(c1,c2,mix=0): #fade (linear interpolate) from color c1 (at mix=0) to c2 (mix=1)
     c1=np.array(mpl.colors.to_rgb(c1))
     c2=np.array(mpl.colors.to_rgb(c2))
@@ -237,7 +235,7 @@ colorfader = [colorFader(c1, c2, i/n) for i in range(0, n)]
 def create_trail(graph, dict_of_weights_of_edges, colorfader_list, max_line_width=10, backwards=False):
     """
     :param max_line_width: max penwidth of line
-    :param colorfader: list of
+    :param colorfader: list of color steps
     :param graph: input graph, DiGraph form networkx
     :param dict_of_weights_of_edges: dictionary of weights
     :return: tuple of two lists: list of used edges from graph, list of unused edges from graph
@@ -253,7 +251,7 @@ def create_trail(graph, dict_of_weights_of_edges, colorfader_list, max_line_widt
         else:
             tmp_edge = edge
         if tmp_edge in dict_of_weights_of_edges.keys():
-            list_of_used_edges_tuples.append(tmp_edge)h
+            list_of_used_edges_tuples.append(tmp_edge)
             # print('weigth from dict: ' + str(dict_of_weights_of_edges[(edge[1], edge[0])]))
             edge.attr['penwidth'] = ceil(dict_of_weights_of_edges[tmp_edge] * max_line_width + 1)
             edge.attr['color'] = colorfader_list[ceil(dict_of_weights_of_edges[tmp_edge] * (len(colorfader_list)-1))]

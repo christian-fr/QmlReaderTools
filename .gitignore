@@ -4,12 +4,17 @@
 /.idea/
 /examples/
 /qml/flowcharts/
+/qml/other/
 /flowcharts/
 /__pycache__/
 *.log
 *.png
 *.pdf
 *.gml
+*.*old
 /qml/
 /questionnaire_generated*.xml
 /data/
+/graphs/
+/html/
+
