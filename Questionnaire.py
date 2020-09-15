@@ -93,8 +93,9 @@ class QuestionHeaderObject(HeaderObject):
         self.set_visible_conditions(visible_conditions)
 
 class Header:
-    def __init__(self):
+    def __init__(self, reference_object_for_assertion):
         self.dict_of_header_objects = {}
+        self.reference_object_for_assertion = reference_object_for_assertion
 
     def __str__(self):
         temp_str = 'header: ' + '\n'
@@ -107,7 +108,8 @@ class Header:
 
     def add_header_object(self, page_header_object):
         '''
-        :param header_text: Object of Type PageHeaderInstruction, PageHeaderIntroduction, PageHeaderTitle or PageHeaderText
+        :param reference_object_for_assertion:
+        :param page_header_object:
         :return: None
         '''
         assert isinstance(page_header_object, self.reference_object_for_assertion)
@@ -123,15 +125,12 @@ class Header:
 
 class PageHeader(Header):
     def __init__(self):
-        super().__init__()
-        self.reference_object_for_assertion = PageHeaderObject
+        super().__init__(PageHeaderObject)
 
 
 class QuestionHeader(Header):
     def __init__(self):
-        super().__init__()
-        self.reference_object_for_assertion = QuestionHeaderObject
-        pass
+        super().__init__(QuestionHeaderObject)
 
 
 class ResponseDomain(UniqueObject):
@@ -247,14 +246,19 @@ class AnswerOption(UniqueObject):
         assert missing is True or missing is False
         self.missing = missing
 
-class QuestionTypes:
+
+class BodyQuestionTypes:
     def __init__(self):
-        self.list_of_available_question_types = [BodyCalendar, BodyComparison, BodyMatrixDouble, BodyMatrixMultipleChoice, BodyMatrixQuestionMixed, ]
+        self.list_of_available_question_types = [BodyCalendar, BodyComparison, BodyMatrixDouble, BodyMatrixMultipleChoice, BodyMatrixQuestionMixed, BodyMatrixQuestionSingleChoice, BodyQuestionOpen]
+        self.dict_of_question_tags = {}
         self.dict_of_question_types = {}
+        for body_question_type_class in QuestionObject.__subclasses__():
+            self.dict_of_question_types[getattr(body_question_type_class, '__name__')] = body_question_type_class
+            # self.dict_of_question_tags[body_question_type_class.tag] = body_question_type_class
 
+    def __str__(self):
+        return str(self.dict_of_question_types.keys())
 
-    def self_add_body_question_class(self):
-        self.dict_of_question_types
 
 class Questions:
     def __init__(self):
@@ -285,42 +289,44 @@ class QuestionObject(UniqueObject):
         self.index = index
 
     def set_tag(self, tag):
-        if tag == '':
-            pass
+        assert(isinstance(tag, str))
+        if tag != '':
+            self.tag = tag
+
 
 class BodyQuestionCalendar(QuestionObject):
-    def __init__(self, uid):
-        super().__init__(uid)
+    def __init__(self, uid, index, tag):
+        super().__init__(uid, index, tag)
         pass
 
 
 class BodyCalendar(QuestionObject):
-    def __init__(self, uid):
-        super().__init__(uid)
+    def __init__(self, uid, index, tag):
+        super().__init__(uid, index, tag)
         pass
 
 
 class BodyComparison(QuestionObject):
-    def __init__(self, uid):
-        super().__init__(uid)
+    def __init__(self, uid, index, tag):
+        super().__init__(uid, index, tag)
         pass
 
 
 class Display(QuestionObject):
-    def __init__(self, uid):
-        super().__init__(uid)
+    def __init__(self, uid, index, tag):
+        super().__init__(uid, index, tag)
         pass
 
 
 class BodyMatrixDouble(QuestionObject):
-    def __init__(self, uid):
-        super().__init__(uid)
+    def __init__(self, uid, index, tag):
+        super().__init__(uid, index, tag)
         pass
 
 
 class BodyMatrixMultipleChoice(QuestionObject):
-    def __init__(self, uid):
-        super().__init__(uid)
+    def __init__(self, uid, index, tag):
+        super().__init__(uid, index, tag)
         self.uid = uid
         self.items = {}
         self.visible_condition = None
@@ -335,26 +341,26 @@ class BodyMatrixMultipleChoice(QuestionObject):
 
 
 class BodyMatrixQuestionMixed(QuestionObject):
-    def __init__(self, uid):
-        super().__init__(uid)
+    def __init__(self, uid, index, tag):
+        super().__init__(uid, index, tag)
         pass
 
 
 class BodyMatrixQuestionOpen(QuestionObject):
-    def __init__(self, uid):
-        super().__init__(uid)
+    def __init__(self, uid, index, tag):
+        super().__init__(uid, index, tag)
         pass
 
 
 class BodyMatrixQuestionSingleChoice(QuestionObject):
-    def __init__(self, uid):
-        super().__init__(uid)
+    def __init__(self, uid, index, tag):
+        super().__init__(uid, index, tag)
         pass
 
 
 class BodyMultipleChoice(QuestionObject):
-    def __init__(self, uid):
-        super().__init__(uid)
+    def __init__(self, uid, index, tag):
+        super().__init__(uid, index, tag)
         pass
 
 
@@ -393,14 +399,14 @@ class BodyQuestionOpen(QuestionObject):
 
 
 class BodyQuestionPretest(QuestionObject):
-    def __init__(self, uid):
-        super().__init__(uid)
+    def __init__(self, uid, index, tag):
+        super().__init__(uid, index, tag)
         pass
 
 
 class BodyQuestionSingleChoice(QuestionObject):
-    def __init__(self, uid):
-        super().__init__(uid)
+    def __init__(self, uid, index, tag):
+        super().__init__(uid, index, tag)
         pass
 
 
@@ -551,7 +557,6 @@ class Variables:
         else:
             raise TypeError('Input not of type Variable')
 
-
     def delete_variable(self, varname):
         if isinstance(varname, str):
             tmp_list = [self.variables[var].varname for var in self.variables]
@@ -656,27 +661,27 @@ class QmlPage(UniqueObject):
 
         if self.transitions is not {}:
             for key in self.transitions.keys():
-                if self.transitions[key]['condition'] is None:
-                    self.transitions[key]['condition_python'] = 'True'
+                if self.transitions.transitions[key]['condition'] is None:
+                    self.transitions.transitions[key]['condition_python'] = 'True'
                 else:
-                    self.transitions[key]['condition_python'] = regex1.sub('is', self.transitions[key]['condition'])
-                    self.transitions[key]['condition_python'] = regex2.sub('is not',
-                                                                           self.transitions[key]['condition_python'])
-                    self.transitions[key]['condition_python'] = regex3.sub('>', self.transitions[key]['condition_python'])
-                    self.transitions[key]['condition_python'] = regex4.sub('>=', self.transitions[key]['condition_python'])
-                    self.transitions[key]['condition_python'] = regex5.sub('<', self.transitions[key]['condition_python'])
-                    self.transitions[key]['condition_python'] = regex6.sub('<=', self.transitions[key]['condition_python'])
-                    self.transitions[key]['condition_python'] = regex7.sub('int', self.transitions[key]['condition_python'])
-                    self.transitions[key]['condition_python'] = regex8.sub('(\g<1> is None)',
-                                                                           self.transitions[key]['condition_python'])
-                    self.transitions[key]['condition_python'] = regex9.sub('is True',
-                                                                           self.transitions[key]['condition_python'])
-                    self.transitions[key]['condition_python'] = regex10.sub('not ',
-                                                                            self.transitions[key]['condition_python'])
-                    self.transitions[key]['condition_python'] = regex11.sub(' and ',
-                                                                            self.transitions[key]['condition_python'])
-                    self.transitions[key]['condition_python'] = regex12.sub(' or ',
-                                                                            self.transitions[key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex1.sub('is', self.transitions.transitions[key]['condition'])
+                    self.transitions.transitions[key]['condition_python'] = regex2.sub('is not',
+                                                                           self.transitions.transitions[key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex3.sub('>', self.transitions.transitions[key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex4.sub('>=', self.transitions.transitions[key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex5.sub('<', self.transitions.transitions[key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex6.sub('<=', self.transitions.transitions[key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex7.sub('int', self.transitions.transitions[key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex8.sub('(\g<1> is None)',
+                                                                           self.transitions.transitions[key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex9.sub('is True',
+                                                                           self.transitions.transitions[key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex10.sub('not ',
+                                                                            self.transitions.transitions[key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex11.sub(' and ',
+                                                                            self.transitions.transitions[key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex12.sub(' or ',
+                                                                            self.transitions.transitions[key]['condition_python'])
 
 
 class Questionnaire:
@@ -821,7 +826,7 @@ class Questionnaire:
         logging.info("create_graph")
         self.transitions_to_nodes_edges()
         self.init_pgv_graph()
-        self.prepare_pgv_graph()
+        self.prepare_and_draw_pgv_graph()
 
 
     def init_pgv_graph(self, graph_name='graph'):
@@ -839,8 +844,9 @@ class Questionnaire:
         self.pgv_graph.graph_attr['label'] = 'title: ' + self.title + '\nfile: ' + self.filename + '\n timestamp: ' + timestamp
         self.pgv_graph.layout("dot")
 
-    def prepare_pgv_graph(self):
+    def prepare_and_draw_pgv_graph(self):
         """
+        prepares an output folder and timestampfs; draws the graph
         :param:
         :return:
         """
@@ -918,8 +924,8 @@ class Questionnaire:
                     transition.condition_new = regex8.sub(r' | ', transition.condition_new)
                     transition.condition_new = regex9.sub(r'', transition.condition_new)
                     transition.condition_new = regex10.sub(r'', transition.condition_new)
-                    transition.condition_new = regex12.sub(r'& \n',transition.condition_new)
-                    transition.condition_new = regex13.sub(r'| \n',transition.condition_new)
+                    transition.condition_new = regex12.sub(r'& \n', transition.condition_new)
+                    transition.condition_new = regex13.sub(r'| \n', transition.condition_new)
 
     def set_title(self, title):
         assert isinstance(title, str)
@@ -937,3 +943,4 @@ class Questionnaire:
 
 
 
+x = BodyQuestionTypes()
