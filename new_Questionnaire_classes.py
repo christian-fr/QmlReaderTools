@@ -41,8 +41,36 @@ class OnPageObjectWithoutUid:
         self.__page_uid = page_uid_value
 
 
+class ConditionObject:
+    def __init__(self, condition_string):
+        self.condition = None
+        self.python_condition = None
+        self.condition(condition_string)
+
+    def evaluate(self):
+        if self.python_condition is not None:
+            pass
+            # Todo: evaluate expression!
+            return True
+            return False
+        else:
+            raise NotImplementedError('Condition: "' + str(self.condition) + '" has not yet been translated into python logic!')
+
+    @property
+    def condition(self):
+        return self.__condition
+
+    @condition.setter
+    def condition(self, condition_string):
+        assert isinstance(condition_string, str) or isinstance(condition_string, bool) or condition_string is None
+        self.__condition = condition_string
+
+    def translate_condition_to_python_logic(self):
+        pass
+
+
 class CanHaveCondition(OnPageObjectWithUid):
-    def __init__(self, uid_value, page_uid_value, condition_string = 'True'):
+    def __init__(self, uid_value, page_uid_value, condition_string='True'):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value)
         self.condition = ConditionObject(condition_string=condition_string)
 
@@ -56,7 +84,7 @@ class CanHaveCondition(OnPageObjectWithUid):
         self.__condition = condition_string
 
 
-class VariableObject():
+class VariableObject:
     def __init__(self, name_string, var_type_string):
         self._allowed_var_types = ['string', 'boolean', 'singleChoiceAnswerOption', 'number']
         self.name = name_string
@@ -111,7 +139,6 @@ class VariableSimulation:
 
     def set_variable_by_name(self, var_name, value):
         assert isinstance(var_name, str)
-        assert isinstance(var_name, str) or isinstance(var_name)
         if var_name in self.dict_of_variables.keys():
             self.dict_of_variables[var_name].set_value(value)
 
@@ -160,45 +187,88 @@ class PageObject(UniqueObject):
 
     def add_source(self, source_object):
         assert isinstance(source_object, SourceObject)
-        self.sources_dict.keys[source_object.source_page_uid] = source_object
+        if source_object.index not in self.sources_dict.keys():
+            self.sources_dict[source_object.index] = source_object
+        else:
+            raise KeyError('Source with index="' + str(source_object.index) + '" already present in sources_dict of page="' + self.uid + '"')
 
     def add_transition(self, transition_object):
         assert isinstance(transition_object, TransitionObject)
         if transition_object.index not in self.transitions_dict.keys():
             self.transitions_dict[transition_object.index] = transition_object
         else:
-            raise KeyError('Transition with index="' + transition_object.index + '" already present in transitions on page="' + self.uid + '"')
+            raise KeyError('Transition with index="' + str(transition_object.index) + '" already present in transitions_dict on page="' + self.uid + '"')
 
     def add_trigger(self, trigger_object):
         assert isinstance(trigger_object, TriggerObject)
         if trigger_object.index not in self.triggers_dict.keys():
             self.triggers_dict[trigger_object.index] = trigger_object
         else:
-            raise KeyError('Transition with index="' + trigger_object.index + '" already present in transitions on page="' + self.uid + '"')
+            raise KeyError('Transition with index="' + str(trigger_object.index) + '" already present in triggers_dict on page="' + self.uid + '"')
 
     def add_page_header(self, page_header_object):
         assert isinstance(page_header_object, PageHeaderObject)
-        if page_header_object. self.page_headers_dict
+        if page_header_object.index not in self.page_headers_dict.keys():
+            self.page_headers_dict[page_header_object.index] = page_header_object
+        else:
+            raise KeyError('Page header with index="' + str(page_header_object.index) + '" already present in page_headers_dict on page="' + self.uid + '"')
 
 
 class TransitionObject(CanHaveCondition):
     def __init__(self, page_uid_value, target_page_uid_value, index_int, condition_string='True'):
-        # ToDo: finish writing this class with @property getters / setters
         super().__init__(uid_value=None, page_uid_value=page_uid_value, condition_string=condition_string)
         self.target_page_uid = target_page_uid_value
         self.condition = condition_string
         self.index = index_int
+
         pass
+
+    @property
+    def index(self):
+        return self.__index
+
+    @index.setter
+    def index(self, index_int):
+        assert isinstance(index_int, int)
+        self.__index = index_int
+
+    @property
+    def target_page_uid(self):
+        return self.target_page_uid
+
+    @target_page_uid.setter
+    def target_page_uid(self, target_page_uid_value):
+        assert isinstance(target_page_uid_value, str)
+        self.__target_page_uid = target_page_uid_value
 
 
 class SourceObject(CanHaveCondition):
-    def __init__(self, page_uid_value, source_page_uid_value, condition_string='True'):
+    def __init__(self, page_uid_value, source_page_uid_value, index_int, condition_string='True'):
         super().__init__(uid_value=None, page_uid_value=page_uid_value, condition_string=condition_string)
         # ToDo: finish writing this class with @property getters / setters
         self.source_page_uid = source_page_uid_value
         self.page_uid = page_uid_value
         self.condition = condition_string
+        self.index = index_int
         pass
+
+    @property
+    def index(self):
+        return self.__index
+
+    @index.setter
+    def index(self, index_int):
+        assert isinstance(index_int, int)
+        self.__index = index_int
+
+    @property
+    def source_page_uid(self):
+        return self.__source_page_uid
+
+    @source_page_uid.setter
+    def source_page_uid(self, source_page_uid_string):
+        assert isinstance(source_page_uid_string, str)
+        self.__source_page_uid = source_page_uid_string
 
 
 class TriggerObject(CanHaveCondition):
@@ -210,6 +280,15 @@ class TriggerObject(CanHaveCondition):
         self.index = index_int
         self.value = value_string
         pass
+
+    @property
+    def index(self):
+        return self.__index
+
+    @index.setter
+    def index(self, index_int):
+        assert isinstance(index_int, int)
+        self.__index = index_int
 
     def translate_value_to_python_logic(self):
         # ToDo: yet to be implemented
@@ -277,14 +356,77 @@ class PageHeaders:
         self.dict_of_page_headers = {}
 
 
-class PageHeaderObject(CanHaveCondition):
-    def __init__(self, uid_value, page_uid_value, page_header_type_value, page_header_text_string, index_int, condition_string='True'):
+class HeaderObject(CanHaveCondition):
+    def __init__(self, uid_value, page_uid_value, header_text_string, index_int, condition_string='True'):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string)
+        self.allowed_header_types = ['None']
+        self.text = header_text_string
+        self.index = index_int
+
+    @property
+    def allowed_header_types(self):
+        return self.__allowed_header_types
+
+    @allowed_header_types.setter
+    def allowed_header_types(self, allowed_header_types_list):
+        assert isinstance(allowed_header_types_list, list)
+        for entry in allowed_header_types_list:
+            assert isinstance(entry, str)
+        self.__allowed_header_types = allowed_header_types_list
+
+    @property
+    def index(self):
+        return self.__index
+
+    @index.setter
+    def index(self, index_int):
+        assert isinstance(index_int, int)
+        self.__index = index_int
+
+    @property
+    def text(self):
+        return self.__text
+
+    @text.setter
+    def text(self, page_header_text_string):
+        assert isinstance(page_header_text_string, str)
+        self.__text = page_header_text_string
+
+
+class QuestionHeaderObject(HeaderObject):
+    def __init__(self, uid_value, page_uid_value, header_type_string, header_text_string, index_int, condition_string='True'):
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string, header_text_string=header_text_string, index_int=index_int)
+        self._allowed_header_types = ['question', 'instruction', 'introduction']
+        self.header_type = header_type_string
+        self.text = header_text_string
+
+    @property
+    def text(self):
+        return self.__text
+
+    @text.setter
+    def text(self, header_text_string):
+        assert isinstance(header_text_string, str)
+        self.__text = header_text_string
+
+    @property
+    def header_type(self):
+        return self.__header_type
+
+    @header_type.setter
+    def header_type(self, header_type_string):
+        assert isinstance(header_type_string, str) and header_type_string in self._allowed_header_types
+        self.__header_type = header_type_string
+
+
+class PageHeaderObject(HeaderObject):
+    def __init__(self, uid_value, page_uid_value, page_header_type_value, page_header_text_string, index_int, condition_string='True'):
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string, header_text_string=page_header_text_string, index_int=index_int)
         self._allowed_page_header_types = ['title']
         self.dict_of_page_headers = {}
         self.page_header_type = page_header_type_value
-        self.text = page_header_text_string
         self.index = index_int
+        pass
 
     @property
     def index(self):
@@ -303,15 +445,6 @@ class PageHeaderObject(CanHaveCondition):
     def page_header_type(self, page_header_type_value):
         assert isinstance(page_header_type_value, str) and page_header_type_value in self._allowed_page_header_types
         self.__page_header_type = page_header_type_value
-
-    @property
-    def text(self):
-        return self.__text
-
-    @text.setter
-    def text(self, page_header_text_string):
-        assert isinstance(page_header_text_string, str)
-        self.__text = page_header_text_string
 
 
 class AnswerOptionObject(CanHaveCondition):
@@ -368,31 +501,6 @@ class AnswerOptionObject(CanHaveCondition):
         assert isinstance(label_text_value, str) or label_text_value is None
         self.__label_text = label_text_value
 
-
-class QuestionHeaderObject(CanHaveCondition):
-    def __init__(self, uid_value, page_uid_value, header_type_string, header_text_string, condition_string='True'):
-        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string)
-        self._allowed_header_types = ['question', 'instruction', 'introduction']
-        self.header_type = header_type_string
-        self.text = header_text_string
-
-    @property
-    def text(self):
-        return self.__text
-
-    @text.setter
-    def text(self, header_text_string):
-        assert isinstance(header_text_string, str)
-        self.__text = header_text_string
-
-    @property
-    def header_type(self):
-        return self.__header_type
-
-    @header_type.setter
-    def header_type(self, header_type_string):
-        assert isinstance(header_type_string, str) and header_type_string in self._allowed_header_types
-        self.__header_type = header_type_string
 
 
 class QuestionObjectBaseClass(CanHaveCondition):
@@ -454,24 +562,9 @@ class QuestionSingleChoice(QuestionObjectClass):
         self.answer_options_dict = {}
 
 
-
-class QuestionHeader:
-    def __init__(self):
-        pass
-
-
-class Title:
-    def __init__(self):
-        pass
-
-
 class ItemObject(QuestionObjectBaseClass):
     def __init__(self, uid_value, page_uid_value, condition_string='True'):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string)
-
-class Labels:
-    def __init__(self):
-        pass
 
 
 class Prefix:
@@ -489,34 +582,8 @@ class Unit:
         pass
 
 
-class ResponseDomain:
-    def __init__(self):
-        pass
-
-
 class Section:
     def __init__(self):
         pass
 
 
-class ConditionObject:
-    def __init__(self, condition_string):
-        self.condition = None
-        self.python_condition = None
-        self.set_condition(condition_string)
-
-    def evaluate(self):
-        if self.python_condition is not None:
-            pass
-            # Todo: evaluate expression!
-            return True
-            return False
-        else:
-            raise NotImplementedError('Condition: "' + str(self.condition) + '" has not yet been translated into python logic!')
-
-    def set_condition(self, condition):
-        assert isinstance(condition, str) or isinstance(condition, bool) or condition is None
-        self.condition = condition
-
-    def translate_condition_to_python_logic(self):
-        pass
