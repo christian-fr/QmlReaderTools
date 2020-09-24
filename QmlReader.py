@@ -1,12 +1,10 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "0.2.1"
+__version__ = "0.3.0"
 __status__ = "Prototype"
 __name__ = "QmlReader"
 
-# last edited: 2020-04-16
-from typing import Type, Any
 
 import lxml
 from lxml import objectify
@@ -49,8 +47,6 @@ class QmlReader:
 
         self.iterate_through_all_page_objects_in_page_sources_dict()
 
-        self.extract_transitions_from_qml_page_source()
-
     @property
     def title(self):
         return self.__title
@@ -87,7 +83,9 @@ class QmlReader:
         for i in range(0, len(self.root.variables.variable)):
             # print(self.questionnaire.filename)
             # print(self.root.variables.variable[i].attrib['name'])
-            self.questionnaire.add_variables_to_declared_variables_dict(QuestionnaireElements.VariableObject(name_string=self.root.variables.variable[i].attrib["name"], var_type_string=self.root.variables.variable[i].attrib["type"]))
+            self.questionnaire.add_variables_to_declared_variables_dict(
+                QuestionnaireElements.VariableObject(name_string=self.root.variables.variable[i].attrib["name"],
+                                                     var_type_string=self.root.variables.variable[i].attrib["type"]))
 
     def extract_pages_to_page_sources_dict(self):
         self.logger.info("extract_pages_to_dict_of_pages")
@@ -99,11 +97,12 @@ class QmlReader:
     def iterate_through_all_page_objects_in_page_sources_dict(self):
         tmp_count = 0
         for page_uid, page_source_object in self.page_sources_dict.items():
-            print(page_uid)
-            print(type(page_uid))
-            print('#'*100)
-            self.questionnaire.add_page(QuestionnaireElements.PageObject(uid_value=page_uid, index_value=tmp_count, declared=True))
-            self.extract_transitions_from_qml_page_source(page_source_object=page_source_object, page_uid_value=page_uid)
+            self.questionnaire.add_page(
+                QuestionnaireElements.PageObject(uid_value=page_uid, index_value=tmp_count, declared=True))
+            self.extract_transitions_from_qml_page_source(page_source_object=page_source_object,
+                                                          page_uid_value=page_uid)
+            self.extract_page_headers_from_qml_page_source(page_source_object=page_source_object,
+                                                           page_uid_value=page_uid)
             tmp_count += 1
 
     def extract_transitions_from_qml_page_source(self, page_source_object, page_uid_value):
@@ -123,10 +122,66 @@ class QmlReader:
                     else:
                         tmp_condition = None
 
-                    self.questionnaire.get_page_from_uid(page_uid=page_uid_value).add_transition(QuestionnaireElements.TransitionObject(page_uid_value=page_uid_value, target_page_uid_value=tmp_target, index_value=tmp_index, condition_string=tmp_condition))
-                    # self.questionnaire.pages.pages[page_uid].transitions.add_transitions(QuestionnaireObject.Transition(index=tmp_index, target=tmp_target, condition=tmp_condition))
+                    self.questionnaire.get_page_from_uid(page_uid=page_uid_value).add_transition(
+                        QuestionnaireElements.TransitionObject(page_uid_value=page_uid_value,
+                                                               target_page_uid_value=tmp_target, index_value=tmp_index,
+                                                               condition_string=tmp_condition))
 
+    def extract_page_headers_from_qml_page_source(self, page_source_object, page_uid_value):
+        self.logger.info("extract_page_headers_from_page_sources; uid: " + str(page_uid_value))
+        assert isinstance(page_source_object, lxml.objectify.ObjectifiedElement)
+        assert isinstance(page_uid_value, str)
+        if hasattr(page_source_object, 'header'):
+            self.logger.info("  found page header")
+            i = -1
+            if len([i for i in page_source_object.header.iterchildren()]) > 0:
+                self.logger.info("  page header has length > 0")
+                for header in page_source_object.header.iterchildren():
+                    i += 1
+                    tmp_index = i
+                    self.logger.info("  page header object - index: " + str(i))
+                    if 'uid' not in header.attrib:
+                        if hasattr(header, 'tag'):
+                            if header.tag == 'comment':
+                                self.logger.info("  found page header object: xml comment, ignored")
+                        else:
+                            self.logger.error(
+                                '   found object in page header of ' + str(page_uid_value) + ' that could not be read.')
+                        continue
+                    tmp_uid = header.attrib['uid']
+                    self.logger.info("  page header object - uid: " + str(tmp_uid))
+                    if header.text is not None:
+                        tmp_text = header.text
+                    else:
+                        tmp_text = ''
+                    self.logger.info("  page header object - text: '" + str(tmp_text) + "'")
 
+                    if 'visible' in header.attrib:
+                        tmp_condition_string = header.attrib['visible']
+                        self.logger.info("  found visible condition: " + str(tmp_condition_string))
+                    else:
+                        tmp_condition_string = None
+                        self.logger.info("  found visible condition: None")
+
+                    tmp_tag = header.tag[header.tag.rfind('}') + 1:]
+                    self.logger.info("  found tag: '" + str(tmp_tag) + "'")
+                    tmp_page_header_object = QuestionnaireElements.PageHeaderObject(uid_value=tmp_uid,
+                                                                                    page_uid_value=page_uid_value,
+                                                                                    page_header_type_string=tmp_tag,
+                                                                                    page_header_text_string=tmp_text,
+                                                                                    index_value=tmp_index,
+                                                                                    condition_string=tmp_condition_string)
+
+                    self.logger.info(
+                        "  adding PageHeaderObject: '" + str(tmp_tag) + "' to page: " + str(page_uid_value))
+
+                    self.questionnaire.get_page_from_uid(page_uid_value).add_page_header(tmp_page_header_object)
+
+            else:
+                self.logger.info("  page header has length == 0 and will be ignored")
+
+        else:
+            self.logger.info("  no page header found")
 
 
 xml_file = r'qml/questionnaireNacaps2018-2.xml'
