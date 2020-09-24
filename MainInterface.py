@@ -6,7 +6,7 @@ __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
 import QmlReader
-import Questionnaire
+import QuestionnaireObject
 import tkinter
 from tkinter import filedialog, scrolledtext, IntVar, messagebox
 from os import listdir, mkdir
@@ -33,7 +33,7 @@ class Window(tkinter.Frame):
         # self.questionnaire = Questionnaire.Questionnaire()
         self.master = master
         self.dict_of_qmls = {}
-        self.questionnaire_combined = Questionnaire.Questionnaire()
+        self.questionnaire_combined = QuestionnaireObject.QuestionnaireObject()
         self.listOfFiles = []
         self.listOfFilesFull = []
         self.list_of_selected_files = []
@@ -266,7 +266,7 @@ class Window(tkinter.Frame):
 
     def run_combine_questionnaires(self):
         print("run_combine_questionnaires")
-        self.questionnaire_combined = Questionnaire.Questionnaire()
+        self.questionnaire_combined = QuestionnaireObject.QuestionnaireObject()
         self.selection_dialogue('combine')
 
     def read_into_questionnaire_objects(self, key):
@@ -406,7 +406,7 @@ class Window(tkinter.Frame):
         self.dict_of_questionnaires[key].flowchart_create_graph()
 
     def __flowcharts_omit_varnames(self, key):
-        self.dict_of_questionnaires[key].flowchart_set_show_variablenames(False)
+        self.dict_of_questionnaires[key].flowchart_set_show_variable_names(False)
 
     def __flowcharts_omit_conditions(self, key):
         self.dict_of_questionnaires[key].flowchart_set_show_conditions(False)
