@@ -5,7 +5,6 @@ __version__ = "0.3.0"
 __status__ = "Prototype"
 __name__ = "QmlReader"
 
-
 import lxml
 from lxml import objectify
 import networkx as nx
@@ -16,6 +15,7 @@ import time
 import errno
 from os import listdir, mkdir
 import QuestionnaireElements
+import QmlExtractionFunctions
 
 
 class QmlReader:
@@ -103,6 +103,8 @@ class QmlReader:
                                                           page_uid_value=page_uid)
             self.extract_page_headers_from_qml_page_source(page_source_object=page_source_object,
                                                            page_uid_value=page_uid)
+            self.extract_questions_and_sections_from_qml_page_source(page_source_object=page_source_object,
+                                                                     page_uid_value=page_uid)
             tmp_count += 1
 
     def extract_transitions_from_qml_page_source(self, page_source_object, page_uid_value):
@@ -137,8 +139,8 @@ class QmlReader:
             if len([i for i in page_source_object.header.iterchildren()]) > 0:
                 self.logger.info("  page header has length > 0")
                 for header in page_source_object.header.iterchildren():
-                    i += 1
-                    tmp_index = i
+                    # i += 1
+                    # tmp_index = i
                     self.logger.info("  page header object - index: " + str(i))
                     if 'uid' not in header.attrib:
                         if hasattr(header, 'tag'):
@@ -163,8 +165,12 @@ class QmlReader:
                         tmp_condition_string = None
                         self.logger.info("  found visible condition: None")
 
-                    tmp_tag = header.tag[header.tag.rfind('}') + 1:]
+                    tmp_tag = QmlExtractionFunctions.return_tag_from_page_children_object(header)
+
                     self.logger.info("  found tag: '" + str(tmp_tag) + "'")
+
+                    tmp_index = self.questionnaire.pages_dict[page_uid_value].get_page_object_next_index()
+
                     tmp_page_header_object = QuestionnaireElements.PageHeaderObject(uid_value=tmp_uid,
                                                                                     page_uid_value=page_uid_value,
                                                                                     page_header_type_string=tmp_tag,
@@ -175,7 +181,7 @@ class QmlReader:
                     self.logger.info(
                         "  adding PageHeaderObject: '" + str(tmp_tag) + "' to page: " + str(page_uid_value))
 
-                    self.questionnaire.get_page_from_uid(page_uid_value).add_page_header(tmp_page_header_object)
+                    self.questionnaire.get_page_from_uid(page_uid_value).add_page_header_object(tmp_page_header_object)
 
             else:
                 self.logger.info("  page header has length == 0 and will be ignored")
@@ -183,8 +189,63 @@ class QmlReader:
         else:
             self.logger.info("  no page header found")
 
-    def extract_questions_from_qml_page_source(self, page_source_object, page_uid_value):
-        pass
+    def extract_questions_and_sections_from_qml_page_source(self, page_source_object, page_uid_value):
+        self.logger.info("extract_page_headers_from_page_sources; uid: " + str(page_uid_value))
+        assert isinstance(page_source_object, lxml.objectify.ObjectifiedElement)
+        assert isinstance(page_uid_value, str)
+
+        if hasattr(page_source_object, 'body'):
+            tmp_page_body_children_objects_list = [child_object for child_object in
+                                                   page_source_object.body.iterchildren()]
+
+            for child_object in tmp_page_body_children_objects_list:
+
+                tmp_tag = QmlExtractionFunctions.return_tag_from_page_children_object(child_object)
+                self.logger.info("  found tag: '" + str(tmp_tag) + "'")
+                if tmp_tag == 'comment':
+                    self.logger.info("  found page body object: xml comment, ignored")
+                    continue
+
+                elif tmp_tag == 'section':
+                    self.logger.info("  found page body object: section")
+
+                    print('#### section not yet implemented, passing...')
+
+                else:
+                    self.logger.info("  found tag: '" + str(tmp_tag) + "'")
+
+                    tmp_index = self.questionnaire.pages_dict[page_uid_value].get_page_object_next_index()
+
+                    tmp_uid = QmlExtractionFunctions.get_uid_attrib_of_source_object(child_object)
+
+                    if tmp_uid is None:
+                        raise KeyError(
+                            '   element with tag: "{0}" on page: "{1}" does not seem to have a UID'.format(tmp_tag,
+                                                                                                           page_uid_value))
+
+                    if tmp_tag == 'questionSingleChoice':
+                        tmp_answer_option_objects_list = QmlExtractionFunctions.get_question_header_objects_list(child_object)
+                        tmp_question_header_objects_list = []
+                        tmp_condition_string = None
+
+                        tmp_page_body_object = QuestionnaireElements.QuestionSingleChoiceObject(uid_value=tmp_uid,
+                                                                                                page_uid_value=page_uid_value,
+                                                                                                index_value=tmp_index,
+                                                                                                answer_option_objects_list=tmp_answer_option_objects_list,
+                                                                                                question_header_objects_list=tmp_question_header_objects_list,
+                                                                                                condition_string=tmp_condition_string)
+
+                        self.questionnaire.pages_dict[page_uid_value].add_page_body_object(tmp_page_body_object)
+                    elif tmp_tag == 'multipleChoice':
+                        continue
+                    elif tmp_tag == 'questionOpen':
+                        continue
+                    elif tmp_tag == 'matrixQuestionSingleChoice':
+                        continue
+                    elif tmp_tag == 'comparison':
+                        continue
+                    else:
+                        raise NotImplementedError('   handling for tag: "{0}" not yet implemented.'.format(tmp_tag))
 
     def extract_triggers_from_qml_page_source(self, page_source_object, page_uid_value):
         pass

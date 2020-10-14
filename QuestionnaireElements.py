@@ -203,7 +203,7 @@ class PageObject(UniqueObject):
         self.sources_dict = {}
         self.transitions_dict = {}
         self.triggers_dict = {}
-        self.questions_dict = {}
+        self.page_body_objects_dict = {}
 
     @property
     def declared(self):
@@ -236,10 +236,10 @@ class PageObject(UniqueObject):
         return list(self.triggers_dict.keys())
 
     def get_all_questions_list(self):
-        return list(self.questions_dict.keys())
+        return list(self.page_body_objects_dict.keys())
 
     def get_question_from_index(self, index):
-        return self.questions_dict[index]
+        return self.page_body_objects_dict[index]
 
     def add_source(self, source_object):
         assert isinstance(source_object, SourceObject)
@@ -265,7 +265,7 @@ class PageObject(UniqueObject):
             raise KeyError('Transition with index="' + str(
                 trigger_object.index) + '" already present in triggers_dict on page="' + self.uid + '"')
 
-    def add_page_header(self, page_header_object):
+    def add_page_header_object(self, page_header_object):
         assert isinstance(page_header_object, PageHeaderObject)
         if page_header_object.index not in self.page_headers_dict.keys():
             self.page_headers_dict[page_header_object.index] = page_header_object
@@ -273,20 +273,48 @@ class PageObject(UniqueObject):
             raise KeyError('Page header with index="' + str(
                 page_header_object.index) + '" already present in page_headers_dict on page="' + self.uid + '"')
 
-    def add_question_object(self, question_object):
-        assert isinstance(question_object, QuestionObjectClass)
-        if question_object.index not in self.questions_dict.keys():
-            self.questions_dict[question_object.index] = question_object
+    def add_page_body_object(self, question_or_section_object):
+        assert isinstance(question_or_section_object, QuestionObjectClass) or isinstance(question_or_section_object, PageHeaderObject)
+        if question_or_section_object.index not in self.page_body_objects_dict.keys():
+            self.page_body_objects_dict[question_or_section_object.index] = question_or_section_object
             tmp_unique_uids_list = []
-            for question_object in self.questions_dict.values():
-                if question_object.uid not in tmp_unique_uids_list:
-                    tmp_unique_uids_list.append(question_object.uid)
+            for question_or_section_object in self.page_body_objects_dict.values():
+                if question_or_section_object.uid not in tmp_unique_uids_list:
+                    tmp_unique_uids_list.append(question_or_section_object.uid)
                 else:
-                    print('Duplicate uid="{0}" found on page="{1}"'.format(question_object.uid, self.uid))
+                    print('Duplicate uid="{0}" found on page="{1}"'.format(question_or_section_object.uid, self.uid))
         else:
             raise KeyError(
                 'Question with index="{0}", uid="{1}" already present in self.questions_dict on page="{2}"'.format(
-                    str(question_object.index), question_object.uid, self.uid))
+                    str(question_or_section_object.index), question_or_section_object.uid, self.uid))
+
+    def get_page_object_max_index(self):
+        tmp_max_page_headers_index = None
+        tmp_max_questions_index = None
+
+        if list(self.page_headers_dict.keys()):
+            tmp_max_page_headers_index = max(list(self.page_headers_dict.keys()))
+
+        if list(self.page_body_objects_dict.keys()):
+            tmp_max_questions_index = max(list(self.page_body_objects_dict.keys()))
+        if tmp_max_questions_index is None:
+            if tmp_max_page_headers_index is None:
+                return None
+            else:
+                return tmp_max_page_headers_index
+        else:
+            if tmp_max_page_headers_index is None:
+                return tmp_max_questions_index
+            else:
+                return max([tmp_max_page_headers_index, tmp_max_questions_index])
+
+    def get_page_object_next_index(self):
+        tmp_max_index = self.get_page_object_max_index()
+        if tmp_max_index is None:
+            return 0
+        else:
+            tmp_max_index += 1
+            return tmp_max_index
 
 
 class TransitionObject(CanHaveConditionWithoutUid):
@@ -514,6 +542,10 @@ class PageBody(UniqueObject):
     def __init__(self, uid_value):
         super().__init__(uid_value=uid_value, index_value=0)
 
+# class SectionObjectBaseClass(CanHaveConditionWithUid):
+#     def __init__(self, uid_value, page_uid_value, index_value, condition_string='True'):
+#         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, index_value=index_value,
+#                          condition_string=condition_string)
 
 class QuestionObjectBaseClass(CanHaveConditionWithUid):
     def __init__(self, uid_value, page_uid_value, index_value, condition_string='True'):
@@ -553,6 +585,24 @@ class QuestionObjectBaseClass(CanHaveConditionWithUid):
             raise KeyError(
                 'AnswerOptionObject with uid="{0}" already present in self.answer_option_dict for question with uid="{1}" on page_uid="{2}"'.format(
                     answer_option_object.uid, self.uid, self.page_uid))
+
+    def get_question_header_object_max_index(self):
+        tmp_max_question_headers_index = None
+
+        if list(self.question_header_dict.keys()):
+            tmp_max_question_headers_index = max(list(self.question_header_dict.keys()))
+        if tmp_max_question_headers_index is not None:
+            return tmp_max_question_headers_index
+        else:
+            return None
+
+    def get_question_header_object_next_index(self):
+        tmp_max_index = self.get_question_header_object_max_index()
+        if tmp_max_index is None:
+            return 0
+        else:
+            tmp_max_index += 1
+            return tmp_max_index
 
 
 class QuestionObjectClass(QuestionObjectBaseClass):
