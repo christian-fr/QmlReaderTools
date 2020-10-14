@@ -73,7 +73,8 @@ class ConditionObject:
             # return False
             raise NotImplementedError('Evaluation not yet implemented.')
         else:
-            raise NotImplementedError('Condition: "' + str(self.condition) + '" has not yet been translated into python logic!')
+            raise NotImplementedError(
+                'Condition: "' + str(self.condition) + '" has not yet been translated into python logic!')
 
     @property
     def condition(self):
@@ -81,8 +82,11 @@ class ConditionObject:
 
     @condition.setter
     def condition(self, condition_string):
-        assert isinstance(condition_string, str) or isinstance(condition_string, bool) or condition_string is None
-        self.__condition = condition_string
+        if condition_string is not None:
+            assert isinstance(condition_string, str) or isinstance(condition_string, bool)
+            self.__condition = condition_string
+        else:
+            self.__condition = 'true'
 
     def translate_condition_to_python_logic(self):
         pass
@@ -222,7 +226,10 @@ class PageObject(UniqueObject):
         return list(self.sources_dict.keys())
 
     def get_all_transitions_list(self):
-        return ['source: {0}, index: {1}, target: {2}, condition: "{3}"'.format(val.page_uid, str(val.index), val.target_page_uid, str(val.condition.condition)) for val in self.transitions_dict.values()]
+        return ['source: {0}, index: {1}, target: {2}, condition: "{3}"'.format(val.page_uid, str(val.index),
+                                                                                val.target_page_uid,
+                                                                                str(val.condition.condition)) for val in
+                self.transitions_dict.values()]
 
     def get_all_triggers_list(self):
         # ToDo: display var_names of variable trigger
@@ -239,28 +246,32 @@ class PageObject(UniqueObject):
         if source_object.index not in self.sources_dict.keys():
             self.sources_dict[source_object.index] = source_object
         else:
-            raise KeyError('Source with index="' + str(source_object.index) + '" already present in sources_dict of page="' + self.uid + '"')
+            raise KeyError('Source with index="' + str(
+                source_object.index) + '" already present in sources_dict of page="' + self.uid + '"')
 
     def add_transition(self, transition_object):
         assert isinstance(transition_object, TransitionObject)
         if transition_object.index not in self.transitions_dict.keys():
             self.transitions_dict[transition_object.index] = transition_object
         else:
-            raise KeyError('Transition with index="' + str(transition_object.index) + '" already present in transitions_dict on page="' + self.uid + '"')
+            raise KeyError('Transition with index="' + str(
+                transition_object.index) + '" already present in transitions_dict on page="' + self.uid + '"')
 
     def add_trigger(self, trigger_object):
         assert isinstance(trigger_object, TriggerObject)
         if trigger_object.index not in self.triggers_dict.keys():
             self.triggers_dict[trigger_object.index] = trigger_object
         else:
-            raise KeyError('Transition with index="' + str(trigger_object.index) + '" already present in triggers_dict on page="' + self.uid + '"')
+            raise KeyError('Transition with index="' + str(
+                trigger_object.index) + '" already present in triggers_dict on page="' + self.uid + '"')
 
     def add_page_header(self, page_header_object):
         assert isinstance(page_header_object, PageHeaderObject)
         if page_header_object.index not in self.page_headers_dict.keys():
             self.page_headers_dict[page_header_object.index] = page_header_object
         else:
-            raise KeyError('Page header with index="' + str(page_header_object.index) + '" already present in page_headers_dict on page="' + self.uid + '"')
+            raise KeyError('Page header with index="' + str(
+                page_header_object.index) + '" already present in page_headers_dict on page="' + self.uid + '"')
 
     def add_question_object(self, question_object):
         assert isinstance(question_object, QuestionObjectClass)
@@ -273,7 +284,9 @@ class PageObject(UniqueObject):
                 else:
                     print('Duplicate uid="{0}" found on page="{1}"'.format(question_object.uid, self.uid))
         else:
-            raise KeyError('Question with index="{0}", uid="{1}" already present in self.questions_dict on page="{2}"'.format(str(question_object.index), question_object.uid, self.uid))
+            raise KeyError(
+                'Question with index="{0}", uid="{1}" already present in self.questions_dict on page="{2}"'.format(
+                    str(question_object.index), question_object.uid, self.uid))
 
 
 class TransitionObject(CanHaveConditionWithoutUid):
@@ -293,7 +306,8 @@ class TransitionObject(CanHaveConditionWithoutUid):
 
 class SourceObject(CanHaveConditionWithUid):
     def __init__(self, page_uid_value, source_page_uid_value, index_value, condition_string='True'):
-        super().__init__(uid_value=None, page_uid_value=page_uid_value, condition_string=condition_string, index_value=index_value)
+        super().__init__(uid_value=None, page_uid_value=page_uid_value, condition_string=condition_string,
+                         index_value=index_value)
         # ToDo: finish writing this class with @property getters / setters
         self.source_page_uid = source_page_uid_value
         self.page_uid = page_uid_value
@@ -312,7 +326,8 @@ class SourceObject(CanHaveConditionWithUid):
 class TriggerObject(CanHaveConditionWithUid):
     def __init__(self, page_uid_value, index_value, var_name_string, value_string, condition_string='True'):
         # ToDo: finish writing this class with @property getters / setters
-        super().__init__(uid_value=None, page_uid_value=page_uid_value, condition_string=condition_string, index_value=index_value)
+        super().__init__(uid_value=None, page_uid_value=page_uid_value, condition_string=condition_string,
+                         index_value=index_value)
         self.condition = condition_string
         self.var_name = var_name_string
         self.value = value_string
@@ -354,38 +369,10 @@ class Pages:
             raise KeyError('Page with uid="" already present in pages_dict.')
 
 
-# class Questions(OnPageObjectWithoutUid):
-#     def __init__(self, page_uid_value):
-#         super().__init__(page_uid_value=page_uid_value)
-#         self.dict_of_questions = {}
-#
-#     def add_question(self, question_object):
-#         assert isinstance(question_object, QuestionObjectClass)
-#         assert question_object.page_uid == self.page_uid
-#         if question_object.uid not in self.dict_of_questions.keys():
-#             self.dict_of_questions[question_object.uid] = question_object
-#         else:
-#             raise KeyError('Question uid="' + question_object.uid + '" already present on page="' + self.page_uid + '"')
-#
-#     def get_question_object_from_uid(self, uid_value):
-#         assert isinstance(uid_value, str)
-#         if uid_value in self.dict_of_questions.keys():
-#             return
-#         else:
-#             raise KeyError('No question with uid="' + uid_value + '" found on page="' + self.page_uid + '"')
-#
-#     def get_all_question_uids_list(self):
-#         return list(self.dict_of_questions.keys())
-
-
-class PageHeaders:
-    def __init__(self):
-        self.dict_of_page_headers = {}
-
-
 class HeaderObject(CanHaveConditionWithUid):
     def __init__(self, uid_value, page_uid_value, header_text_string, index_value, condition_string='True'):
-        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string, index_value=index_value)
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
+                         index_value=index_value)
         self.allowed_header_types = ['None']
         self.text = header_text_string
 
@@ -411,8 +398,10 @@ class HeaderObject(CanHaveConditionWithUid):
 
 
 class QuestionHeaderObject(HeaderObject):
-    def __init__(self, uid_value, page_uid_value, header_type_string, header_text_string, index_value, condition_string='True'):
-        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string, header_text_string=header_text_string, index_value=index_value)
+    def __init__(self, uid_value, page_uid_value, header_type_string, header_text_string, index_value,
+                 condition_string='True'):
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
+                         header_text_string=header_text_string, index_value=index_value)
         self.allowed_header_types_list = ['question', 'instruction', 'introduction']
         self.header_type = header_type_string
         self.text = header_text_string
@@ -426,13 +415,19 @@ class QuestionHeaderObject(HeaderObject):
         try:
             assert isinstance(header_type_string, str) and header_type_string in self.allowed_header_types_list
         except AssertionError:
-            raise TypeError('Object with uid="{0}" is of header_type="{1}", not of allowed_header_types: "{2}"'.format(self.uid, header_type_string, str(self.allowed_header_types_list)))
+            raise TypeError(
+                'Object with uid="{0}" is of header_type="{1}", not of allowed_header_types: "{2}"'.format(self.uid,
+                                                                                                           header_type_string,
+                                                                                                           str(
+                                                                                                               self.allowed_header_types_list)))
         self.__header_type = header_type_string
 
 
 class PageHeaderObject(HeaderObject):
-    def __init__(self, uid_value, page_uid_value, page_header_type_string, page_header_text_string, index_value, condition_string='True'):
-        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string, header_text_string=page_header_text_string, index_value=index_value)
+    def __init__(self, uid_value, page_uid_value, page_header_type_string, page_header_text_string, index_value,
+                 condition_string='True'):
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
+                         header_text_string=page_header_text_string, index_value=index_value)
         self.allowed_header_types_list = ['title', 'text', 'instruction']
         self.dict_of_page_headers = {}
         self.page_header_type = page_header_type_string
@@ -444,15 +439,22 @@ class PageHeaderObject(HeaderObject):
     @page_header_type.setter
     def page_header_type(self, page_header_type_string):
         try:
-            assert isinstance(page_header_type_string, str) and page_header_type_string in self.allowed_header_types_list
+            assert isinstance(page_header_type_string,
+                              str) and page_header_type_string in self.allowed_header_types_list
         except AssertionError:
-            raise TypeError('Object with uid="{0}" is of header_type="{1}", not of allowed_header_types: "{2}"'.format(self.uid, page_header_type_string, str(self.allowed_header_types_list)))
+            raise TypeError(
+                'Object with uid="{0}" is of header_type="{1}", not of allowed_header_types: "{2}"'.format(self.uid,
+                                                                                                           page_header_type_string,
+                                                                                                           str(
+                                                                                                               self.allowed_header_types_list)))
         self.__page_header_type = page_header_type_string
 
 
 class AnswerOptionObject(CanHaveConditionWithUid):
-    def __init__(self, uid_value, page_uid_value, var_name_string, index_value, response_domain_uid, label_text_value=None, missing_bool=False, ao_value=None, condition_string='True'):
-        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string, index_value=index_value)
+    def __init__(self, uid_value, page_uid_value, var_name_string, index_value, response_domain_uid,
+                 label_text_value=None, missing_bool=False, ao_value=None, condition_string='True'):
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
+                         index_value=index_value)
         self.label_text = label_text_value
         self.var_name = var_name_string
         self.response_domain_uid = response_domain_uid
@@ -508,9 +510,15 @@ class AnswerOptionObject(CanHaveConditionWithUid):
         self.__label_text = label_text_value
 
 
+class PageBody(UniqueObject):
+    def __init__(self, uid_value):
+        super().__init__(uid_value=uid_value, index_value=0)
+
+
 class QuestionObjectBaseClass(CanHaveConditionWithUid):
     def __init__(self, uid_value, page_uid_value, index_value, condition_string='True'):
-        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, index_value=index_value, condition_string=condition_string)
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, index_value=index_value,
+                         condition_string=condition_string)
         self.variables_dict = {}
         self.question_header_dict = {}
         self.answer_option_dict = {}
@@ -520,7 +528,8 @@ class QuestionObjectBaseClass(CanHaveConditionWithUid):
         if question_header_object.index not in self.question_header_dict.keys():
             self.question_header_dict[question_header_object.index] = question_header_object
         else:
-            raise KeyError('QuestionHeaderObject with index="' + str(question_header_object.index) + '" already in question_header_dict of question with uid="' + self.uid + '" on page="' + self.page_uid + '"')
+            raise KeyError('QuestionHeaderObject with index="' + str(
+                question_header_object.index) + '" already in question_header_dict of question with uid="' + self.uid + '" on page="' + self.page_uid + '"')
 
     def get_all_variables_list(self):
         return list(self.variables_dict.keys())
@@ -541,12 +550,15 @@ class QuestionObjectBaseClass(CanHaveConditionWithUid):
         if answer_option_object.uid not in self.answer_option_dict.keys():
             self.answer_option_dict[answer_option_object.uid] = answer_option_object
         else:
-            raise KeyError('AnswerOptionObject with uid="{0}" already present in self.answer_option_dict for question with uid="{1}" on page_uid="{2}"'.format(answer_option_object.uid, self.uid, self.page_uid))
+            raise KeyError(
+                'AnswerOptionObject with uid="{0}" already present in self.answer_option_dict for question with uid="{1}" on page_uid="{2}"'.format(
+                    answer_option_object.uid, self.uid, self.page_uid))
 
 
 class QuestionObjectClass(QuestionObjectBaseClass):
     def __init__(self, uid_value, page_uid_value, index_value, condition_string='True'):
-        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string, index_value=index_value)
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
+                         index_value=index_value)
         self.item_dict = {}
 
     def add_item(self, item_object):
@@ -554,12 +566,15 @@ class QuestionObjectClass(QuestionObjectBaseClass):
         if item_object.uid not in self.item_dict.keys():
             self.item_dict[item_object.uid] = item_object
         else:
-            raise KeyError('Item with uid="' + item_object.uid + '" already present in question with uid="' + self.uid + '" on page="' + self.page_uid + '"')
+            raise KeyError(
+                'Item with uid="' + item_object.uid + '" already present in question with uid="' + self.uid + '" on page="' + self.page_uid + '"')
 
 
 class QuestionSingleChoiceObject(QuestionObjectClass):
-    def __init__(self, uid_value, page_uid_value, index_value, answer_option_objects_list, question_header_objects_list=None, condition_string='True'):
-        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string, index_value=index_value)
+    def __init__(self, uid_value, page_uid_value, index_value, answer_option_objects_list,
+                 question_header_objects_list=None, condition_string='True'):
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
+                         index_value=index_value)
         self.variables_list = []
         self.add_answer_option_objects_list(answer_option_objects_list)
         self.add_question_header_objects_list(question_header_objects_list)
@@ -580,7 +595,8 @@ class QuestionSingleChoiceObject(QuestionObjectClass):
 
 class ItemObject(QuestionObjectBaseClass):
     def __init__(self, uid_value, page_uid_value, index_value, condition_string='True'):
-        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string, index_value=index_value)
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
+                         index_value=index_value)
 
 
 class Prefix:
@@ -598,9 +614,34 @@ class Unit:
         pass
 
 
-class Section:
-    def __init__(self):
-        pass
+class Section(CanHaveConditionWithUid):
+    def __init__(self, uid_value, index_value, page_uid_value, condition_string):
+        super().__init__(uid_value=uid_value, index_value=index_value, page_uid_value=page_uid_value, condition_string=condition_string)
+        self.section_headers_dict ={}
+        self.questions_dict = {}
+
+    def add_section_header(self, page_header_object):
+        assert isinstance(page_header_object, PageHeaderObject)
+        if page_header_object.index not in self.section_headers_dict.keys():
+            self.section_headers_dict[page_header_object.index] = page_header_object
+        else:
+            raise KeyError('Page header with index="' + str(
+                page_header_object.index) + '" already present in page_headers_dict on page="' + self.uid + '"')
+
+    def add_question_object(self, question_object):
+        assert isinstance(question_object, QuestionObjectClass)
+        if question_object.index not in self.questions_dict.keys():
+            self.questions_dict[question_object.index] = question_object
+            tmp_unique_uids_list = []
+            for question_object in self.questions_dict.values():
+                if question_object.uid not in tmp_unique_uids_list:
+                    tmp_unique_uids_list.append(question_object.uid)
+                else:
+                    print('Duplicate uid="{0}" found on page="{1}"'.format(question_object.uid, self.uid))
+        else:
+            raise KeyError(
+                'Question with index="{0}", uid="{1}" already present in self.questions_dict on page="{2}"'.format(
+                    str(question_object.index), question_object.uid, self.uid))
 
 # ao1 = AnswerOptionObject(uid_value='ao1', page_uid_value='A01', var_name_string='v1', index_value=0, response_domain_uid='rd', label_text_value='label1', ao_value=1)
 # ao2 = AnswerOptionObject(uid_value='ao2', page_uid_value='A01', var_name_string='v1', index_value=1, response_domain_uid='rd', label_text_value='label2', ao_value=2)

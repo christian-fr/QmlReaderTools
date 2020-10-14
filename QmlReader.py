@@ -183,6 +183,12 @@ class QmlReader:
         else:
             self.logger.info("  no page header found")
 
+    def extract_questions_from_qml_page_source(self, page_source_object, page_uid_value):
+        pass
+
+    def extract_triggers_from_qml_page_source(self, page_source_object, page_uid_value):
+        pass
+
 
 xml_file = r'qml/questionnaireNacaps2018-2.xml'
 x = QmlReader(xml_file)

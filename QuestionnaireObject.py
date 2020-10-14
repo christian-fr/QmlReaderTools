@@ -55,9 +55,9 @@ class QuestionnaireObject:
         return self.__filename
 
     @file.setter
-    def file(self, filename_string):
-        assert isinstance(filename_string, str)
-        self.__filename = filename_string
+    def file(self, filename_value):
+        assert isinstance(filename_value, str) or filename_value is None
+        self.__filename = filename_value
 
     def get_page_from_uid(self, page_uid):
         assert isinstance(page_uid, str)
