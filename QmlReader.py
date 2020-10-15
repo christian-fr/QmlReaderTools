@@ -34,7 +34,15 @@ class QmlReader:
             self.logger.info('reading file: ' + str(file))
             self.data = f.read()
 
+
+
         self.root = objectify.fromstring(self.data)
+
+        comments = self.root.xpath('//comment()')
+
+        for c in comments:
+            p = c.getparent()
+            p.remove(c)
 
         self.title = self.extract_title()
 
@@ -165,7 +173,7 @@ class QmlReader:
                         tmp_condition_string = None
                         self.logger.info("  found visible condition: None")
 
-                    tmp_tag = QmlExtractionFunctions.return_tag_from_page_children_object(header)
+                    tmp_tag = QmlExtractionFunctions.get_tag_from_page_children_object(header)
 
                     self.logger.info("  found tag: '" + str(tmp_tag) + "'")
 
@@ -200,7 +208,7 @@ class QmlReader:
 
             for child_object in tmp_page_body_children_objects_list:
 
-                tmp_tag = QmlExtractionFunctions.return_tag_from_page_children_object(child_object)
+                tmp_tag = QmlExtractionFunctions.get_tag_from_page_children_object(child_object)
                 self.logger.info("  found tag: '" + str(tmp_tag) + "'")
                 if tmp_tag == 'comment':
                     self.logger.info("  found page body object: xml comment, ignored")
@@ -216,30 +224,44 @@ class QmlReader:
 
                     tmp_index = self.questionnaire.pages_dict[page_uid_value].get_page_object_next_index()
 
-                    tmp_uid = QmlExtractionFunctions.get_uid_attrib_of_source_object(child_object)
+                    tmp_question_uid = QmlExtractionFunctions.get_uid_attrib_of_source_object(child_object)
 
-                    if tmp_uid is None:
+                    if tmp_question_uid is None:
                         raise KeyError(
                             '   element with tag: "{0}" on page: "{1}" does not seem to have a UID'.format(tmp_tag,
                                                                                                            page_uid_value))
 
                     if tmp_tag == 'questionSingleChoice':
-                        tmp_answer_option_objects_list = QmlExtractionFunctions.get_question_header_objects_list(child_object)
-                        tmp_question_header_objects_list = []
+                        tmp_question_header_objects_list = QmlExtractionFunctions.get_question_header_objects_list(
+                            question_object=child_object, page_uid_value=page_uid_value)
+
+                        tmp_answer_option_objects_list, tmp_unit_list = QmlExtractionFunctions.get_question_answer_options_objects_list(
+                            answer_option_object=child_object, page_uid_value=page_uid_value,
+                            question_uid_value=tmp_question_uid)
+
                         tmp_condition_string = None
 
-                        tmp_page_body_object = QuestionnaireElements.QuestionSingleChoiceObject(uid_value=tmp_uid,
+                        tmp_page_body_object = QuestionnaireElements.QuestionSingleChoiceObject(uid_value=tmp_question_uid,
                                                                                                 page_uid_value=page_uid_value,
                                                                                                 index_value=tmp_index,
                                                                                                 answer_option_objects_list=tmp_answer_option_objects_list,
                                                                                                 question_header_objects_list=tmp_question_header_objects_list,
-                                                                                                condition_string=tmp_condition_string)
+                                                                                                condition_string=tmp_condition_string, list_of_units=tmp_unit_list)
 
                         self.questionnaire.pages_dict[page_uid_value].add_page_body_object(tmp_page_body_object)
                     elif tmp_tag == 'multipleChoice':
                         continue
                     elif tmp_tag == 'questionOpen':
-                        continue
+                        tmp_question_header_objects_list = QmlExtractionFunctions.get_question_header_objects_list(question_object=child_object, page_uid_value=page_uid_value)
+
+                        for question_child_object in child_object.iterchildren():
+                            tmp_question_child_tag = QmlExtractionFunctions.get_tag_from_page_children_object(question_child_object)
+
+                            if tmp_question_child_tag == 'prefix':
+                                pass
+                            elif tmp_question_child_tag == 'postfix':
+                                pass
+
                     elif tmp_tag == 'matrixQuestionSingleChoice':
                         continue
                     elif tmp_tag == 'comparison':

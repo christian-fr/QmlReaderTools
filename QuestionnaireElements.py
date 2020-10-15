@@ -274,7 +274,8 @@ class PageObject(UniqueObject):
                 page_header_object.index) + '" already present in page_headers_dict on page="' + self.uid + '"')
 
     def add_page_body_object(self, question_or_section_object):
-        assert isinstance(question_or_section_object, QuestionObjectClass) or isinstance(question_or_section_object, PageHeaderObject)
+        assert isinstance(question_or_section_object, QuestionObjectClass) or isinstance(question_or_section_object,
+                                                                                         PageHeaderObject)
         if question_or_section_object.index not in self.page_body_objects_dict.keys():
             self.page_body_objects_dict[question_or_section_object.index] = question_or_section_object
             tmp_unique_uids_list = []
@@ -434,6 +435,11 @@ class QuestionHeaderObject(HeaderObject):
         self.header_type = header_type_string
         self.text = header_text_string
 
+    def __str__(self):
+        return 'header type = "{0}", uid = "{1}", page_uid = "{2}", index = "{3}"'.format(self.header_type, self.uid,
+                                                                                          self.page_uid,
+                                                                                          str(self.index))
+
     @property
     def header_type(self):
         return self.__header_type
@@ -479,8 +485,8 @@ class PageHeaderObject(HeaderObject):
 
 
 class AnswerOptionObject(CanHaveConditionWithUid):
-    def __init__(self, uid_value, page_uid_value, var_name_string, index_value, response_domain_uid,
-                 label_text_value=None, missing_bool=False, ao_value=None, condition_string='True'):
+    def __init__(self, uid_value, question_uid_value, page_uid_value, var_name_string, index_value, response_domain_uid,
+                 label_text_value=None, missing_bool=False, ao_value=None, condition_string='True', belongs_to_unit_uid=None):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
                          index_value=index_value)
         self.label_text = label_text_value
@@ -488,9 +494,30 @@ class AnswerOptionObject(CanHaveConditionWithUid):
         self.response_domain_uid = response_domain_uid
         self.missing_flag = missing_bool
         self.value = ao_value
+        self.question_uid = question_uid_value
+        self.belongs_to_unit_uid = belongs_to_unit_uid
+
+    @property
+    def belongs_to_unit_uid(self):
+        return self.__belongs_to_unit_uid
+
+    @belongs_to_unit_uid.setter
+    def belongs_to_unit_uid(self, belongs_to_unit_uid_value):
+        assert isinstance(belongs_to_unit_uid_value, str) or belongs_to_unit_uid_value is None
+        self.__belongs_to_unit_uid = belongs_to_unit_uid_value
 
     def __str__(self):
-        return str((self.page_uid, str(self.index), self.uid, self.label_text, str(self.value)))
+        return str((self.page_uid, str(self.index), self.uid, self.label_text, str(self.value), str(self.missing_flag),
+                    str(self.condition)))
+
+    @property
+    def question_uid(self):
+        return self.__question_uid
+
+    @question_uid.setter
+    def question_uid(self, question_uid_string):
+        assert isinstance(question_uid_string, str)
+        self.__question_uid = question_uid_string
 
     @property
     def value(self):
@@ -542,18 +569,22 @@ class PageBody(UniqueObject):
     def __init__(self, uid_value):
         super().__init__(uid_value=uid_value, index_value=0)
 
-# class SectionObjectBaseClass(CanHaveConditionWithUid):
-#     def __init__(self, uid_value, page_uid_value, index_value, condition_string='True'):
-#         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, index_value=index_value,
-#                          condition_string=condition_string)
 
 class QuestionObjectBaseClass(CanHaveConditionWithUid):
-    def __init__(self, uid_value, page_uid_value, index_value, condition_string='True'):
+    def __init__(self, uid_value, page_uid_value, index_value, condition_string='True', list_of_units=[]):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, index_value=index_value,
                          condition_string=condition_string)
         self.variables_dict = {}
         self.question_header_dict = {}
         self.answer_option_dict = {}
+        self.list_of_unit_objects = []
+        self.add_list_of_units(list_of_units)
+
+    def add_list_of_units(self, list_of_unit_objects):
+        assert isinstance(list_of_unit_objects, list)
+        for unit_object in list_of_unit_objects:
+            assert isinstance(unit_object, UnitObject)
+            self.list_of_unit_objects.append(UnitObject)
 
     def add_question_header(self, question_header_object):
         assert isinstance(question_header_object, QuestionHeaderObject)
@@ -606,10 +637,11 @@ class QuestionObjectBaseClass(CanHaveConditionWithUid):
 
 
 class QuestionObjectClass(QuestionObjectBaseClass):
-    def __init__(self, uid_value, page_uid_value, index_value, condition_string='True'):
+    def __init__(self, uid_value, page_uid_value, index_value, question_header_objects_list, condition_string='True', list_of_units=[]):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
-                         index_value=index_value)
+                         index_value=index_value, list_of_units=list_of_units)
         self.item_dict = {}
+        self.add_question_header_objects_list(question_header_objects_list)
 
     def add_item(self, item_object):
         assert isinstance(item_object, ItemObject)
@@ -619,15 +651,20 @@ class QuestionObjectClass(QuestionObjectBaseClass):
             raise KeyError(
                 'Item with uid="' + item_object.uid + '" already present in question with uid="' + self.uid + '" on page="' + self.page_uid + '"')
 
+    def add_question_header_objects_list(self, question_header_objects_list):
+        assert isinstance(question_header_objects_list, list)
+        for question_header_object in question_header_objects_list:
+            assert isinstance(question_header_object, QuestionHeaderObject)
+            self.add_question_header(question_header_object=question_header_object)
+
 
 class QuestionSingleChoiceObject(QuestionObjectClass):
     def __init__(self, uid_value, page_uid_value, index_value, answer_option_objects_list,
-                 question_header_objects_list=None, condition_string='True'):
+                 question_header_objects_list=None, condition_string='True', list_of_units=[]):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
-                         index_value=index_value)
+                         index_value=index_value, question_header_objects_list=question_header_objects_list)
         self.variables_list = []
         self.add_answer_option_objects_list(answer_option_objects_list)
-        self.add_question_header_objects_list(question_header_objects_list)
 
     def add_answer_option_objects_list(self, answer_option_objects_list):
         assert isinstance(answer_option_objects_list, list)
@@ -636,12 +673,6 @@ class QuestionSingleChoiceObject(QuestionObjectClass):
         for answer_option_object in answer_option_objects_list:
             self.add_answer_option(answer_option_object=answer_option_object)
 
-    def add_question_header_objects_list(self, question_header_objects_list):
-        assert isinstance(question_header_objects_list, list)
-        for question_header_object in question_header_objects_list:
-            assert isinstance(question_header_object, QuestionHeaderObject)
-            self.add_question_header(question_header_object=question_header_object)
-
 
 class ItemObject(QuestionObjectBaseClass):
     def __init__(self, uid_value, page_uid_value, index_value, condition_string='True'):
@@ -649,25 +680,221 @@ class ItemObject(QuestionObjectBaseClass):
                          index_value=index_value)
 
 
-class Prefix:
-    def __init__(self):
-        pass
+class PrefixPostfixLabelBaseObject(CanHaveConditionWithoutUid):
+    def __init__(self, page_uid_value, label_value=None, condition_string='True'):
+        super().__init__(page_uid_value=page_uid_value, index_value=None, condition_string=condition_string)
+        self.label = None
+
+    @property
+    def label(self):
+        return self.__label
+
+    @label.setter
+    def label(self, label_value):
+        assert isinstance(label_value, str) or label_value is None
+        self.__label = label_value
 
 
-class Postfix:
-    def __init__(self):
-        pass
+class PrefixLabelObject(PrefixPostfixLabelBaseObject):
+    def __init__(self, page_uid_value, label_value, condition_string='True'):
+        super().__init__(page_uid_value=page_uid_value, label_value=label_value, condition_string=condition_string)
 
 
-class Unit:
-    def __init__(self):
-        pass
+class PostfixLabelObject(PrefixPostfixLabelBaseObject):
+    def __init__(self, page_uid_value, label_value, condition_string='True'):
+        super().__init__(page_uid_value=page_uid_value, label_value=label_value, condition_string=condition_string)
+
+
+class QuestionOpen(QuestionObjectClass):
+    def __init__(self, uid_value, page_uid_value, index_value, var_name_string, condition_string='True',
+                 small_option='False', rows=None, columns=None, max_value=None, min_value=None, max_length=None,
+                 question_open_type='text', validation_message=None, size=None, prefix_label_object_list=None,
+                 postfix_label_object_list=None):
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, index_value=index_value,
+                         condition_string=condition_string, question_header_objects_list=[])
+        self._allowed_question_types = ['text', 'grade', 'number']
+        self.var_name = var_name_string
+        self.small_option = small_option
+        self.rows = rows
+        self.columns = columns
+        self.max_value = max_value
+        self.min_value = min_value
+        self.max_length = max_length
+        self.question_open_type = question_open_type
+        self.validation_message = validation_message
+        self.size = size
+
+        self.prefix_label_list = []
+        self.add_prefix_label(prefix_label_object_list)
+
+        self.postfix_label_list = []
+        self.add_postfix_label(postfix_label_object_list)
+
+    def add_prefix_label(self, prefix_label_object_list):
+        assert isinstance(prefix_label_object_list, list)
+        for label_object in prefix_label_object_list:
+            assert isinstance(label_object, PrefixLabelObject) or label_object is None
+            if label_object is not None:
+                self.postfix_label_list.append(label_object)
+
+    def add_postfix_label(self, postfix_label_object_list):
+        assert isinstance(postfix_label_object_list, list)
+        for label_object in postfix_label_object_list:
+            assert isinstance(label_object, PostfixLabelObject) or label_object is None
+            if label_object is not None:
+                self.postfix_label_list.append(label_object)
+
+    @property
+    def max_value(self):
+        return self.__max_value
+
+    @max_value.setter
+    def max_value(self, max_value_value):
+        assert isinstance(max_value_value, int) or isinstance(max_value_value, str)
+        if isinstance(max_value_value, int):
+            self.__max_value = max_value_value
+        elif isinstance(max_value_value, str):
+            self.__max_value = int(max_value_value)
+        else:
+            raise ValueError(
+                'Value "{0}" not recognized for attribute "max_value", question_uid = "{1}", page_uid = "{2}"'.format(
+                    str(max_value_value), self.uid, self.page_uid))
+
+    @property
+    def min_value(self):
+        return self.__min_value
+
+    @min_value.setter
+    def min_value(self, min_value_value):
+        assert isinstance(min_value_value, int) or isinstance(min_value_value, str)
+        if isinstance(min_value_value, int):
+            self.__min_value = min_value_value
+        elif isinstance(min_value_value, str):
+            self.__min_value = int(min_value_value)
+        else:
+            raise ValueError(
+                'Value "{0}" not recognized for attribute "min_value", question_uid = "{1}", page_uid = "{2}"'.format(
+                    str(min_value_value), self.uid, self.page_uid))
+
+    @property
+    def max_length(self):
+        return self.__max_length
+
+    @max_length.setter
+    def max_length(self, max_length_value):
+        assert isinstance(max_length_value, int) or isinstance(max_length_value, str)
+        if isinstance(max_length_value, int):
+            self.__max_length = max_length_value
+        elif isinstance(max_length_value, str):
+            self.__max_length = int(max_length_value)
+        else:
+            raise ValueError(
+                'Value "{0}" not recognized for attribute "max_length", question_uid = "{1}", page_uid = "{2}"'.format(
+                    str(max_length_value), self.uid, self.page_uid))
+
+    @property
+    def question_open_type(self):
+        return self.__question_open_type
+
+    @question_open_type.setter
+    def question_open_type(self, question_open_types_value):
+        assert isinstance(question_open_types_value, str)
+        if question_open_types_value in self._allowed_question_types:
+            raise TypeError('Question type "{0}" was not found in allowed list of types: "{1}".'.format(
+                str(question_open_types_value), str(self._allowed_question_types)))
+        self.__question_open_type = question_open_types_value
+
+    @property
+    def validation_message(self):
+        return self.__validation_message
+
+    @validation_message.setter
+    def validation_message(self, validation_messages_value):
+        assert isinstance(validation_messages_value, str) or validation_messages_value is None
+        self.__validation_message = validation_messages_value
+
+    @property
+    def size(self):
+        return self.__size
+
+    @size.setter
+    def size(self, size_value):
+        assert isinstance(size_value, int) or isinstance(size_value, str)
+        if isinstance(size_value, int):
+            self.__size = size_value
+        elif isinstance(size_value, str):
+            self.__size = int(size_value)
+        else:
+            raise ValueError(
+                'Value "{0}" not recognized for attribute "size", question_uid = "{1}", page_uid = "{2}"'.format(
+                    str(size_value), self.uid, self.page_uid))
+
+    @property
+    def columns(self):
+        return self.__columns
+
+    @columns.setter
+    def columns(self, columns_value):
+        assert isinstance(columns_value, int) or isinstance(columns_value, str)
+        if isinstance(columns_value, int):
+            self.__columns = columns_value
+        elif isinstance(columns_value, str):
+            self.__columns = int(columns_value)
+        else:
+            raise ValueError(
+                'Value "{0}" not recognized for attribute "columns", question_uid = "{1}", page_uid = "{2}"'.format(
+                    str(columns_value), self.uid, self.page_uid))
+
+    @property
+    def rows(self):
+        return self.__rows
+
+    @rows.setter
+    def rows(self, rows_value):
+        assert isinstance(rows_value, int) or isinstance(rows_value, str)
+        if isinstance(rows_value, int):
+            self.__rows = rows_value
+        elif isinstance(rows_value, str):
+            self.__rows = int(rows_value)
+        else:
+            raise ValueError(
+                'Value "{0}" not recognized for attribute "rows", question_uid = "{1}", page_uid = "{2}"'.format(
+                    str(rows_value), self.uid, self.page_uid))
+
+    @property
+    def small_option(self):
+        return self.__small_option
+
+    @small_option.setter
+    def small_option(self, small_option_value):
+        assert isinstance(small_option_value, str) or isinstance(small_option_value, bool)
+        if isinstance(small_option_value, str):
+            if small_option_value.lower() == "true":
+                self.__small_option = True
+            elif small_option_value.lower() == "false":
+                self.__small_option = False
+            else:
+                raise ValueError(
+                    'Value "{0}" not recognized for attribute "smallOption", question_uid = "{1}", page_uid = "{2}"'.format(
+                        str(small_option_value), self.uid, self.page_uid))
+        if isinstance(small_option_value, bool):
+            self.__small_option = small_option_value
+
+    @property
+    def var_name(self):
+        return self.__var_name
+
+    @var_name.setter
+    def var_name(self, var_name_string):
+        assert isinstance(var_name_string, str)
+        self.__var_name = var_name_string
 
 
 class Section(CanHaveConditionWithUid):
     def __init__(self, uid_value, index_value, page_uid_value, condition_string):
-        super().__init__(uid_value=uid_value, index_value=index_value, page_uid_value=page_uid_value, condition_string=condition_string)
-        self.section_headers_dict ={}
+        super().__init__(uid_value=uid_value, index_value=index_value, page_uid_value=page_uid_value,
+                         condition_string=condition_string)
+        self.section_headers_dict = {}
         self.questions_dict = {}
 
     def add_section_header(self, page_header_object):
@@ -693,16 +920,21 @@ class Section(CanHaveConditionWithUid):
                 'Question with index="{0}", uid="{1}" already present in self.questions_dict on page="{2}"'.format(
                     str(question_object.index), question_object.uid, self.uid))
 
-# ao1 = AnswerOptionObject(uid_value='ao1', page_uid_value='A01', var_name_string='v1', index_value=0, response_domain_uid='rd', label_text_value='label1', ao_value=1)
-# ao2 = AnswerOptionObject(uid_value='ao2', page_uid_value='A01', var_name_string='v1', index_value=1, response_domain_uid='rd', label_text_value='label2', ao_value=2)
-# ao3 = AnswerOptionObject(uid_value='ao3', page_uid_value='A01', var_name_string='v1', index_value=2, response_domain_uid='rd', label_text_value='label3', ao_value=3)
-#
-#
-# qh = QuestionHeaderObject(uid_value='ti1', page_uid_value='A01', index_value=0, header_text_string='Header strings sind schön.', header_type_string='question')
-#
-# qsc1 = QuestionSingleChoice(uid_value='qsc1', page_uid_value='A01', index_value=0, answer_option_objects_list=[ao1, ao2, ao3], question_header_objects_list=[qh], condition_string='1 == 1')
-# qsc2 = QuestionSingleChoice(uid_value='qsc1', page_uid_value='A01', index_value=1, answer_option_objects_list=[ao1, ao2, ao3], question_header_objects_list=[qh], condition_string='1 == 2')
-#
-# page1 = PageObject(uid_value='A01', index_value=0, declared=True)
-# page1.add_question_object(qsc1)
-# page1.add_question_object(qsc2)
+
+class UnitHeaderObject(PageHeaderObject):
+    def __init__(self, uid_value, page_uid_value, unit_header_type_string, unit_header_text_string, index_value, condition_string):
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, page_header_type_string=unit_header_type_string, page_header_text_string=unit_header_text_string, index_value=index_value, condition_string=condition_string)
+
+
+class UnitObject(CanHaveConditionWithUid):
+    def __init__(self, uid_value, page_uid_value, index_value=None, condition_string='True', unit_header_objects_list=None):
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, index_value=index_value, condition_string=condition_string)
+        self.unit_header_dict = {}
+        self.add_unit_header_objects_list(unit_header_objects_list)
+
+    def add_unit_header_objects_list(self, unit_header_objects_list):
+        assert isinstance(unit_header_objects_list, list)
+        for unit_header_object in unit_header_objects_list:
+            assert isinstance(unit_header_object, UnitHeaderObject)
+        for unit_header_object in unit_header_objects_list:
+            self.unit_header_dict[unit_header_object.index] = unit_header_object
