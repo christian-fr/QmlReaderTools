@@ -1,6 +1,6 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
-__license__ = "GPL v3"
+__license__ = "MIT"
 __version__ = "0.0.1"
 __status__ = "Prototype"
 __name__ = "WeightedGraph"

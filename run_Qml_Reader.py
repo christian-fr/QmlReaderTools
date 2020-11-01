@@ -1,6 +1,6 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
-__license__ = "GPL v3"
+__license__ = "MIT"
 __version__ = "1.0.7"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
@@ -12,5 +12,5 @@ from tkinter import Tk
 root = Tk()
 app = MainInterface.Window(root)
 root.wm_title("QML Reader " + str(__version__))
-root.geometry('800x600')
+root.geometry('800x600')careful surgery to adapt the change. This means you have too many assumptions about Table in Carpenter’s code or the reverse.
 root.mainloop()

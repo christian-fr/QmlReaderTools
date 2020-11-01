@@ -1,10 +1,10 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
-__license__ = "GPL v3"
+__license__ = "MIT"
 __version__ = "0.1.0"
 __status__ = "Prototype"
 __name__ = "ImagePostprocessing"
-# last edited: 2020/03/12
+# last edited: 2020/03/12GPL v3
 
 from math import ceil
 
