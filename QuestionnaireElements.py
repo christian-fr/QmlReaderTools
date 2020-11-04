@@ -486,7 +486,7 @@ class PageHeaderObject(HeaderObject):
 
 class AnswerOptionObject(CanHaveConditionWithUid):
     def __init__(self, uid_value, question_uid_value, page_uid_value, var_name_string, index_value, response_domain_uid,
-                 label_text_value=None, missing_bool=False, ao_value=None, condition_string='True', belongs_to_unit_uid=None):
+                 label_text_value=None, missing_bool=False, ao_value=None, condition_string='True', belongs_to_unit_uid=None, attached_open=None):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
                          index_value=index_value)
         self.label_text = label_text_value
@@ -496,6 +496,16 @@ class AnswerOptionObject(CanHaveConditionWithUid):
         self.value = ao_value
         self.question_uid = question_uid_value
         self.belongs_to_unit_uid = belongs_to_unit_uid
+        self.attached_open = attached_open
+
+    @property
+    def attached_open(self):
+        return self._attached_open
+
+    @attached_open.setter
+    def attached_open(self, question_open_object):
+        assert isinstance(question_open_object, QuestionOpen) or question_open_object is None
+        self._attached_open = question_open_object
 
     @property
     def belongs_to_unit_uid(self):
@@ -571,7 +581,7 @@ class PageBody(UniqueObject):
 
 
 class QuestionObjectBaseClass(CanHaveConditionWithUid):
-    def __init__(self, uid_value, page_uid_value, index_value, condition_string='True', list_of_units=[]):
+    def __init__(self, uid_value, page_uid_value, index_value, condition_string='True', list_of_units=None):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, index_value=index_value,
                          condition_string=condition_string)
         self.variables_dict = {}
@@ -581,10 +591,11 @@ class QuestionObjectBaseClass(CanHaveConditionWithUid):
         self.add_list_of_units(list_of_units)
 
     def add_list_of_units(self, list_of_unit_objects):
-        assert isinstance(list_of_unit_objects, list)
-        for unit_object in list_of_unit_objects:
-            assert isinstance(unit_object, UnitObject)
-            self.list_of_unit_objects.append(UnitObject)
+        assert isinstance(list_of_unit_objects, list) or list_of_unit_objects is None
+        if list_of_unit_objects is not None:
+            for unit_object in list_of_unit_objects:
+                assert isinstance(unit_object, UnitObject)
+                self.list_of_unit_objects.append(UnitObject)
 
     def add_question_header(self, question_header_object):
         assert isinstance(question_header_object, QuestionHeaderObject)
@@ -637,7 +648,7 @@ class QuestionObjectBaseClass(CanHaveConditionWithUid):
 
 
 class QuestionObjectClass(QuestionObjectBaseClass):
-    def __init__(self, uid_value, page_uid_value, index_value, question_header_objects_list, condition_string='True', list_of_units=[]):
+    def __init__(self, uid_value, page_uid_value, index_value, question_header_objects_list, condition_string='True', list_of_units=None):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
                          index_value=index_value, list_of_units=list_of_units)
         self.item_dict = {}
@@ -660,9 +671,9 @@ class QuestionObjectClass(QuestionObjectBaseClass):
 
 class QuestionSingleChoiceObject(QuestionObjectClass):
     def __init__(self, uid_value, page_uid_value, index_value, answer_option_objects_list,
-                 question_header_objects_list=None, condition_string='True', list_of_units=[]):
+                 question_header_objects_list=None, condition_string='True', list_of_units=None):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
-                         index_value=index_value, question_header_objects_list=question_header_objects_list)
+                         index_value=index_value, question_header_objects_list=question_header_objects_list, list_of_units=list_of_units)
         self.variables_list = []
         self.add_answer_option_objects_list(answer_option_objects_list)
 
@@ -927,10 +938,20 @@ class UnitHeaderObject(PageHeaderObject):
 
 
 class UnitObject(CanHaveConditionWithUid):
-    def __init__(self, uid_value, page_uid_value, index_value=None, condition_string='True', unit_header_objects_list=None):
+    def __init__(self, uid_value, page_uid_value, response_domain_uid_value, index_value=None, condition_string='True', unit_header_objects_list=None):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, index_value=index_value, condition_string=condition_string)
         self.unit_header_dict = {}
+        self.response_domain_uid = response_domain_uid_value
         self.add_unit_header_objects_list(unit_header_objects_list)
+
+    @property
+    def response_domain_uid(self):
+        return self._response_domain_uid
+
+    @response_domain_uid.setter
+    def response_domain_uid(self, response_domain_uid_value):
+        assert isinstance(response_domain_uid_value, str)
+        self._response_domain_uid = response_domain_uid_value
 
     def add_unit_header_objects_list(self, unit_header_objects_list):
         assert isinstance(unit_header_objects_list, list)

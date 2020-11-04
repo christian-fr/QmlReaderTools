@@ -34,8 +34,6 @@ class QmlReader:
             self.logger.info('reading file: ' + str(file))
             self.data = f.read()
 
-
-
         self.root = objectify.fromstring(self.data)
 
         comments = self.root.xpath('//comment()')
@@ -233,29 +231,33 @@ class QmlReader:
 
                     if tmp_tag == 'questionSingleChoice':
                         tmp_question_header_objects_list = QmlExtractionFunctions.get_question_header_objects_list(
-                            question_object=child_object, page_uid_value=page_uid_value)
+                            question_source_object=child_object, page_uid_value=page_uid_value)
 
-                        tmp_answer_option_objects_list, tmp_unit_list = QmlExtractionFunctions.get_question_answer_options_objects_list(
-                            answer_option_object=child_object, page_uid_value=page_uid_value,
+                        # get answer_options_list and unit_objects_list
+                        tmp_answer_option_objects_list, tmp_unit_objects_list = QmlExtractionFunctions.get_question_answer_options_objects_unit_objects_list(
+                            question_source_object=child_object, page_uid_value=page_uid_value,
                             question_uid_value=tmp_question_uid)
 
                         tmp_condition_string = None
 
-                        tmp_page_body_object = QuestionnaireElements.QuestionSingleChoiceObject(uid_value=tmp_question_uid,
-                                                                                                page_uid_value=page_uid_value,
-                                                                                                index_value=tmp_index,
-                                                                                                answer_option_objects_list=tmp_answer_option_objects_list,
-                                                                                                question_header_objects_list=tmp_question_header_objects_list,
-                                                                                                condition_string=tmp_condition_string, list_of_units=tmp_unit_list)
+                        tmp_page_body_object = QuestionnaireElements.QuestionSingleChoiceObject(
+                            uid_value=tmp_question_uid,
+                            page_uid_value=page_uid_value,
+                            index_value=tmp_index,
+                            answer_option_objects_list=tmp_answer_option_objects_list,
+                            question_header_objects_list=tmp_question_header_objects_list,
+                            condition_string=tmp_condition_string, list_of_units=tmp_unit_objects_list)
 
                         self.questionnaire.pages_dict[page_uid_value].add_page_body_object(tmp_page_body_object)
                     elif tmp_tag == 'multipleChoice':
                         continue
                     elif tmp_tag == 'questionOpen':
-                        tmp_question_header_objects_list = QmlExtractionFunctions.get_question_header_objects_list(question_object=child_object, page_uid_value=page_uid_value)
+                        tmp_question_header_objects_list = QmlExtractionFunctions.get_question_header_objects_list(
+                            question_source_object=child_object, page_uid_value=page_uid_value)
 
                         for question_child_object in child_object.iterchildren():
-                            tmp_question_child_tag = QmlExtractionFunctions.get_tag_from_page_children_object(question_child_object)
+                            tmp_question_child_tag = QmlExtractionFunctions.get_tag_from_page_children_object(
+                                question_child_object)
 
                             if tmp_question_child_tag == 'prefix':
                                 pass
