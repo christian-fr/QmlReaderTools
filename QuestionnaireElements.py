@@ -486,7 +486,8 @@ class PageHeaderObject(HeaderObject):
 
 class AnswerOptionObject(CanHaveConditionWithUid):
     def __init__(self, uid_value, question_uid_value, page_uid_value, var_name_string, index_value, response_domain_uid,
-                 label_text_value=None, missing_bool=False, ao_value=None, condition_string='True', belongs_to_unit_uid=None, attached_open=None):
+                 label_text_value=None, missing_bool=False, ao_value=None, condition_string='True',
+                 unit_object=None, attached_open=None):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
                          index_value=index_value)
         self.label_text = label_text_value
@@ -495,7 +496,7 @@ class AnswerOptionObject(CanHaveConditionWithUid):
         self.missing_flag = missing_bool
         self.value = ao_value
         self.question_uid = question_uid_value
-        self.belongs_to_unit_uid = belongs_to_unit_uid
+        self.unit_object = unit_object
         self.attached_open = attached_open
 
     @property
@@ -508,13 +509,13 @@ class AnswerOptionObject(CanHaveConditionWithUid):
         self._attached_open = question_open_object
 
     @property
-    def belongs_to_unit_uid(self):
-        return self.__belongs_to_unit_uid
+    def unit_object(self):
+        return self._belongs_to_unit_uid
 
-    @belongs_to_unit_uid.setter
-    def belongs_to_unit_uid(self, belongs_to_unit_uid_value):
-        assert isinstance(belongs_to_unit_uid_value, str) or belongs_to_unit_uid_value is None
-        self.__belongs_to_unit_uid = belongs_to_unit_uid_value
+    @unit_object.setter
+    def unit_object(self, belongs_to_unit_object):
+        assert isinstance(belongs_to_unit_object, UnitObject) or belongs_to_unit_object is None
+        self._belongs_to_unit_uid = belongs_to_unit_object
 
     def __str__(self):
         return str((self.page_uid, str(self.index), self.uid, self.label_text, str(self.value), str(self.missing_flag),
@@ -522,57 +523,57 @@ class AnswerOptionObject(CanHaveConditionWithUid):
 
     @property
     def question_uid(self):
-        return self.__question_uid
+        return self._question_uid
 
     @question_uid.setter
     def question_uid(self, question_uid_string):
         assert isinstance(question_uid_string, str)
-        self.__question_uid = question_uid_string
+        self._question_uid = question_uid_string
 
     @property
     def value(self):
-        return self.__value
+        return self._value
 
     @value.setter
     def value(self, ao_value):
         assert isinstance(ao_value, int) or ao_value is None
-        self.__value = ao_value
+        self._value = ao_value
 
     @property
     def missing_flag(self):
-        return self.__missing_flag
+        return self._missing_flag
 
     @missing_flag.setter
     def missing_flag(self, missing_bool):
         assert isinstance(missing_bool, bool)
-        self.__missing_flag = missing_bool
+        self._missing_flag = missing_bool
 
     @property
     def response_domain_uid(self):
-        return self.__response_domain_uid
+        return self._response_domain_uid
 
     @response_domain_uid.setter
     def response_domain_uid(self, response_domain_uid_value):
         assert isinstance(response_domain_uid_value, str)
-        self.__response_domain_uid = response_domain_uid_value
+        self._response_domain_uid = response_domain_uid_value
 
     @property
     def var_name(self):
-        return self.__var_name
+        return self._var_name
 
     @var_name.setter
     def var_name(self, var_name_string):
         assert isinstance(var_name_string, str)
-        self.__var_name = var_name_string
+        self._var_name = var_name_string
 
     @property
     def label_text(self):
-        return self.__label_text
+        return self._label_text
 
     @label_text.setter
     def label_text(self, label_text_value):
         assert isinstance(label_text_value, str) or label_text_value is None
-        self.__label_text = label_text_value
+        self._label_text = label_text_value
 
 
 class PageBody(UniqueObject):
@@ -648,7 +649,8 @@ class QuestionObjectBaseClass(CanHaveConditionWithUid):
 
 
 class QuestionObjectClass(QuestionObjectBaseClass):
-    def __init__(self, uid_value, page_uid_value, index_value, question_header_objects_list, condition_string='True', list_of_units=None):
+    def __init__(self, uid_value, page_uid_value, index_value, question_header_objects_list, condition_string='True',
+                 list_of_units=None):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
                          index_value=index_value, list_of_units=list_of_units)
         self.item_dict = {}
@@ -673,7 +675,8 @@ class QuestionSingleChoiceObject(QuestionObjectClass):
     def __init__(self, uid_value, page_uid_value, index_value, answer_option_objects_list,
                  question_header_objects_list=None, condition_string='True', list_of_units=None):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
-                         index_value=index_value, question_header_objects_list=question_header_objects_list, list_of_units=list_of_units)
+                         index_value=index_value, question_header_objects_list=question_header_objects_list,
+                         list_of_units=list_of_units)
         self.variables_list = []
         self.add_answer_option_objects_list(answer_option_objects_list)
 
@@ -691,10 +694,11 @@ class ItemObject(QuestionObjectBaseClass):
                          index_value=index_value)
 
 
-class PrefixPostfixLabelBaseObject(CanHaveConditionWithoutUid):
-    def __init__(self, page_uid_value, label_value=None, condition_string='True'):
-        super().__init__(page_uid_value=page_uid_value, index_value=None, condition_string=condition_string)
-        self.label = None
+class PrefixPostfixLabelBaseObject(CanHaveConditionWithUid):
+    def __init__(self, uid, page_uid_value, index_value, label_text_value=None, condition_string='True', ):
+        super().__init__(uid_value=uid, page_uid_value=page_uid_value, index_value=index_value,
+                         condition_string=condition_string)
+        self.label = label_text_value
 
     @property
     def label(self):
@@ -707,13 +711,15 @@ class PrefixPostfixLabelBaseObject(CanHaveConditionWithoutUid):
 
 
 class PrefixLabelObject(PrefixPostfixLabelBaseObject):
-    def __init__(self, page_uid_value, label_value, condition_string='True'):
-        super().__init__(page_uid_value=page_uid_value, label_value=label_value, condition_string=condition_string)
+    def __init__(self, uid, page_uid_value, index_value, label_text_value, condition_string='True'):
+        super().__init__(uid=uid, page_uid_value=page_uid_value, label_text_value=label_text_value,
+                         condition_string=condition_string, index_value=index_value)
 
 
 class PostfixLabelObject(PrefixPostfixLabelBaseObject):
-    def __init__(self, page_uid_value, label_value, condition_string='True'):
-        super().__init__(page_uid_value=page_uid_value, label_value=label_value, condition_string=condition_string)
+    def __init__(self, uid, page_uid_value, index_value, label_text_value, condition_string='True'):
+        super().__init__(uid=uid, page_uid_value=page_uid_value, label_text_value=label_text_value,
+                         condition_string=condition_string, index_value=index_value)
 
 
 class QuestionOpen(QuestionObjectClass):
@@ -746,7 +752,7 @@ class QuestionOpen(QuestionObjectClass):
         for label_object in prefix_label_object_list:
             assert isinstance(label_object, PrefixLabelObject) or label_object is None
             if label_object is not None:
-                self.postfix_label_list.append(label_object)
+                self.prefix_label_list.append(label_object)
 
     def add_postfix_label(self, postfix_label_object_list):
         assert isinstance(postfix_label_object_list, list)
@@ -757,15 +763,15 @@ class QuestionOpen(QuestionObjectClass):
 
     @property
     def max_value(self):
-        return self.__max_value
+        return self._max_value
 
     @max_value.setter
     def max_value(self, max_value_value):
-        assert isinstance(max_value_value, int) or isinstance(max_value_value, str)
-        if isinstance(max_value_value, int):
-            self.__max_value = max_value_value
+        assert isinstance(max_value_value, int) or isinstance(max_value_value, str) or max_value_value is None
+        if isinstance(max_value_value, int) or max_value_value is None:
+            self._max_value = max_value_value
         elif isinstance(max_value_value, str):
-            self.__max_value = int(max_value_value)
+            self._max_value = int(max_value_value)
         else:
             raise ValueError(
                 'Value "{0}" not recognized for attribute "max_value", question_uid = "{1}", page_uid = "{2}"'.format(
@@ -773,15 +779,15 @@ class QuestionOpen(QuestionObjectClass):
 
     @property
     def min_value(self):
-        return self.__min_value
+        return self._min_value
 
     @min_value.setter
     def min_value(self, min_value_value):
-        assert isinstance(min_value_value, int) or isinstance(min_value_value, str)
-        if isinstance(min_value_value, int):
-            self.__min_value = min_value_value
+        assert isinstance(min_value_value, int) or isinstance(min_value_value, str) or min_value_value is None
+        if isinstance(min_value_value, int) or min_value_value is None:
+            self._min_value = min_value_value
         elif isinstance(min_value_value, str):
-            self.__min_value = int(min_value_value)
+            self._min_value = int(min_value_value)
         else:
             raise ValueError(
                 'Value "{0}" not recognized for attribute "min_value", question_uid = "{1}", page_uid = "{2}"'.format(
@@ -789,15 +795,15 @@ class QuestionOpen(QuestionObjectClass):
 
     @property
     def max_length(self):
-        return self.__max_length
+        return self._max_length
 
     @max_length.setter
     def max_length(self, max_length_value):
-        assert isinstance(max_length_value, int) or isinstance(max_length_value, str)
-        if isinstance(max_length_value, int):
-            self.__max_length = max_length_value
+        assert isinstance(max_length_value, int) or isinstance(max_length_value, str) or max_length_value is None
+        if isinstance(max_length_value, int) or max_length_value is None:
+            self._max_length = max_length_value
         elif isinstance(max_length_value, str):
-            self.__max_length = int(max_length_value)
+            self._max_length = int(max_length_value)
         else:
             raise ValueError(
                 'Value "{0}" not recognized for attribute "max_length", question_uid = "{1}", page_uid = "{2}"'.format(
@@ -805,36 +811,36 @@ class QuestionOpen(QuestionObjectClass):
 
     @property
     def question_open_type(self):
-        return self.__question_open_type
+        return self._question_open_type
 
     @question_open_type.setter
     def question_open_type(self, question_open_types_value):
-        assert isinstance(question_open_types_value, str)
-        if question_open_types_value in self._allowed_question_types:
+        assert isinstance(question_open_types_value, str) or question_open_types_value is None
+        if question_open_types_value not in self._allowed_question_types and question_open_types_value is not None:
             raise TypeError('Question type "{0}" was not found in allowed list of types: "{1}".'.format(
                 str(question_open_types_value), str(self._allowed_question_types)))
-        self.__question_open_type = question_open_types_value
+        self._question_open_type = question_open_types_value
 
     @property
     def validation_message(self):
-        return self.__validation_message
+        return self._validation_message
 
     @validation_message.setter
     def validation_message(self, validation_messages_value):
         assert isinstance(validation_messages_value, str) or validation_messages_value is None
-        self.__validation_message = validation_messages_value
+        self._validation_message = validation_messages_value
 
     @property
     def size(self):
-        return self.__size
+        return self._size
 
     @size.setter
     def size(self, size_value):
-        assert isinstance(size_value, int) or isinstance(size_value, str)
-        if isinstance(size_value, int):
-            self.__size = size_value
+        assert isinstance(size_value, int) or isinstance(size_value, str) or size_value is None
+        if isinstance(size_value, int) or size_value is None:
+            self._size = size_value
         elif isinstance(size_value, str):
-            self.__size = int(size_value)
+            self._size = int(size_value)
         else:
             raise ValueError(
                 'Value "{0}" not recognized for attribute "size", question_uid = "{1}", page_uid = "{2}"'.format(
@@ -842,15 +848,15 @@ class QuestionOpen(QuestionObjectClass):
 
     @property
     def columns(self):
-        return self.__columns
+        return self._columns
 
     @columns.setter
     def columns(self, columns_value):
-        assert isinstance(columns_value, int) or isinstance(columns_value, str)
-        if isinstance(columns_value, int):
-            self.__columns = columns_value
+        assert isinstance(columns_value, int) or isinstance(columns_value, str) or columns_value is None
+        if isinstance(columns_value, int) or columns_value is None:
+            self._columns = columns_value
         elif isinstance(columns_value, str):
-            self.__columns = int(columns_value)
+            self._columns = int(columns_value)
         else:
             raise ValueError(
                 'Value "{0}" not recognized for attribute "columns", question_uid = "{1}", page_uid = "{2}"'.format(
@@ -858,15 +864,15 @@ class QuestionOpen(QuestionObjectClass):
 
     @property
     def rows(self):
-        return self.__rows
+        return self._rows
 
     @rows.setter
     def rows(self, rows_value):
-        assert isinstance(rows_value, int) or isinstance(rows_value, str)
-        if isinstance(rows_value, int):
-            self.__rows = rows_value
+        assert isinstance(rows_value, int) or isinstance(rows_value, str) or rows_value is None
+        if isinstance(rows_value, int) or rows_value is None:
+            self._rows = rows_value
         elif isinstance(rows_value, str):
-            self.__rows = int(rows_value)
+            self._rows = int(rows_value)
         else:
             raise ValueError(
                 'Value "{0}" not recognized for attribute "rows", question_uid = "{1}", page_uid = "{2}"'.format(
@@ -874,31 +880,31 @@ class QuestionOpen(QuestionObjectClass):
 
     @property
     def small_option(self):
-        return self.__small_option
+        return self._small_option
 
     @small_option.setter
     def small_option(self, small_option_value):
-        assert isinstance(small_option_value, str) or isinstance(small_option_value, bool)
+        assert isinstance(small_option_value, str) or isinstance(small_option_value, bool) or small_option_value is None
         if isinstance(small_option_value, str):
             if small_option_value.lower() == "true":
-                self.__small_option = True
+                self._small_option = True
             elif small_option_value.lower() == "false":
-                self.__small_option = False
+                self._small_option = False
             else:
                 raise ValueError(
                     'Value "{0}" not recognized for attribute "smallOption", question_uid = "{1}", page_uid = "{2}"'.format(
                         str(small_option_value), self.uid, self.page_uid))
-        if isinstance(small_option_value, bool):
-            self.__small_option = small_option_value
+        elif isinstance(small_option_value, bool) or small_option_value is None:
+            self._small_option = small_option_value
 
     @property
     def var_name(self):
-        return self.__var_name
+        return self._var_name
 
     @var_name.setter
     def var_name(self, var_name_string):
         assert isinstance(var_name_string, str)
-        self.__var_name = var_name_string
+        self._var_name = var_name_string
 
 
 class Section(CanHaveConditionWithUid):
@@ -933,13 +939,19 @@ class Section(CanHaveConditionWithUid):
 
 
 class UnitHeaderObject(PageHeaderObject):
-    def __init__(self, uid_value, page_uid_value, unit_header_type_string, unit_header_text_string, index_value, condition_string):
-        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, page_header_type_string=unit_header_type_string, page_header_text_string=unit_header_text_string, index_value=index_value, condition_string=condition_string)
+    def __init__(self, uid_value, page_uid_value, unit_header_type_string, unit_header_text_string, index_value,
+                 condition_string):
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value,
+                         page_header_type_string=unit_header_type_string,
+                         page_header_text_string=unit_header_text_string, index_value=index_value,
+                         condition_string=condition_string)
 
 
 class UnitObject(CanHaveConditionWithUid):
-    def __init__(self, uid_value, page_uid_value, response_domain_uid_value, index_value=None, condition_string='True', unit_header_objects_list=None):
-        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, index_value=index_value, condition_string=condition_string)
+    def __init__(self, uid_value, page_uid_value, response_domain_uid_value, index_value=None, condition_string='True',
+                 unit_header_objects_list=None):
+        super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, index_value=index_value,
+                         condition_string=condition_string)
         self.unit_header_dict = {}
         self.response_domain_uid = response_domain_uid_value
         self.add_unit_header_objects_list(unit_header_objects_list)

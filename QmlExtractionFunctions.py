@@ -68,15 +68,15 @@ def get_question_header_objects_list(question_source_object, page_uid_value):
         return []
 
 
-def get_unit_header_objects_list(unit_object, page_uid_value):
+def get_unit_header_objects_list(source_object, page_uid_value):
     tmp_question_header_objects_list = []
-    if hasattr(unit_object, 'header'):
+    if hasattr(source_object, 'header'):
         tmp_index = 0
-        for source_object in unit_object.header.iterchildren():
-            tmp_tag = get_tag_from_page_children_object(source_object)
-            tmp_uid = get_uid_attrib_of_source_object(source_object)
-            tmp_text = get_text_string_of_source_object(source_object)
-            tmp_condition = get_condition_string_of_source_object(source_object)
+        for unit_source_object in source_object.header.iterchildren():
+            tmp_tag = get_tag_from_page_children_object(unit_source_object)
+            tmp_uid = get_uid_attrib_of_source_object(unit_source_object)
+            tmp_text = get_text_string_of_source_object(unit_source_object)
+            tmp_condition = get_condition_string_of_source_object(unit_source_object)
 
             tmp_question_header_objects_list.append(
                 QuestionnaireElements.UnitHeaderObject(uid_value=tmp_uid,
@@ -176,9 +176,164 @@ def get_unit_objects_list_from_response_domain_object(response_domain_object, re
     return tmp_unit_objects_list
 
 
+def extract_question_open_object_from_source_object_or_return_error(source_object, page_uid_value, index_value,
+                                                                    outer_uid_value):
+    tmp_question_open_object = extract_question_open_object_from_source_object_or_return_none(
+        source_object=source_object,
+        page_uid_value=page_uid_value,
+        index_value=index_value,
+        outer_uid_value=outer_uid_value)
+    if tmp_question_open_object is not None:
+        return tmp_question_open_object
+    else:
+        raise AttributeError(
+            'No questionOpen found on page uid "{0}", index "{1}", outer uid "{2}"'.format(page_uid_value, index_value,
+                                                                                           outer_uid_value))
+
+
+def extract_question_open_object_from_source_object_or_return_none(source_object, page_uid_value, index_value,
+                                                                   outer_uid_value):
+    if get_tag_from_page_children_object(source_object) == 'questionOpen':
+        tmp_uid = get_question_attribute_value_or_raise_error(source_object=source_object,
+                                                              attribute_string='uid',
+                                                              outer_uid_value=outer_uid_value,
+                                                              page_uid_value=page_uid_value,
+                                                              index_value=None)
+        tmp_var_name_string = get_question_attribute_value_or_return_none(source_object=source_object,
+                                                                          attribute_string='variable',
+                                                                          outer_uid_value=outer_uid_value,
+                                                                          page_uid_value=page_uid_value,
+                                                                          index_value=index_value)
+        tmp_condition_string = get_question_attribute_value_or_return_none(source_object=source_object,
+                                                                           attribute_string='condition',
+                                                                           outer_uid_value=outer_uid_value,
+                                                                           page_uid_value=page_uid_value,
+                                                                           index_value=index_value)
+
+        tmp_small_option = get_question_attribute_value_or_return_none(source_object=source_object,
+                                                                       attribute_string='smallOption',
+                                                                       outer_uid_value=outer_uid_value,
+                                                                       page_uid_value=page_uid_value,
+                                                                       index_value=index_value)
+        tmp_rows = get_question_attribute_value_or_return_none(source_object=source_object,
+                                                               attribute_string='rows',
+                                                               outer_uid_value=outer_uid_value,
+                                                               page_uid_value=page_uid_value,
+                                                               index_value=index_value)
+        tmp_columns = get_question_attribute_value_or_return_none(source_object=source_object,
+                                                                  attribute_string='columns',
+                                                                  outer_uid_value=outer_uid_value,
+                                                                  page_uid_value=page_uid_value,
+                                                                  index_value=index_value)
+        tmp_max_value = get_question_attribute_value_or_return_none(source_object=source_object,
+                                                                    attribute_string='maxValue',
+                                                                    outer_uid_value=outer_uid_value,
+                                                                    page_uid_value=page_uid_value,
+                                                                    index_value=index_value)
+        tmp_min_value = get_question_attribute_value_or_return_none(source_object=source_object,
+                                                                    attribute_string='minValue',
+                                                                    outer_uid_value=outer_uid_value,
+                                                                    page_uid_value=page_uid_value,
+                                                                    index_value=index_value)
+        tmp_max_length = get_question_attribute_value_or_return_none(source_object=source_object,
+                                                                     attribute_string='maxLength',
+                                                                     outer_uid_value=outer_uid_value,
+                                                                     page_uid_value=page_uid_value,
+                                                                     index_value=index_value)
+        tmp_question_open_type = get_question_attribute_value_or_return_none(source_object=source_object,
+                                                                             attribute_string='type',
+                                                                             outer_uid_value=outer_uid_value,
+                                                                             page_uid_value=page_uid_value,
+                                                                             index_value=index_value)
+        tmp_validation_message = get_question_attribute_value_or_return_none(source_object=source_object,
+                                                                             attribute_string='validationMessage',
+                                                                             outer_uid_value=outer_uid_value,
+                                                                             page_uid_value=page_uid_value,
+                                                                             index_value=index_value)
+        tmp_size = get_question_attribute_value_or_return_none(source_object=source_object,
+                                                               attribute_string='size',
+                                                               outer_uid_value=outer_uid_value,
+                                                               page_uid_value=page_uid_value,
+                                                               index_value=index_value)
+
+        tmp_prefix_label_object_list = []
+        tmp_postfix_label_object_list = []
+
+        tmp_prefix_index = 0
+        tmp_postfix_index = 0
+
+        tmp_question_open_question_header_objects_list = get_question_header_objects_list(
+            question_source_object=source_object, page_uid_value=page_uid_value)
+
+        for child_of_source_object in source_object.iterchildren():
+            if get_tag_from_page_children_object(child_of_source_object) == 'prefix':
+                if hasattr(child_of_source_object, 'label'):
+                    for child_label_object in child_of_source_object.iterchildren():
+                        tmp_prefix_uid = get_question_attribute_value_or_raise_error(source_object=child_label_object,
+                                                                                     attribute_string='uid',
+                                                                                     outer_uid_value=outer_uid_value,
+                                                                                     page_uid_value=page_uid_value,
+                                                                                     index_value=index_value)
+                        tmp_label_text = get_text_string_of_source_object(child_label_object)
+                        tmp_condition = get_condition_string_of_source_object(child_label_object)
+
+                        tmp_prefix_label_object = QuestionnaireElements.PrefixLabelObject(uid=tmp_prefix_uid,
+                                                                                          page_uid_value=page_uid_value,
+                                                                                          label_text_value=tmp_label_text,
+                                                                                          condition_string=tmp_condition,
+                                                                                          index_value=tmp_prefix_index)
+                        tmp_prefix_index += 1
+                        tmp_prefix_label_object_list.append(tmp_prefix_label_object)
+
+            if get_tag_from_page_children_object(child_of_source_object) == 'postfix':
+                if hasattr(child_of_source_object, 'label'):
+                    for child_label_object in child_of_source_object.iterchildren():
+                        tmp_postfix_uid = get_question_attribute_value_or_raise_error(source_object=child_label_object,
+                                                                                      attribute_string='uid',
+                                                                                      outer_uid_value=outer_uid_value,
+                                                                                      page_uid_value=page_uid_value,
+                                                                                      index_value=index_value)
+                        tmp_label_text = get_text_string_of_source_object(child_label_object)
+                        tmp_condition = get_condition_string_of_source_object(child_label_object)
+
+                        tmp_postfix_label_object = QuestionnaireElements.PostfixLabelObject(uid=tmp_postfix_uid,
+                                                                                            page_uid_value=page_uid_value,
+                                                                                            label_text_value=tmp_label_text,
+                                                                                            condition_string=tmp_condition,
+                                                                                            index_value=tmp_postfix_index)
+                        tmp_postfix_index += 1
+                        tmp_postfix_label_object_list.append(tmp_postfix_label_object)
+
+        tmp_question_open_object = QuestionnaireElements.QuestionOpen(uid_value=tmp_uid, page_uid_value=page_uid_value,
+                                                                      index_value=index_value,
+                                                                      var_name_string=tmp_var_name_string,
+                                                                      condition_string=tmp_condition_string,
+                                                                      small_option=tmp_small_option, rows=tmp_rows,
+                                                                      columns=tmp_columns, max_value=tmp_max_value,
+                                                                      min_value=tmp_min_value,
+                                                                      max_length=tmp_max_length,
+                                                                      question_open_type=tmp_question_open_type,
+                                                                      validation_message=tmp_validation_message,
+                                                                      size=tmp_size,
+                                                                      prefix_label_object_list=tmp_prefix_label_object_list,
+                                                                      postfix_label_object_list=tmp_postfix_label_object_list)
+
+        tmp_question_open_object.add_question_header_objects_list(tmp_question_open_question_header_objects_list)
+
+        return tmp_question_open_object
+
+    else:
+        return None
+
+
+def get_attached_open_from_answer_option_source_object(ao_source_object, page_uid_value):
+    pass
+    # QuestionnaireElements.QuestionOpen(uid_value=, page_uid_value=, index_value=, var_name_string=, condition_string = 'True'=, small_option = 'False'=, rows = , columns = , max_value = , min_value = , max_length =  question_open_type = , validation_message = , size = , prefix_label_object_list = , postfix_label_object_list = None)
+
+
 def get_answer_option_object_from_answer_option_source_object(ao_source_object, question_uid_value, page_uid_value,
                                                               var_name_string,
-                                                              ao_index_value, response_domain_uid, unit_uid=None):
+                                                              ao_index_value, response_domain_uid):
     tmp_uid = get_question_attribute_value_or_raise_error(source_object=ao_source_object,
                                                           attribute_string='uid',
                                                           outer_uid_value=question_uid_value,
@@ -216,6 +371,11 @@ def get_answer_option_object_from_answer_option_source_object(ao_source_object, 
                                                                 page_uid_value=page_uid_value,
                                                                 index_value=ao_index_value)
 
+    tmp_attached_open = extract_question_open_object_from_source_object_or_return_none(source_object=ao_source_object,
+                                                                                       page_uid_value=page_uid_value,
+                                                                                       index_value=None,
+                                                                                       outer_uid_value=question_uid_value)
+
     tmp_answer_option_object = QuestionnaireElements.AnswerOptionObject(uid_value=tmp_uid,
                                                                         question_uid_value=question_uid_value,
                                                                         page_uid_value=page_uid_value,
@@ -226,7 +386,7 @@ def get_answer_option_object_from_answer_option_source_object(ao_source_object, 
                                                                         missing_bool=tmp_missing_bool,
                                                                         ao_value=tmp_ao_value,
                                                                         condition_string=tmp_condition,
-                                                                        belongs_to_unit_uid=unit_uid)
+                                                                        attached_open=tmp_attached_open)
     return tmp_answer_option_object
 
 
@@ -254,101 +414,59 @@ def get_question_answer_options_objects_unit_objects_list(question_source_object
         response_domain_object=tmp_response_domain_object, response_domain_uid=tmp_response_domain_uid,
         page_uid_value=page_uid_value)
 
+    tmp_unit_objects_dict = {}
+    if tmp_unit_objects_list is not None:
+
+        for uid_val, unit_object in [(i.uid, i) for i in tmp_unit_objects_list]:
+            tmp_unit_objects_dict[uid_val] = unit_object
+
     # second iteration: find all answer options, set their indices and units
     tmp_answer_options_list = []
     tmp_ao_index = 0
 
     for ao_source_object in tmp_response_domain_object.iterchildren():
         tmp_ao_source_object_uid = get_question_attribute_value_or_raise_error(source_object=ao_source_object,
-                                                                   attribute_string='uid',
-                                                                   outer_uid_value=question_uid_value,
-                                                                   page_uid_value=page_uid_value,
-                                                                   index_value=tmp_ao_index)
+                                                                               attribute_string='uid',
+                                                                               outer_uid_value=question_uid_value,
+                                                                               page_uid_value=page_uid_value,
+                                                                               index_value=tmp_ao_index)
 
         tmp_ao_source_object_tag = get_tag_from_page_children_object(ao_source_object)
-
 
         # if UNIT found
         if tmp_ao_source_object_tag == 'unit':
             tmp_unit_uid = tmp_ao_source_object_uid
+            for unit_ao_source_object in ao_source_object.iterchildren():
+                if get_tag_from_page_children_object(unit_ao_source_object) == 'header':
+                    continue
+                tmp_answer_option_object = get_answer_option_object_from_answer_option_source_object(
+                    ao_source_object=unit_ao_source_object,
+                    question_uid_value=question_uid_value,
+                    page_uid_value=page_uid_value,
+                    var_name_string=tmp_var_name_string,
+                    ao_index_value=tmp_ao_index,
+                    response_domain_uid=tmp_response_domain_uid)
+                tmp_answer_option_object.unit_object = tmp_unit_objects_dict[tmp_unit_uid]
+                tmp_answer_options_list.append(tmp_answer_option_object)
 
         # if regular ANSWER OPTION found
         elif tmp_ao_source_object_tag == 'answerOption':
-            tmp_unit_uid = None
+            tmp_answer_option_object = get_answer_option_object_from_answer_option_source_object(
+                ao_source_object=ao_source_object,
+                question_uid_value=question_uid_value,
+                page_uid_value=page_uid_value,
+                var_name_string=tmp_var_name_string,
+                ao_index_value=tmp_ao_index,
+                response_domain_uid=tmp_response_domain_uid)
+            tmp_answer_options_list.append(tmp_answer_option_object)
 
         # if tag not recognized
         else:
-            raise ValueError('Object not recognized: uid "{0}", tag "{1}", response domain uid "{2}" on page "{3}"'.format(tmp_ao_source_object_uid, tmp_ao_source_object_tag, tmp_response_domain_uid, page_uid_value))
-
-
-
+            raise ValueError(
+                'Object not recognized: uid "{0}", tag "{1}", response domain uid "{2}" on page "{3}"'.format(
+                    tmp_ao_source_object_uid, tmp_ao_source_object_tag, tmp_response_domain_uid, page_uid_value))
 
         # tmp_answer_options_list.append(tmp_answer_option_object)
         tmp_ao_index += 1
 
     return tmp_answer_options_list, tmp_unit_objects_list
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

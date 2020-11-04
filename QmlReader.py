@@ -255,14 +255,10 @@ class QmlReader:
                         tmp_question_header_objects_list = QmlExtractionFunctions.get_question_header_objects_list(
                             question_source_object=child_object, page_uid_value=page_uid_value)
 
-                        for question_child_object in child_object.iterchildren():
-                            tmp_question_child_tag = QmlExtractionFunctions.get_tag_from_page_children_object(
-                                question_child_object)
-
-                            if tmp_question_child_tag == 'prefix':
-                                pass
-                            elif tmp_question_child_tag == 'postfix':
-                                pass
+                        QmlExtractionFunctions.extract_question_open_object_from_source_object_or_return_error(source_object=child_object,
+                                                                                                               page_uid_value=page_uid_value,
+                                                                                                               index_value=tmp_index,
+                                                                                                               outer_uid_value=None)
 
                     elif tmp_tag == 'matrixQuestionSingleChoice':
                         continue
