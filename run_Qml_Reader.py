@@ -12,5 +12,5 @@ from tkinter import Tk
 root = Tk()
 app = MainInterface.Window(root)
 root.wm_title("QML Reader " + str(__version__))
-root.geometry('800x600')careful surgery to adapt the change. This means you have too many assumptions about Table in Carpenter’s code or the reverse.
+root.geometry('800x600')
 root.mainloop()
