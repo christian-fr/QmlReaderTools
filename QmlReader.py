@@ -200,12 +200,14 @@ class QmlReader:
         assert isinstance(page_source_object, lxml.objectify.ObjectifiedElement)
         assert isinstance(page_uid_value, str)
 
+        print(page_uid_value)
+
         if hasattr(page_source_object, 'body'):
             tmp_page_body_children_objects_list = [child_object for child_object in
                                                    page_source_object.body.iterchildren()]
 
             for child_object in tmp_page_body_children_objects_list:
-
+                tmp_page_body_object = None
                 tmp_tag = QmlExtractionFunctions.get_tag_from_page_children_object(child_object)
                 self.logger.info("  found tag: '" + str(tmp_tag) + "'")
                 if tmp_tag == 'comment':
@@ -216,59 +218,63 @@ class QmlReader:
                     self.logger.info("  found page body object: section")
 
                     print('#### section not yet implemented, passing...')
+                    continue
+
+                self.logger.info("  found tag: '" + str(tmp_tag) + "'")
+
+                tmp_index = self.questionnaire.pages_dict[page_uid_value].get_page_object_next_index()
+
+                tmp_question_uid = QmlExtractionFunctions.get_uid_attrib_of_source_object(child_object)
+
+                if tmp_question_uid is None:
+                    raise KeyError(
+                        '   element with tag: "{0}" on page: "{1}" does not seem to have a UID'.format(tmp_tag,
+                                                                                                       page_uid_value))
+
+                if tmp_tag == 'questionSingleChoice':
+                    tmp_page_body_object = QmlExtractionFunctions.extract_question_single_choice_object_from_source_object_or_return_error(
+                        source_object=child_object,
+                        page_uid_value=page_uid_value,
+                        index_value=tmp_index)
+                    pass
+
+                elif tmp_tag == 'multipleChoice':
+                    tmp_page_body_object = QmlExtractionFunctions.extract_question_multiple_choice_object_from_source_object_or_return_error(
+                        source_object=child_object,
+                        page_uid_value=page_uid_value,
+                        index_value=tmp_index)
+                    pass
+
+                elif tmp_tag == 'questionOpen':
+                    tmp_page_body_object = QmlExtractionFunctions.extract_question_open_object_from_source_object_or_return_error(
+                        source_object=child_object,
+                        page_uid_value=page_uid_value,
+                        index_value=tmp_index,
+                        outer_uid_value=None)
+                    pass
+
+                elif tmp_tag == 'matrixQuestionSingleChoice':
+                    tmp_page_body_object = QmlExtractionFunctions.extract_question_mqsc_from_source_object_or_return_error(
+                        source_object=child_object,
+                        page_uid_value=page_uid_value,
+                        index_value=tmp_index)
+                    pass
+
+                elif tmp_tag == 'comparison':
+                    self.logger.info("  found page body object: comparison")
+
+                    print('#### comparison not yet implemented, passing...')
+                    continue
 
                 else:
-                    self.logger.info("  found tag: '" + str(tmp_tag) + "'")
+                    raise NotImplementedError('   handling for tag: "{0}" not yet implemented.'.format(tmp_tag))
 
-                    tmp_index = self.questionnaire.pages_dict[page_uid_value].get_page_object_next_index()
+                if tmp_page_body_object is not None:
+                    self.questionnaire.pages_dict[page_uid_value].add_page_body_object(tmp_page_body_object)
 
-                    tmp_question_uid = QmlExtractionFunctions.get_uid_attrib_of_source_object(child_object)
 
-                    if tmp_question_uid is None:
-                        raise KeyError(
-                            '   element with tag: "{0}" on page: "{1}" does not seem to have a UID'.format(tmp_tag,
-                                                                                                           page_uid_value))
-
-                    if tmp_tag == 'questionSingleChoice':
-                        tmp_question_header_objects_list = QmlExtractionFunctions.get_question_header_objects_list(
-                            question_source_object=child_object, page_uid_value=page_uid_value)
-
-                        # get answer_options_list and unit_objects_list
-                        tmp_answer_option_objects_list, tmp_unit_objects_list = QmlExtractionFunctions.get_question_answer_options_objects_unit_objects_list(
-                            question_source_object=child_object, page_uid_value=page_uid_value,
-                            question_uid_value=tmp_question_uid)
-
-                        tmp_condition_string = None
-
-                        tmp_page_body_object = QuestionnaireElements.QuestionSingleChoiceObject(
-                            uid_value=tmp_question_uid,
-                            page_uid_value=page_uid_value,
-                            index_value=tmp_index,
-                            answer_option_objects_list=tmp_answer_option_objects_list,
-                            question_header_objects_list=tmp_question_header_objects_list,
-                            condition_string=tmp_condition_string, list_of_units=tmp_unit_objects_list)
-
-                        self.questionnaire.pages_dict[page_uid_value].add_page_body_object(tmp_page_body_object)
-                    elif tmp_tag == 'multipleChoice':
-                        continue
-                    elif tmp_tag == 'questionOpen':
-                        tmp_question_header_objects_list = QmlExtractionFunctions.get_question_header_objects_list(
-                            question_source_object=child_object, page_uid_value=page_uid_value)
-
-                        QmlExtractionFunctions.extract_question_open_object_from_source_object_or_return_error(source_object=child_object,
-                                                                                                               page_uid_value=page_uid_value,
-                                                                                                               index_value=tmp_index,
-                                                                                                               outer_uid_value=None)
-
-                    elif tmp_tag == 'matrixQuestionSingleChoice':
-                        continue
-                    elif tmp_tag == 'comparison':
-                        continue
-                    else:
-                        raise NotImplementedError('   handling for tag: "{0}" not yet implemented.'.format(tmp_tag))
-
-    def extract_triggers_from_qml_page_source(self, page_source_object, page_uid_value):
-        pass
+def extract_triggers_from_qml_page_source(self, page_source_object, page_uid_value):
+    pass
 
 
 xml_file = r'qml/questionnaireNacaps2018-2.xml'
