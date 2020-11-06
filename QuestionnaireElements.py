@@ -496,7 +496,7 @@ class PageHeaderObject(HeaderObject):
                  condition_string='True'):
         super().__init__(uid_value=uid_value, page_uid_value=page_uid_value, condition_string=condition_string,
                          header_text_string=page_header_text_string, index_value=index_value)
-        self.allowed_header_types_list = ['title', 'text', 'instruction']
+        self.allowed_header_types_list = ['title', 'text', 'instruction', 'introduction']
         self.dict_of_page_headers = {}
         self.page_header_type = page_header_type_string
 
