@@ -6,7 +6,7 @@ __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 # last edited 2020-04-01
 
-import MainInterface
+from gui import MainInterface
 from tkinter import Tk
 
 root = Tk()

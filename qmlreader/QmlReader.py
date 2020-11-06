@@ -9,13 +9,8 @@ __name__ = "QmlReader"
 
 import lxml
 from lxml import objectify
-import networkx as nx
 import logging
-import Questionnaire
-from os import path
-import time
-import errno
-from os import listdir, mkdir
+from qmlreader import Questionnaire
 
 
 class QmlReader:
@@ -117,7 +112,8 @@ class QmlReader:
         for i in range(0, len(self.root.variables.variable)):
             # print(self.questionnaire.filename)
             # print(self.root.variables.variable[i].attrib['name'])
-            self.questionnaire.variables.add_variable(Questionnaire.Variable(self.root.variables.variable[i].attrib["name"], self.root.variables.variable[i].attrib["type"]))
+            self.questionnaire.variables.add_variable(
+                Questionnaire.Variable(self.root.variables.variable[i].attrib["name"], self.root.variables.variable[i].attrib["type"]))
 
     def extract_pages_into_tmp_dict(self):
         self.logger.info("extract_pages_into_tmp_dict")
@@ -153,7 +149,8 @@ class QmlReader:
                     else:
                         tmp_condition = None
 
-                    self.questionnaire.pages.pages[uid].transitions.add_transitions(Questionnaire.Transition(index=tmp_index, target=tmp_target, condition=tmp_condition))
+                    self.questionnaire.pages.pages[uid].transitions.add_transitions(
+                        Questionnaire.Transition(index=tmp_index, target=tmp_target, condition=tmp_condition))
 
     def extract_questions_from_pages(self):
         self.logger.info("extract_questions_from_pages")
@@ -359,7 +356,8 @@ class QmlReader:
                 else:
                     tmp_visible = None
                 tmp_tag = header_question_object.tag[header_question_object.tag.rfind('}') + 1:]
-                tmp_header.add_header_object(Questionnaire.QuestionHeaderObject(uid=tmp_uid, text=tmp_text, tag=tmp_tag, index=tmp_index, visible_conditions=tmp_visible))
+                tmp_header.add_header_object(
+                    Questionnaire.QuestionHeaderObject(uid=tmp_uid, text=tmp_text, tag=tmp_tag, index=tmp_index, visible_conditions=tmp_visible))
         return tmp_header
 
 

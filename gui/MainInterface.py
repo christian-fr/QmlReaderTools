@@ -5,16 +5,12 @@ __version__ = "0.3.0"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
-import QmlReader
-import Questionnaire
+from qmlreader import QmlReader, Questionnaire
 import tkinter
 from tkinter import filedialog, scrolledtext, IntVar, messagebox
-from os import listdir, mkdir
+from os import listdir
 import os.path
 import logging
-import networkx as nx
-import errno
-import time
 
 
 class Window(tkinter.Frame):
