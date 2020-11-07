@@ -275,9 +275,3 @@ class QmlReader:
 
 def extract_triggers_from_qml_page_source(self, page_source_object, page_uid_value):
     pass
-
-
-# xml_file = r'qml/questionnaireNacaps2018-2.xml'
-xml_file = r'qml/questionnaire.xml'
-x = QmlReader(xml_file)
-# t = x.questionnaire.declared_variables_dict['s_split_poli1']

@@ -84,7 +84,7 @@ class ConditionObject:
     def condition(self, condition_string):
         if condition_string is not None:
             assert isinstance(condition_string, str) or isinstance(condition_string, bool)
-            self.__condition = condition_string
+            self.__condition = str(condition_string)
         else:
             self.__condition = 'true'
 
@@ -555,12 +555,12 @@ class AnswerOptionObject(CanHaveConditionWithUid):
 
     @property
     def unit_object(self):
-        return self._belongs_to_unit_uid
+        return self._unit_object
 
     @unit_object.setter
     def unit_object(self, belongs_to_unit_object):
         assert isinstance(belongs_to_unit_object, UnitObject) or belongs_to_unit_object is None
-        self._belongs_to_unit_uid = belongs_to_unit_object
+        self._unit_object = belongs_to_unit_object
 
     def __str__(self):
         return str((self.page_uid, str(self.index), self.uid, self.label_text, str(self.value), str(self.missing_flag),
@@ -903,7 +903,10 @@ class QuestionOpen(QuestionObjectClass):
         if isinstance(max_value_value, int) or max_value_value is None:
             self._max_value = max_value_value
         elif isinstance(max_value_value, str):
-            self._max_value = int(max_value_value)
+            try:
+                self._max_value = int(max_value_value)
+            except ValueError:
+                self._max_value = float(max_value_value)
         else:
             raise ValueError(
                 'Value "{0}" not recognized for attribute "max_value", question_uid = "{1}", page_uid = "{2}"'.format(
@@ -919,7 +922,10 @@ class QuestionOpen(QuestionObjectClass):
         if isinstance(min_value_value, int) or min_value_value is None:
             self._min_value = min_value_value
         elif isinstance(min_value_value, str):
-            self._min_value = int(min_value_value)
+            try:
+                self._min_value = int(min_value_value)
+            except ValueError:
+                self._min_value = float(min_value_value)
         else:
             raise ValueError(
                 'Value "{0}" not recognized for attribute "min_value", question_uid = "{1}", page_uid = "{2}"'.format(
@@ -935,7 +941,10 @@ class QuestionOpen(QuestionObjectClass):
         if isinstance(max_length_value, int) or max_length_value is None:
             self._max_length = max_length_value
         elif isinstance(max_length_value, str):
-            self._max_length = int(max_length_value)
+            try:
+                self._max_length = int(max_length_value)
+            except ValueError:
+                self._max_length = float(max_length_value)
         else:
             raise ValueError(
                 'Value "{0}" not recognized for attribute "max_length", question_uid = "{1}", page_uid = "{2}"'.format(

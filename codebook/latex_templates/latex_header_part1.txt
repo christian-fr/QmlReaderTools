@@ -1,0 +1,10 @@
+\documentclass{scrartcl}
+\usepackage[utf8]{inputenc}
+\usepackage[ngerman]{babel}
+\usepackage{csquotes}
+\usepackage{paralist}
+\usepackage{scrlayer-scrpage}
+\usepackage[T1]{fontenc}
+\usepackage{datetime}
+
+\setcounter{secnumdepth}{0} % sections are level 1
