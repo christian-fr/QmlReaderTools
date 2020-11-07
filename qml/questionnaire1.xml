@@ -43,10 +43,10 @@
     				</zofar:instruction>
     			</zofar:header>
     			<zofar:responseDomain variable="var02" uid="rd">
-    				<zofar:answerOption uid="ao1" value="1" label="Ich tue nichts."></zofar:answerOption>
+    				<zofar:answerOption uid="ao1" value="1" label="Ich tue nichts." visible="zofar.asNumber(adbi12) == 2"></zofar:answerOption>
     				<zofar:answerOption uid="ao2" value="2" label="Ich tue viel."></zofar:answerOption>
     				<zofar:answerOption uid="ao3" value="3" label="Ich habe mal etwas getan."></zofar:answerOption>
-    				<zofar:answerOption uid="ao4" value="4" label="Ich werde wieder etwas tun."></zofar:answerOption>
+    				<zofar:answerOption uid="ao4" value="4" label="Ich werde wieder etwas tun." visible="false"></zofar:answerOption>
     			</zofar:responseDomain>
     		</zofar:questionSingleChoice>
     		
