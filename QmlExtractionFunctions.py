@@ -371,7 +371,6 @@ def extract_question_open_object_from_source_object_or_return_none(source_object
                                                                            outer_uid_value=outer_uid_value,
                                                                            page_uid_value=page_uid_value,
                                                                            index_value=index_value)
-
         tmp_small_option = get_question_attribute_value_or_return_none(source_object=source_object,
                                                                        attribute_string='smallOption',
                                                                        outer_uid_value=outer_uid_value,
