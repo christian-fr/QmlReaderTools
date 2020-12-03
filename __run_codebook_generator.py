@@ -12,8 +12,8 @@ def generate_codebook_text_element_with_footnote(input_string, formatting=None, 
                                                  footnote_string=footnote_string)
 
 
-# xml_file = r'qml/questionnaire.xml'
-xml_file = r'data/questionnaire.xml'
+xml_file = r'qml/questionnaire.xml'
+# xml_file = r'data/questionnaire.xml'
 x = QmlReader.QmlReader(xml_file)
 
 survey_title = x.questionnaire.title
