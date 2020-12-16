@@ -209,7 +209,7 @@ class QmlReader:
             for child_object in tmp_page_body_children_objects_list:
                 tmp_page_body_object = None
                 tmp_tag = QmlExtractionFunctions.get_tag_from_page_children_object(child_object)
-                self.logger.info("  found tag: '" + str(tmp_tag) + "'")
+                self.logger.info('  found tag: "' + str(tmp_tag) + '" on page: "' + page_uid_value + '"')
                 if tmp_tag == 'comment':
                     self.logger.info("  found page body object: xml comment, ignored")
                     continue
@@ -232,6 +232,7 @@ class QmlReader:
                                                                                                        page_uid_value))
 
                 if tmp_tag == 'questionSingleChoice':
+                    self.logger.info('    extracting from tag: "' + tmp_tag + '" on page: "' + page_uid_value + '"')
                     tmp_page_body_object = QmlExtractionFunctions.extract_question_single_choice_object_from_source_object_or_return_error(
                         source_object=child_object,
                         page_uid_value=page_uid_value,
@@ -239,6 +240,7 @@ class QmlReader:
                     pass
 
                 elif tmp_tag == 'multipleChoice':
+                    self.logger.info('    extracting from tag: "' + tmp_tag + '" on page: "' + page_uid_value + '"')
                     tmp_page_body_object = QmlExtractionFunctions.extract_question_multiple_choice_object_from_source_object_or_return_error(
                         source_object=child_object,
                         page_uid_value=page_uid_value,
@@ -246,6 +248,7 @@ class QmlReader:
                     pass
 
                 elif tmp_tag == 'questionOpen':
+                    self.logger.info('    extracting from tag: "' + tmp_tag + '" on page: "' + page_uid_value + '"')
                     tmp_page_body_object = QmlExtractionFunctions.extract_question_open_object_from_source_object_or_return_error(
                         source_object=child_object,
                         page_uid_value=page_uid_value,
@@ -254,16 +257,26 @@ class QmlReader:
                     pass
 
                 elif tmp_tag == 'matrixQuestionSingleChoice':
+                    self.logger.info('    extracting from tag: "' + tmp_tag + '" on page: "' + page_uid_value + '"')
                     tmp_page_body_object = QmlExtractionFunctions.extract_question_mqsc_from_source_object_or_return_error(
                         source_object=child_object,
                         page_uid_value=page_uid_value,
                         index_value=tmp_index)
                     pass
+                    print('found MQSC on page: ' + page_uid_value)
 
                 elif tmp_tag == 'comparison':
+                    self.logger.info('    extracting from tag: "' + tmp_tag + '" on page: "' + page_uid_value + '"')
                     self.logger.info("  found page body object: comparison")
 
                     print('#### comparison not yet implemented, passing...')
+                    continue
+
+                elif tmp_tag == 'display':
+                    self.logger.info('    extracting from tag: "' + tmp_tag + '" on page: "' + page_uid_value + '"')
+                    self.logger.info("  found page body object: display")
+
+                    print('#### display not yet implemented, passing...')
                     continue
 
                 else:
