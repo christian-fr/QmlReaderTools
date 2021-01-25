@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "MIT"
-__version__ = "0.3.1"
+__version__ = "0.3.2"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
@@ -481,6 +481,12 @@ class Window(tkinter.Frame):
         details_string += '\nunused variables:  [' + str(len(tmp_list_unused_variables)) + ']\n'
         details_string += str(tmp_list_unused_variables)
         details_string += '\n\n'
+
+        tmp_list_of_all_transitions = qml_reader_object.questionnaire.return_list_of_transitions(min_distance=None, max_distance=None, max_count=None)
+
+        details_string += f'\nlist of all transitions: [{str(len(tmp_list_of_all_transitions))}]\n'
+        for entry in tmp_list_of_all_transitions:
+            details_string += str(entry) + '\n'
         # details_string += '\npages declared in data_qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
         # details_string += str(set(qml_reader_object.list_of_pages_declared))
         # details_string += '\n\n'
