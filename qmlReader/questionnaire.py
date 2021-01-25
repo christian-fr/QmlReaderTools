@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "GPL v3"
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __status__ = "Prototype"
 __name__ = "Questionnaire"
 
@@ -48,7 +48,8 @@ class HeaderObject(UniqueObject):
         if tag_str in self.allowed_tags_list:
             self.tag = tag_str
         else:
-            raise KeyError('tag "' + str(tag_str) + '" not found in self.allowed_tags_list: ' + str(self.allowed_tags_list))
+            raise KeyError(
+                'tag "' + str(tag_str) + '" not found in self.allowed_tags_list: ' + str(self.allowed_tags_list))
 
     def set_uid(self, uid):
         assert isinstance(uid, str)
@@ -67,7 +68,9 @@ class HeaderObject(UniqueObject):
         self.index = index
 
     def __str__(self):
-        return str(type(self).__name__) + '\n tag: ' + str(self.tag) + '\n index: ' + str(self.index) + '\n uid: ' + str(self.uid) + '\n visible: ' + str(self.visible_conditions) + '\n text: "' + str(self.text) + '"'
+        return str(type(self).__name__) + '\n tag: ' + str(self.tag) + '\n index: ' + str(
+            self.index) + '\n uid: ' + str(self.uid) + '\n visible: ' + str(
+            self.visible_conditions) + '\n text: "' + str(self.text) + '"'
 
 
 class PageHeaderObject(HeaderObject):
@@ -92,6 +95,7 @@ class QuestionHeaderObject(HeaderObject):
         self.set_text(text)
         self.set_index(index)
         self.set_visible_conditions(visible_conditions)
+
 
 class Header:
     def __init__(self, reference_object_for_assertion):
@@ -250,7 +254,9 @@ class AnswerOption(UniqueObject):
 
 class BodyQuestionTypes:
     def __init__(self):
-        self.list_of_available_question_types = [BodyCalendar, BodyComparison, BodyMatrixDouble, BodyMatrixMultipleChoice, BodyMatrixQuestionMixed, BodyMatrixQuestionSingleChoice, BodyQuestionOpen]
+        self.list_of_available_question_types = [BodyCalendar, BodyComparison, BodyMatrixDouble,
+                                                 BodyMatrixMultipleChoice, BodyMatrixQuestionMixed,
+                                                 BodyMatrixQuestionSingleChoice, BodyQuestionOpen]
         self.dict_of_question_tags = {}
         self.dict_of_question_types = {}
         for body_question_type_class in QuestionObject.__subclasses__():
@@ -290,7 +296,7 @@ class QuestionObject(UniqueObject):
         self.index = index
 
     def set_tag(self, tag):
-        assert(isinstance(tag, str))
+        assert (isinstance(tag, str))
         if tag != '':
             self.tag = tag
 
@@ -437,16 +443,23 @@ class Triggers:
 
 
 class Transition:
-    def __init__(self, index, target, condition):
+    def __init__(self, index, target, condition, source, distance):
         assert isinstance(index, int)
         assert isinstance(target, str)
+        assert isinstance(source, str)
+        assert isinstance(distance, int)
         assert isinstance(condition, str) or condition is None
 
         self.index = index
         self.target = target
+        self.source = source
+        self.distance = distance
         self.condition = condition
         self.condition_python = None
         self.condition_new = None
+
+    def __str__(self):
+        return f'[{self.source} -> {self.target}]\tdistance: {self.distance}\tindex: {self.index}'
 
 
 class TransitionLabels:
@@ -458,12 +471,13 @@ class TransitionLabels:
         assert isinstance(target, str) and isinstance(index, int) and isinstance(condition, str)
         if target not in self.targets:
             self.targets.append(target)
-            self.conditions[target] =  {index: condition}
+            self.conditions[target] = {index: condition}
         else:
             if index not in self.conditions[target]:
                 self.conditions[target]['index'] = condition
             else:
                 raise KeyError('Target "' + target + '" already in dictionary!')
+
 
 class Transitions:
     def __init__(self):
@@ -668,24 +682,42 @@ class QmlPage(UniqueObject):
                 if self.transitions.transitions[key]['condition'] is None:
                     self.transitions.transitions[key]['condition_python'] = 'True'
                 else:
-                    self.transitions.transitions[key]['condition_python'] = regex1.sub('is', self.transitions.transitions[key]['condition'])
+                    self.transitions.transitions[key]['condition_python'] = regex1.sub('is',
+                                                                                       self.transitions.transitions[
+                                                                                           key]['condition'])
                     self.transitions.transitions[key]['condition_python'] = regex2.sub('is not',
-                                                                           self.transitions.transitions[key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex3.sub('>', self.transitions.transitions[key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex4.sub('>=', self.transitions.transitions[key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex5.sub('<', self.transitions.transitions[key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex6.sub('<=', self.transitions.transitions[key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex7.sub('int', self.transitions.transitions[key]['condition_python'])
+                                                                                       self.transitions.transitions[
+                                                                                           key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex3.sub('>',
+                                                                                       self.transitions.transitions[
+                                                                                           key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex4.sub('>=',
+                                                                                       self.transitions.transitions[
+                                                                                           key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex5.sub('<',
+                                                                                       self.transitions.transitions[
+                                                                                           key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex6.sub('<=',
+                                                                                       self.transitions.transitions[
+                                                                                           key]['condition_python'])
+                    self.transitions.transitions[key]['condition_python'] = regex7.sub('int',
+                                                                                       self.transitions.transitions[
+                                                                                           key]['condition_python'])
                     self.transitions.transitions[key]['condition_python'] = regex8.sub('(\g<1> is None)',
-                                                                           self.transitions.transitions[key]['condition_python'])
+                                                                                       self.transitions.transitions[
+                                                                                           key]['condition_python'])
                     self.transitions.transitions[key]['condition_python'] = regex9.sub('is True',
-                                                                           self.transitions.transitions[key]['condition_python'])
+                                                                                       self.transitions.transitions[
+                                                                                           key]['condition_python'])
                     self.transitions.transitions[key]['condition_python'] = regex10.sub('not ',
-                                                                            self.transitions.transitions[key]['condition_python'])
+                                                                                        self.transitions.transitions[
+                                                                                            key]['condition_python'])
                     self.transitions.transitions[key]['condition_python'] = regex11.sub(' and ',
-                                                                            self.transitions.transitions[key]['condition_python'])
+                                                                                        self.transitions.transitions[
+                                                                                            key]['condition_python'])
                     self.transitions.transitions[key]['condition_python'] = regex12.sub(' or ',
-                                                                            self.transitions.transitions[key]['condition_python'])
+                                                                                        self.transitions.transitions[
+                                                                                            key]['condition_python'])
 
 
 class Questionnaire:
@@ -694,7 +726,7 @@ class Questionnaire:
         :param filename: string of source filename
         """
         self.__flowchart_show_conditions = True
-        self.__flowchart_show_variablenames = True
+        self.__flowchart_show_variable_names = True
         self.__flowchart_bidirectional_edges = False
         self.logger = logging.getLogger('debug')
         self.DiGraph = nx.DiGraph()
@@ -729,15 +761,51 @@ class Questionnaire:
         tmp_list.sort()
         return tmp_list
 
+    def return_list_of_all_transitions(self):
+        list_of_all_transitions = []
+        for pagename, page in self.pages.pages.items():
+            if hasattr(page, 'transitions'):
+                if hasattr(page.transitions, 'transitions'):
+                    list_of_all_transitions += [transition for index, transition in
+                                                page.transitions.transitions.items()]
+        return list_of_all_transitions
+
+    def return_list_of_transitions(self, min_distance=None, max_distance=0, max_count=None, sort=True, sort_key='distance'):
+        assert isinstance(min_distance, int) or min_distance is None
+        assert isinstance(max_distance, int) or max_distance is None
+        assert isinstance(max_count, int) or max_count is None
+        assert isinstance(sort, bool)
+        assert isinstance(sort_key, str) or sort_key is None
+
+        if min_distance is None:
+            min_distance = float('-inf')  # set value to negative infinity
+        if max_distance is None:
+            max_distance = float('inf')   # set value to positive infinity
+        tmp_transitions_list = self.return_list_of_all_transitions()
+
+        if sort:
+            if sort_key is not None:
+                # ToDo: assert / ensure that attribute is present in list elements
+                tmp_transitions_list.sort(key=lambda distance: getattr(distance, sort_key))
+
+        if max_count is None:
+            max_count = len(tmp_transitions_list)
+
+        return [transition for transition in tmp_transitions_list[:max_count] if
+                min_distance < transition.distance < max_distance]
+
+    def print_backwards_jumps(self, min_distance=None, max_distance=0, max_count=None):
+        tmp_list = self.return_list_of_transitions(min_distance=min_distance, max_distance=max_distance,
+                                                   max_count=max_count)
+        return [str(entry) + '\n' for entry in tmp_list]
 
     def flowchart_set_show_variablenames(self, show_variablenames=True):
         """
-
         :param show_variablenames: True shows varnames, False omits them
         :return: none
         """
         assert isinstance(show_variablenames, bool)
-        self.__flowchart_show_variablenames = show_variablenames
+        self.__flowchart_show_variable_names = show_variablenames
 
     def flowchart_set_show_conditions(self, show_conditions=True):
         """
@@ -781,13 +849,16 @@ class Questionnaire:
             for transition in page.transitions.transitions.values():
                 if transition.condition is not None:
                     if transition.target in dict_transitions.keys():
-                            dict_transitions[transition.target] = dict_transitions[transition.target] + ' |\n(' + '[' + str(cnt) + '] ' + transition.condition_new + ']' + ')'
-                            if self.__flowchart_show_conditions:
-                                self.DiGraph.add_edge(page.uid, transition.target, label='[' + str(cnt) + '] ' + dict_transitions[transition.target])
-                            else:
-                                self.DiGraph.add_edge(page.uid, transition.target)
+                        dict_transitions[transition.target] = dict_transitions[transition.target] + ' |\n(' + '[' + str(
+                            cnt) + '] ' + transition.condition_new + ']' + ')'
+                        if self.__flowchart_show_conditions:
+                            self.DiGraph.add_edge(page.uid, transition.target,
+                                                  label='[' + str(cnt) + '] ' + dict_transitions[transition.target])
+                        else:
+                            self.DiGraph.add_edge(page.uid, transition.target)
                     else:
-                        dict_transitions[transition.target] = '(' + '[' + str(cnt) + '] ' + transition.condition_new + ')'
+                        dict_transitions[transition.target] = '(' + '[' + str(
+                            cnt) + '] ' + transition.condition_new + ')'
 
                     if self.__flowchart_show_conditions:
                         self.DiGraph.add_edge(page.uid, transition.target, label=dict_transitions[transition.target])
@@ -813,7 +884,7 @@ class Questionnaire:
                                 self.DiGraph.add_edge(page.uid, transition.target)
                 cnt = cnt + 1
 
-        if self.__flowchart_show_variablenames:
+        if self.__flowchart_show_variable_names:
             self.add_variables_to_node()
         if self.__flowchart_bidirectional_edges:
             self.flowchart_create_birectional_edges()
@@ -831,8 +902,6 @@ class Questionnaire:
                 mapping[pagename] = pagename + '\n\n[' + tmp_output_string
         self.DiGraph = nx.relabel_nodes(self.DiGraph, mapping)
 
-
-
     def flowchart_create_graph(self):
         """
         :param: None
@@ -842,7 +911,6 @@ class Questionnaire:
         self.transitions_to_nodes_edges()
         self.init_pgv_graph()
         self.prepare_and_draw_pgv_graph()
-
 
     def init_pgv_graph(self, graph_name='graph'):
         """
@@ -856,7 +924,8 @@ class Questionnaire:
         timestamp = time.strftime('%Y-%m-%d_%H-%M', t)
 
         self.pgv_graph.node_attr['shape'] = 'box'
-        self.pgv_graph.graph_attr['label'] = 'title: ' + self.title + '\nfile: ' + self.filename + '\n timestamp: ' + timestamp
+        self.pgv_graph.graph_attr[
+            'label'] = 'title: ' + self.title + '\nfile: ' + self.filename + '\n timestamp: ' + timestamp
         self.pgv_graph.layout("dot")
 
     def prepare_and_draw_pgv_graph(self):
@@ -897,7 +966,8 @@ class Questionnaire:
         :param: questionnaire_object: other Questionnaire.Questionnaire object that will be appended; duplicate pages in original Questionnaire will be overwritten by pages of the newly appended Questionnaire.
         :return: nothing.
         """
-        self.logger.info("processing questionnaire: " + str(questionnaire_object.file) + ' / ' + str(questionnaire_object.filename))
+        self.logger.info(
+            "processing questionnaire: " + str(questionnaire_object.file) + ' / ' + str(questionnaire_object.filename))
         assert isinstance(questionnaire_object, Questionnaire)
 
         for appended_page in questionnaire_object.pages.pages.values():
@@ -955,5 +1025,3 @@ class Questionnaire:
     def set_filename(self, filename):
         assert isinstance(filename, str)
         self.filename = filename
-
-

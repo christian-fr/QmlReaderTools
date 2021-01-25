@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "MIT"
-__version__ = "0.2.3"
+__version__ = "0.2.4"
 __status__ = "Prototype"
 __name__ = "QmlReader"
 
@@ -40,8 +40,9 @@ class QmlReader:
 
         self.tmp_dict_of_pages = {}
         # self.pgv_graph = None
-        self.extract_pages_into_tmp_dict()
+        # self.extract_pages_into_tmp_dict()
         self.extract_pages_to_self()
+        self.extract_transitions_to_self()
 
         self.extract_variables_from_pages_body()
         self.extract_variables_from_pages_triggers()
@@ -128,10 +129,10 @@ class QmlReader:
                 questionnaire.Variable(self.root.variables.variable[i].attrib["name"],
                                        self.root.variables.variable[i].attrib["type"]))
 
-    def extract_pages_into_tmp_dict(self):
-        self.logger.info("extract_pages_into_tmp_dict")
-        for i in range(0, len(self.root.page)):
-            self.tmp_dict_of_pages[self.root.page[i].attrib['uid']] = self.root.page[i]
+    # def extract_pages_into_tmp_dict(self):
+    #     self.logger.info("extract_pages_into_tmp_dict")
+    #     for i in range(0, len(self.root.page)):
+    #         self.tmp_dict_of_pages[self.root.page[i].attrib['uid']] = self.root.page[i]
 
     def extract_pages_to_self(self):
         self.logger.info("extract_pages_to_self")
@@ -139,11 +140,15 @@ class QmlReader:
             tmp_qml_page_source = self.root.page[i]
             tmp_page_uid = tmp_qml_page_source.attrib['uid']
             self.questionnaire.pages.add_page(questionnaire.QmlPage(tmp_page_uid, declared=True))
-            self.extract_transitions_from_qml_page_source(tmp_qml_page_source, tmp_page_uid)
+            # self.extract_transitions_from_qml_page_source(tmp_qml_page_source, tmp_page_uid)
 
-        # ToDo: when method self.extract_sources_from_questionnaire() is moved to questionnaire.py: fix this call
-        # for i in range(0, len(self.root.page)):
-        #    self.extract_sources_from_questionnaire()
+    def extract_transitions_to_self(self):
+        self.logger.info("extract_transitions_to_self")
+        for i in range(0, len(self.root.page)):
+            tmp_qml_page_source = self.root.page[i]
+            tmp_page_uid = tmp_qml_page_source.attrib['uid']
+            # self.questionnaire.pages.add_page(questionnaire.QmlPage(tmp_page_uid, declared=True))
+            self.extract_transitions_from_qml_page_source(tmp_qml_page_source, tmp_page_uid)
 
     def extract_transitions_from_qml_page_source(self, qml_source_page, uid):
         self.logger.info("extract_transitions_from_qml_page_source from page: " + str(uid))
@@ -157,13 +162,17 @@ class QmlReader:
                     tmp_index = i
                     tmp_transition_dict = transition.attrib
                     tmp_target = tmp_transition_dict['target']
+
+                    source_page_index = self.list_of_pages().index(uid)
+                    target_page_index = self.list_of_pages().index(tmp_target)
+                    tmp_distance = target_page_index - source_page_index
                     if 'condition' in tmp_transition_dict:
                         tmp_condition = tmp_transition_dict['condition']
                     else:
                         tmp_condition = None
 
                     self.questionnaire.pages.pages[uid].transitions.add_transitions(
-                        questionnaire.Transition(index=tmp_index, target=tmp_target, condition=tmp_condition))
+                        questionnaire.Transition(index=tmp_index, target=tmp_target, condition=tmp_condition, source=uid, distance=tmp_distance))
 
     def extract_questions_from_pages(self):
         self.logger.info("extract_questions_from_pages")
