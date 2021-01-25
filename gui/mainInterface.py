@@ -5,16 +5,12 @@ __version__ = "0.3.1"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
-import QmlReader
-import Questionnaire
+from qmlReader import qmlReader, questionnaire
 import tkinter
 from tkinter import filedialog, scrolledtext, IntVar, messagebox
-from os import listdir, mkdir
+from os import listdir
 import os.path
 import logging
-import networkx as nx
-import errno
-import time
 
 
 class Window(tkinter.Frame):
@@ -33,7 +29,7 @@ class Window(tkinter.Frame):
         # self.questionnaire = Questionnaire.Questionnaire()
         self.master = master
         self.dict_of_qmls = {}
-        self.questionnaire_combined = Questionnaire.Questionnaire()
+        self.questionnaire_combined = questionnaire.Questionnaire()
         self.listOfFiles = []
         self.listOfFilesFull = []
         self.list_of_selected_files = []
@@ -257,7 +253,7 @@ class Window(tkinter.Frame):
             return
         for entry in self.listOfFilesFull:
             print(entry)
-            self.dict_of_qmls[os.path.split(entry)[1]] = QmlReader.QmlReader(entry)
+            self.dict_of_qmls[os.path.split(entry)[1]] = qmlReader.QmlReader(entry)
 
         for key in self.dict_of_qmls:
             self.read_into_questionnaire_objects(key=key)
@@ -266,7 +262,7 @@ class Window(tkinter.Frame):
 
     def run_combine_questionnaires(self):
         print("run_combine_questionnaires")
-        self.questionnaire_combined = Questionnaire.Questionnaire()
+        self.questionnaire_combined = questionnaire.Questionnaire()
         self.selection_dialogue('combine')
 
     def read_into_questionnaire_objects(self, key):
@@ -461,7 +457,7 @@ class Window(tkinter.Frame):
         """
 
         try:
-            assert isinstance(qml_reader_object, QmlReader.QmlReader)
+            assert isinstance(qml_reader_object, qmlReader.QmlReader)
         except AssertionError:
             logger.exception('Wrong input type: ' + str(type(qml_reader_object)))
 
@@ -485,10 +481,10 @@ class Window(tkinter.Frame):
         details_string += '\nunused variables:  [' + str(len(tmp_list_unused_variables)) + ']\n'
         details_string += str(tmp_list_unused_variables)
         details_string += '\n\n'
-        # details_string += '\npages declared in qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
+        # details_string += '\npages declared in data_qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
         # details_string += str(set(qml_reader_object.list_of_pages_declared))
         # details_string += '\n\n'
-        # details_string += '\npages not declared in qml, but mentioned in transitions:  [' + str(len(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))) + ']\n'
+        # details_string += '\npages not declared in data_qml, but mentioned in transitions:  [' + str(len(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))) + ']\n'
         # details_string += str(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))
 
         return details_string

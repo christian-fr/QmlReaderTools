@@ -9,13 +9,8 @@ __name__ = "QmlReader"
 
 import lxml
 from lxml import objectify
-import networkx as nx
 import logging
-import Questionnaire
-from os import path
-import time
-import errno
-from os import listdir, mkdir
+from qmlReader import questionnaire
 
 
 class QmlReader:
@@ -39,7 +34,7 @@ class QmlReader:
 
         self.title = None
         self.set_title()
-        self.questionnaire = Questionnaire.Questionnaire(file=self.file, title=self.title)
+        self.questionnaire = questionnaire.Questionnaire(file=self.file, title=self.title)
 
         self.extract_declared_variables()
 
@@ -88,12 +83,18 @@ class QmlReader:
                 for i in self.root.page[pagenr].body.iterdescendants():
                     if 'variable' in i.attrib:
                         tmp_varname = i.attrib['variable']
-                        tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace(varplace='body', varname=tmp_varname)
-                        if tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].variables.list_all_vars() and tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.list_all_vars():
+                        tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace(
+                            varplace='body', varname=tmp_varname)
+                        if tmp_varname not in self.questionnaire.pages.pages[
+                            tmp_pagename].variables.list_all_vars() and tmp_varname not in \
+                                self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.list_all_vars():
                             self.questionnaire.pages.pages[tmp_pagename].variables.add_variable(tmp_var_object)
                         else:
-                            self.logger.info('Variable "' + str(tmp_varname) + '" already in self.variables of page "' + str(tmp_pagename) + '". Possible duplicate.')
-                            self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.add_variable(tmp_var_object, replace=True)
+                            self.logger.info(
+                                'Variable "' + str(tmp_varname) + '" already in self.variables of page "' + str(
+                                    tmp_pagename) + '". Possible duplicate.')
+                            self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.add_variable(
+                                tmp_var_object, replace=True)
 
     def extract_variables_from_pages_triggers(self):
         self.logger.info("extract_variables_from_pages_triggers")
@@ -103,12 +104,18 @@ class QmlReader:
                 for i in self.root.page[pagenr].triggers.iterdescendants():
                     try:
                         tmp_varname = i.attrib['variable']
-                        tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace(varplace='triggers', varname=tmp_varname)
-                        if tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].variables.list_all_vars() and tmp_varname not in self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.list_all_vars():
+                        tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace(
+                            varplace='triggers', varname=tmp_varname)
+                        if tmp_varname not in self.questionnaire.pages.pages[
+                            tmp_pagename].variables.list_all_vars() and tmp_varname not in \
+                                self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.list_all_vars():
                             self.questionnaire.pages.pages[tmp_pagename].variables.add_variable(tmp_var_object)
                         else:
-                            self.logger.info('Variable "' + str(tmp_varname) + '" already in self.variables of page "' + str(tmp_pagename) + '". Possible duplicate.')
-                            self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.add_variable(tmp_var_object, replace=True)
+                            self.logger.info(
+                                'Variable "' + str(tmp_varname) + '" already in self.variables of page "' + str(
+                                    tmp_pagename) + '". Possible duplicate.')
+                            self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.add_variable(
+                                tmp_var_object, replace=True)
                     except KeyError:
                         pass
 
@@ -117,7 +124,9 @@ class QmlReader:
         for i in range(0, len(self.root.variables.variable)):
             # print(self.questionnaire.filename)
             # print(self.root.variables.variable[i].attrib['name'])
-            self.questionnaire.variables.add_variable(Questionnaire.Variable(self.root.variables.variable[i].attrib["name"], self.root.variables.variable[i].attrib["type"]))
+            self.questionnaire.variables.add_variable(
+                questionnaire.Variable(self.root.variables.variable[i].attrib["name"],
+                                       self.root.variables.variable[i].attrib["type"]))
 
     def extract_pages_into_tmp_dict(self):
         self.logger.info("extract_pages_into_tmp_dict")
@@ -129,10 +138,10 @@ class QmlReader:
         for i in range(0, len(self.root.page)):
             tmp_qml_page_source = self.root.page[i]
             tmp_page_uid = tmp_qml_page_source.attrib['uid']
-            self.questionnaire.pages.add_page(Questionnaire.QmlPage(tmp_page_uid, declared=True))
+            self.questionnaire.pages.add_page(questionnaire.QmlPage(tmp_page_uid, declared=True))
             self.extract_transitions_from_qml_page_source(tmp_qml_page_source, tmp_page_uid)
 
-        # ToDo: when method self.extract_sources_from_questionnaire() is moved to Questionnaire.py: fix this call
+        # ToDo: when method self.extract_sources_from_questionnaire() is moved to questionnaire.py: fix this call
         # for i in range(0, len(self.root.page)):
         #    self.extract_sources_from_questionnaire()
 
@@ -153,7 +162,8 @@ class QmlReader:
                     else:
                         tmp_condition = None
 
-                    self.questionnaire.pages.pages[uid].transitions.add_transitions(Questionnaire.Transition(index=tmp_index, target=tmp_target, condition=tmp_condition))
+                    self.questionnaire.pages.pages[uid].transitions.add_transitions(
+                        questionnaire.Transition(index=tmp_index, target=tmp_target, condition=tmp_condition))
 
     def extract_questions_from_pages(self):
         self.logger.info("extract_questions_from_pages")
@@ -186,7 +196,8 @@ class QmlReader:
                             if header.tag == 'comment':
                                 self.logger.info("  found page header object: xml comment, ignored")
                         else:
-                            self.logger.error('   found object in page header of ' + str(page_uid) + ' that could not be read.')
+                            self.logger.error(
+                                '   found object in page header of ' + str(page_uid) + ' that could not be read.')
                         continue
                     tmp_uid = header.attrib['uid']
                     self.logger.info("  page header object - uid: " + str(tmp_uid))
@@ -205,9 +216,12 @@ class QmlReader:
 
                     tmp_tag = header.tag[header.tag.rfind('}') + 1:]
                     self.logger.info("  found tag: '" + str(tmp_tag) + "'")
-                    tmp_object = Questionnaire.PageHeaderObject(uid=tmp_uid, tag=tmp_tag, text=tmp_text, index=tmp_index, visible_conditions=tmp_visible_conditions)
+                    tmp_object = questionnaire.PageHeaderObject(uid=tmp_uid, tag=tmp_tag, text=tmp_text,
+                                                                index=tmp_index,
+                                                                visible_conditions=tmp_visible_conditions)
 
-                    self.logger.info("  adding PageHeaderObject: '" + str(tmp_object.tag) + "' to page: " + str(page_uid))
+                    self.logger.info(
+                        "  adding PageHeaderObject: '" + str(tmp_object.tag) + "' to page: " + str(page_uid))
                     self.questionnaire.pages.pages[page_uid].header.add_header_object(tmp_object)
 
             else:
@@ -231,7 +245,9 @@ class QmlReader:
             for element in qml_source_page.body.iterchildren():
                 tmp_tag = element.tag[element.tag.rfind('}') + 1:]
 
-                if tmp_tag in ['calendar', 'comparison', 'display', 'matrixDouble', 'matrixQuestionMixed', 'matrixQuestionOpen', 'matrixQuestionSingleChoice', 'multipleChoice', 'questionOpen', 'questionPretest', 'questionSingleChoice']:
+                if tmp_tag in ['calendar', 'comparison', 'display', 'matrixDouble', 'matrixQuestionMixed',
+                               'matrixQuestionOpen', 'matrixQuestionSingleChoice', 'multipleChoice', 'questionOpen',
+                               'questionPretest', 'questionSingleChoice']:
                     tmp_index = i
                     i += 1
 
@@ -283,7 +299,7 @@ class QmlReader:
     @staticmethod
     def find_question_type_class_to_tag_string(string):
         # tmp_dict = {'calendar': Questionnaire.BodyCalendar, 'comparison': Questionnaire.BodyComparison, 'display':, 'matrixDouble':, 'matrixQuestionMixed':, 'matrixQuestionOpen':, 'matrixQuestionSingleChoice':, 'multipleChoice':, 'questionOpen':, 'questionPretest':, 'questionSingleChoice':}
-        return()
+        return ()
 
     def extract_response_domains_from_question(self):
         self.logger.info("extract_response_domains_from_question")
@@ -310,7 +326,7 @@ class QmlReader:
                     tmp_dict_of_additional_pages[transition.target] = page.uid
         # ToDo: (see above) the following is just a workaround until option "combine" is implemented issue#9
         for newpagename in tmp_dict_of_additional_pages.keys():
-            self.questionnaire.pages.add_page(Questionnaire.QmlPage(newpagename, declared=False))
+            self.questionnaire.pages.add_page(questionnaire.QmlPage(newpagename, declared=False))
             self.questionnaire.pages.pages[newpagename].sources.add_source(tmp_dict_of_additional_pages[newpagename])
 
     def extract_triggers_from_pages(self):
@@ -332,7 +348,7 @@ class QmlReader:
         flag_question = False
         flag_instruction = False
         flag_introduction = False
-        tmp_header = Questionnaire.QuestionHeader()
+        tmp_header = questionnaire.QuestionHeader()
         if hasattr(qml_source_element, 'header'):
             for header_question_object in qml_source_element.header.iterchildren():
                 j = 0
@@ -350,8 +366,10 @@ class QmlReader:
                         self.logger.info('  xml comment found - will be ignored')
                         continue
                     else:
-                        self.logger.info('  unexpected tag found: "' + str(header_question_object.tag) + '" in header on page ' + str(page_uid))
-                        raise ValueError('  unexpected tag found: "'  + str(header_question_object.tag) +  '" in header on page ' + str(page_uid))
+                        self.logger.info('  unexpected tag found: "' + str(
+                            header_question_object.tag) + '" in header on page ' + str(page_uid))
+                        raise ValueError('  unexpected tag found: "' + str(
+                            header_question_object.tag) + '" in header on page ' + str(page_uid))
 
                 tmp_index = j
                 j += 1
@@ -363,16 +381,16 @@ class QmlReader:
                 else:
                     tmp_visible = None
                 tmp_tag = header_question_object.tag[header_question_object.tag.rfind('}') + 1:]
-                tmp_header.add_header_object(Questionnaire.QuestionHeaderObject(uid=tmp_uid, text=tmp_text, tag=tmp_tag, index=tmp_index, visible_conditions=tmp_visible))
+                tmp_header.add_header_object(
+                    questionnaire.QuestionHeaderObject(uid=tmp_uid, text=tmp_text, tag=tmp_tag, index=tmp_index,
+                                                       visible_conditions=tmp_visible))
         return tmp_header
 
-
-           # for header_element in qml_source_element.header:
-           #     tmp_uid = header_element.uid
-           #     tmp_text = header_element.text
-           #     tmp_tag = header.tag[header.tag.rfind('}') + 1:]
-           #     tmp_index =
-           #     tmp_page_header_object = Questionnaire.PageHeaderObject()
-           #     tmp_header.add_header_object()
+        # for header_element in qml_source_element.header:
+        #     tmp_uid = header_element.uid
+        #     tmp_text = header_element.text
+        #     tmp_tag = header.tag[header.tag.rfind('}') + 1:]
+        #     tmp_index =
+        #     tmp_page_header_object = Questionnaire.PageHeaderObject()
+        #     tmp_header.add_header_object()
         pass
-

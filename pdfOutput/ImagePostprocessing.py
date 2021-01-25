@@ -4,6 +4,7 @@ __license__ = "MIT"
 __version__ = "0.1.0"
 __status__ = "Prototype"
 __name__ = "ImagePostprocessing"
+
 # last edited: 2020/03/12GPL v3
 
 from math import ceil

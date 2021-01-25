@@ -866,7 +866,7 @@ class Questionnaire:
         :return:
         """
         logging.info("prepare_pgv_graph")
-        output_folder = str(path.join(str(path.split(self.file)[0]), 'flowcharts'))
+        output_folder = str(path.join(str(path.split(self.file)[0]), '../flowcharts'))
         self.logger.info('output_folder: ' + output_folder)
         try:
             mkdir(output_folder)

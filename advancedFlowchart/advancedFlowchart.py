@@ -5,7 +5,6 @@ __version__ = "0.1.0"
 __status__ = "Prototype"
 __name__ = "advancedFlowchart"
 
-
 import os
 import pandas as pd
 import pygraphviz
@@ -13,12 +12,14 @@ from math import ceil
 import matplotlib as mpl
 import numpy as np
 
+
 def check_if_two_consecutive_entries_in_list_of_lists(entry1, entry2, input_list):
     tmp_list_of_all_tuples = []
     if (entry1, entry2) in [item for elem in [list(zip(i, i[1:])) for i in input_list] for item in elem]:
         return True
     else:
         return False
+
 
 def invert_arrowheads(graph):
     """
@@ -53,7 +54,7 @@ def create_stack_list(input_list):
     list_of_backward_jumps = []
 
     for i in range(0, len(input_list)):
-        if i > 0 and input_list[i] == input_list[i-1]:
+        if i > 0 and input_list[i] == input_list[i - 1]:
             continue
 
         if input_list[i] not in stack_list:
@@ -64,7 +65,8 @@ def create_stack_list(input_list):
         print('sprünge nach "end":')
         print(input_list[input_list.index('end'):])
 
-    list_of_returning_points = [i for i in filter(None, [set(i) - set(stack_list) for i in input_list])] # identifies the nodes that do appear in the input, but not in the stack list
+    list_of_returning_points = [i for i in filter(None, [set(i) - set(stack_list) for i in
+                                                         input_list])]  # identifies the nodes that do appear in the input, but not in the stack list
     # [i for i in filter(None, list_of_returning_points)]
 
     return stack_list, list_of_backward_jumps, list_of_returning_points
@@ -83,6 +85,7 @@ def create_blue_red_color_gradient_list(steps=256):
     color_gradient_list = [color_fader(c1, c2, i / n) for i in range(0, n)]
     return color_gradient_list
 
+
 def color_fader(c1, c2, mix=0):  # fade (linear interpolate) from color c1 (at mix=0) to c2 (mix=1)
     """
     :param c2:
@@ -91,7 +94,7 @@ def color_fader(c1, c2, mix=0):  # fade (linear interpolate) from color c1 (at m
     """
     c1 = np.array(mpl.colors.to_rgb(c1))
     c2 = np.array(mpl.colors.to_rgb(c2))
-    return mpl.colors.to_hex((1-mix)*c1 + mix*c2)
+    return mpl.colors.to_hex((1 - mix) * c1 + mix * c2)
 
 
 class AdvancedFlowchart:
@@ -155,7 +158,9 @@ class AdvancedFlowchart:
         print('edges in graph without corresponding edges in data: \n' + str(list_of_unused_edges_tuples))
         return list_of_used_edges_tuples, list_of_unused_edges_tuples
 
-    def modify_graph(self, graph, title, dict_of_weights_of_nodes=None, dict_of_weights_of_edges=None, func_for_penwidth_edges=None, func_for_colorfader_edges=None,func_for_penwidth_nodes=None, func_for_colorfader_nodes=None, reverse_edges=False):
+    def modify_graph(self, graph, title, dict_of_weights_of_nodes=None, dict_of_weights_of_edges=None,
+                     func_for_penwidth_edges=None, func_for_colorfader_edges=None, func_for_penwidth_nodes=None,
+                     func_for_colorfader_nodes=None, reverse_edges=False):
         """
 
         :param graph:
@@ -205,7 +210,6 @@ class AdvancedFlowchart:
 
         return list_of_used_nodes_strings, list_of_unused_nodes_strings, list_of_used_edges_tuples, list_of_unused_edges_tuples
 
-
     def create_graph_highlight_points_of_return(self, graph, dict_of_weights_of_nodes):
         """
 
@@ -253,6 +257,3 @@ class AdvancedFlowchart:
 
     def create_highlight_points_of_return(self):
         pass
-
-
-
