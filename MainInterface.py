@@ -332,12 +332,16 @@ class Window(tkinter.Frame):
                                                            command=self.action_details_show)
 
         if action is 'flowchart':
-            self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
-                                                           text='Flowchart(s) w/ var & cond', state=tkinter.NORMAL,
-                                                           command=self.action_delay_flowchart_creation_show_var_show_cond_create_biderectional)
+            self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=30, height=1,
+                                                           text='Flowchart(s) var, cond', state=tkinter.NORMAL,
+                                                           command=self.action_delay_flowchart_creation_show_var_show_cond_no_biderectional)
 
-            self.window_selection.button2 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
-                                                           text='Flowchart(s) w/o', state=tkinter.NORMAL,
+            self.window_selection.button2 = tkinter.Button(self.window_selection.canvas2, width=30, height=1,
+                                                           text='Flowchart(s) no var, cond', state=tkinter.NORMAL,
+                                                           command=self.action_delay_flowchart_creation_omit_var_show_cond_no_biderectional)
+
+            self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=30, height=1,
+                                                           text='Flowchart(s) no var, no cond', state=tkinter.NORMAL,
                                                            command=self.action_delay_flowchart_creation_omit_var_omit_cond_no_biderectional)
 
         if action is 'combine':
@@ -345,22 +349,26 @@ class Window(tkinter.Frame):
                                                            text='Combine QMLs', state=tkinter.NORMAL,
                                                            command=self.action_combine_questionnaires)
 
-        self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+        self.window_selection.button4 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                        text='Close', state=tkinter.NORMAL,
                                                        command=self.window_selection.destroy)
         self.window_selection.button1.grid(row=0, column=2, padx=0, sticky='NE')
         self.window_selection.button2.grid(row=1, column=2, padx=0, sticky='NE')
         self.window_selection.button3.grid(row=2, column=2, padx=0, sticky='NE')
+        self.window_selection.button4.grid(row=3, column=2, padx=0, sticky='NE')
 
-    def action_delay_flowchart_creation_show_var_show_cond_create_biderectional(self):
+    def action_delay_flowchart_creation_show_var_show_cond_no_biderectional(self):
         self.action_flowchart_create(show_conditions=True, show_varnames=True, create_biderectional_edges=False)
+
+    def action_delay_flowchart_creation_omit_var_show_cond_no_biderectional(self):
+        self.action_flowchart_create(show_conditions=True, show_varnames=False, create_biderectional_edges=False)
 
     def action_delay_flowchart_creation_omit_var_omit_cond_no_biderectional(self):
         self.action_flowchart_create(show_conditions=False, show_varnames=False, create_biderectional_edges=False)
 
     def action_combine_questionnaires(self):
         self.logger.info('clicked on "combine"')
-        self.logger.info('list of filenames from selection: ' + str(self.list_of_filenames_from_selection()))
+        # self.logger.info('list of filenames from selection: ' + str(self.list_of_filenames_from_selection()))
         temp_list = [os.path.split(path)[1] for path in self.list_of_selected_files]
 
         first = True
@@ -383,7 +391,7 @@ class Window(tkinter.Frame):
 
     def action_flowchart_create(self, show_varnames=True, show_conditions=True, create_biderectional_edges=False):
         self.logger.info('clicked on "flowchart"')
-        self.logger.info('list of filenames from selection: ' + str(self.list_of_filenames_from_selection()))
+        # self.logger.info('list of filenames from selection: ' + str(self.list_of_filenames_from_selection()))
         temp_list = [os.path.split(path)[1] for path in self.list_of_selected_files]
         if not show_varnames:
            [self.__flowcharts_omit_varnames(key) for key in temp_list]
