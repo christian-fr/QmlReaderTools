@@ -31,6 +31,7 @@ class UniqueObject(object):
         assert isinstance(uid, str)
         self.uid = uid
 
+
 class HeaderObject(UniqueObject):
     def __init__(self, uid):
         super().__init__(uid)
@@ -54,7 +55,7 @@ class HeaderObject(UniqueObject):
         self.uid = uid
 
     def set_text(self, text):
-        assert isinstance(text, str)
+        assert isinstance(text, str) or text is None
         self.text = text
 
     def set_visible_conditions(self, visible_conditions):
@@ -545,6 +546,9 @@ class Variables:
     def list_details_str(self):
         return [str(self.variables[var].varname) + ': ' + str(self.variables[var].vartype) for var in self.variables]
 
+    def return_all_vars_as_dict(self):
+        return self.variables
+
     def add_variable(self, variable_object, replace=False):
         if isinstance(variable_object, Variable):
             if variable_object.varname not in [self.variables[var].varname for var in self.variables]:
@@ -714,6 +718,17 @@ class Questionnaire:
                                       '%(levelname)-8s\t%(message)s')
         fh.setFormatter(fh_format)
         self.logger.addHandler(fh)
+
+    def find_unused_variables(self):
+        vars_from_pages_list = []
+        for key, page in self.pages.pages.items():
+            [vars_from_pages_list.append(i) for i in page.variables.list_all_vars()]
+
+        # use set.symmetric_difference for better performance
+        tmp_list = list(set(vars_from_pages_list).symmetric_difference(self.variables.list_all_vars()))
+        tmp_list.sort()
+        return tmp_list
+
 
     def flowchart_set_show_variablenames(self, show_variablenames=True):
         """
@@ -942,5 +957,3 @@ class Questionnaire:
         self.filename = filename
 
 
-
-x = BodyQuestionTypes()

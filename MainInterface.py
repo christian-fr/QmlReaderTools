@@ -78,7 +78,6 @@ class Window(tkinter.Frame):
         self.button1.grid(row=1, column=2, sticky='N')
         self.__button_dict['read_qml'] = self.button1
 
-
         self.button2 = tkinter.Button(self.canvas1, width=20, height=1, text='Combine QMLs', state=tkinter.DISABLED,
                                       command=self.run_combine_questionnaires)
         self.button2.grid(row=2, column=2, sticky='N')
@@ -99,7 +98,8 @@ class Window(tkinter.Frame):
         self.button5.grid(row=5, column=2, sticky='N')
         self.__button_dict['flowchart'] = self.button5
 
-        self.button6 = tkinter.Button(self.canvas1, width=20, height=1, text='weighted Flowchart', state=tkinter.DISABLED)
+        self.button6 = tkinter.Button(self.canvas1, width=20, height=1, text='weighted Flowchart',
+                                      state=tkinter.DISABLED)
         self.button6.grid(row=6, column=2, sticky='N')
         self.__button_dict['weighted_flowchart'] = self.button6
 
@@ -275,8 +275,6 @@ class Window(tkinter.Frame):
             for key in self.dict_of_qmls:
                 self.dict_of_questionnaires[key] = self.dict_of_qmls[key].questionnaire
 
-
-
     """
     def read_into_page_objects(self, key_page, page):
                 string_pagename = key_page
@@ -386,7 +384,7 @@ class Window(tkinter.Frame):
         self.logger.info('list of filenames from selection: ' + str(self.list_of_filenames_from_selection()))
         temp_list = [os.path.split(path)[1] for path in self.list_of_selected_files]
         if not show_varnames:
-           [self.__flowcharts_omit_varnames(key) for key in temp_list]
+            [self.__flowcharts_omit_varnames(key) for key in temp_list]
         if not show_conditions:
             [self.__flowcharts_omit_conditions(key) for key in temp_list]
         if create_biderectional_edges:
@@ -439,6 +437,7 @@ class Window(tkinter.Frame):
         self.window_selection.text1.insert(tkinter.END, self.window_selection.details_string)
         self.window_selection.text1.config(state=tkinter.NORMAL)
 
+    # ToDo: disentangle from method "list_of_filenames_from_selection"
     def details_preparation(self, list_of_fullpaths):
         list_of_filenames = [os.path.split(file)[1] for file in list_of_fullpaths]
         return '\n\n###########################################\n\n'.join(
@@ -453,12 +452,14 @@ class Window(tkinter.Frame):
         with open(fullpath, 'w') as file:
             file.writelines(self.window_selection.details_string)
 
+    # ToDo (inherited from method "details_preparation"): disentangle from method "list_of_filenames_from_selection"
     @staticmethod
     def details_prepare_from_qml(qml_reader_object, logger):
         """
         input: a single qml_reader_object
         :return: a string of details
         """
+
         try:
             assert isinstance(qml_reader_object, QmlReader.QmlReader)
         except AssertionError:
@@ -467,25 +468,28 @@ class Window(tkinter.Frame):
         details_string = ''
         details_string += '\ntitle:\n'
         details_string += str(qml_reader_object.title)
-        details_string += '\nlist of pages: [' + str(len(qml_reader_object.questionnaire.pages.list_of_all_pagenames())) + ']\n'
+        details_string += '\nlist of pages: [' + str(
+            len(qml_reader_object.questionnaire.pages.list_of_all_pagenames())) + ']\n'
         details_string += str(qml_reader_object.questionnaire.pages.list_of_all_pagenames())
         details_string += '\n\n'
         details_string += '\nvariables: [' + str(
             len(qml_reader_object.questionnaire.variables.list_all_vars())) + ']\n'
         details_string += str(qml_reader_object.questionnaire.variables.list_all_vars())
         details_string += '\n\n'
-     #   details_string += '\nvariables extracted from declaration: [' + str(
-     #       len(qml_reader_object.list_of_variables_from_declaration())) + ']\n'
-     #   details_string += str(qml_reader_object.list_of_variables_from_declaration())
-     #   details_string += '\n\n'
-     #   details_string += '\nunused variables:  [' + str(len(qml_reader_object.list_of_unused_variables())) + ']\n'
-     #   details_string += str(qml_reader_object.list_of_unused_variables())
-     #   details_string += '\n\n'
-     #   details_string += '\npages declared in qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
-     #   details_string += str(set(qml_reader_object.list_of_pages_declared))
-     #   details_string += '\n\n'
-     #   details_string += '\npages not declared in qml, but mentioned in transitions:  [' + str(len(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))) + ']\n'
-     #   details_string += str(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))
+        # details_string += '\nvariables extracted from declaration: [' + str(
+        #     len(qml_reader_object.list_of_variables_from_declaration())) + ']\n'
+        # details_string += str(qml_reader_object.list_of_variables_from_declaration())
+        # details_string += '\n\n'
+
+        tmp_list_unused_variables = qml_reader_object.questionnaire.find_unused_variables()
+        details_string += '\nunused variables:  [' + str(len(tmp_list_unused_variables)) + ']\n'
+        details_string += str(tmp_list_unused_variables)
+        details_string += '\n\n'
+        # details_string += '\npages declared in qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
+        # details_string += str(set(qml_reader_object.list_of_pages_declared))
+        # details_string += '\n\n'
+        # details_string += '\npages not declared in qml, but mentioned in transitions:  [' + str(len(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))) + ']\n'
+        # details_string += str(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))
 
         return details_string
 
@@ -506,5 +510,3 @@ class Window(tkinter.Frame):
                                       '%(levelname)-8s\t%(message)s')
         fh.setFormatter(fh_format)
         self.logger.addHandler(fh)
-
-

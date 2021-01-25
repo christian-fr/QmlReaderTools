@@ -223,7 +223,11 @@ class QmlReader:
         if hasattr(qml_source_page, 'body'):
             i = 0
             self.logger.info('  body found on page "' + str(page_uid) + '".')
-            tmp_body_uid = qml_source_page.body.attrib['uid']
+            if 'uid' in qml_source_page.body.attrib:
+                tmp_body_uid = qml_source_page.body.attrib['uid']
+            else:
+                # ToDo: check if this can be set to None instead of str
+                tmp_body_uid = 'None'
             for element in qml_source_page.body.iterchildren():
                 tmp_tag = element.tag[element.tag.rfind('}') + 1:]
 
