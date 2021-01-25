@@ -5,6 +5,7 @@ __version__ = "0.3.0"
 __status__ = "Prototype"
 __name__ = "QmlReader"
 
+import etree
 import lxml
 from lxml import objectify
 import networkx as nx
@@ -34,7 +35,7 @@ class QmlReader:
             self.logger.info('reading file: ' + str(file))
             self.data = f.read()
 
-        self.root = objectify.fromstring(self.data)
+        self.root = objectify.fromstring(self.data, )
 
         comments = self.root.xpath('//comment()')
 
