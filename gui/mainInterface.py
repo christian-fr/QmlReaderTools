@@ -325,6 +325,10 @@ class Window(tkinter.Frame):
                                                            text='Show details', state=tkinter.NORMAL,
                                                            command=self.action_details_show)
 
+            self.window_selection.button2 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+                                                           text='', state=tkinter.NORMAL,
+                                                           command=None)
+
         if action is 'flowchart':
             self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
                                                            text='Flowchart(s) w/ var & cond', state=tkinter.NORMAL,
@@ -338,6 +342,10 @@ class Window(tkinter.Frame):
             self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                            text='Combine QMLs', state=tkinter.NORMAL,
                                                            command=self.action_combine_questionnaires)
+
+            self.window_selection.button2 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+                                                           text='', state=tkinter.NORMAL,
+                                                           command=None)
 
         self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                        text='Close', state=tkinter.NORMAL,
@@ -482,7 +490,9 @@ class Window(tkinter.Frame):
         details_string += str(tmp_list_unused_variables)
         details_string += '\n\n'
 
-        tmp_list_of_all_transitions = qml_reader_object.questionnaire.return_list_of_transitions(min_distance=None, max_distance=None, max_count=None)
+        tmp_list_of_all_transitions = qml_reader_object.questionnaire.return_list_of_transitions(min_distance=None,
+                                                                                                 max_distance=None,
+                                                                                                 max_count=None)
 
         details_string += f'\nlist of all transitions: [{str(len(tmp_list_of_all_transitions))}]\n'
         for entry in tmp_list_of_all_transitions:
