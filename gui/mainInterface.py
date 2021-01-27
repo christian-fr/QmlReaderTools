@@ -421,7 +421,7 @@ class Window(tkinter.Frame):
         if count > 1:
             tkinter.messagebox.showinfo('Success', str(count) + ' flowcharts have been created.')
         self.activate_button(['weighted_flowchart'])
-        self.window_selection.destroy()
+        # self.window_selection.destroy()
 
     def prepare_flowcharts(self, key):
         self.dict_of_questionnaires[key].transitions_to_nodes_edges(truncate=False)
