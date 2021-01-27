@@ -948,7 +948,7 @@ class Questionnaire:
             self.logger.exception('folder could not be created')
 
         t = time.localtime()
-        timestamp = time.strftime('%Y-%m-%d_%H-%M', t)
+        timestamp = time.strftime('%Y-%m-%d_%H-%M-%S', t)
         filename = timestamp + '_' + path.splitext(path.split(self.file)[1])[0]
         self.logger.info('output_gml: ' + str(path.join(output_folder, filename + '.gml')))
         nx.write_gml(self.DiGraph, path.join(output_folder, filename + '.gml'))
