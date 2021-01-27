@@ -459,7 +459,7 @@ class Transition:
         self.condition_new = None
 
     def __str__(self):
-        return f'[{self.source} -> {self.target}]\tdistance: {self.distance}\tindex: {self.index}'
+        return f'{self.source}\t{self.target}\t{self.distance}\t{self.index}'
 
 
 class TransitionLabels:
