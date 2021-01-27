@@ -326,16 +326,24 @@ class Window(tkinter.Frame):
                                                            command=self.action_details_show)
 
             self.window_selection.button2 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
-                                                           text='', state=tkinter.NORMAL,
+                                                           text='--', state=tkinter.NORMAL,
+                                                           command=None)
+
+            self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
+                                                           text='--', state=tkinter.NORMAL,
                                                            command=None)
 
         if action is 'flowchart':
             self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
-                                                           text='Flowchart(s) w/ var & cond', state=tkinter.NORMAL,
+                                                           text='Flowchart(s)\nw/ var & cond', state=tkinter.NORMAL,
                                                            command=self.action_delay_flowchart_creation_show_var_show_cond_create_biderectional)
 
             self.window_selection.button2 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
-                                                           text='Flowchart(s) w/o', state=tkinter.NORMAL,
+                                                           text='Flowchart(s)\nw/o var, w/ cond', state=tkinter.NORMAL,
+                                                           command=self.action_delay_flowchart_creation_omit_var_show_cond_no_biderectional)
+
+            self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
+                                                           text='Flowchart(s)\nw/o var & cond', state=tkinter.NORMAL,
                                                            command=self.action_delay_flowchart_creation_omit_var_omit_cond_no_biderectional)
 
         if action is 'combine':
@@ -347,15 +355,27 @@ class Window(tkinter.Frame):
                                                            text='', state=tkinter.NORMAL,
                                                            command=None)
 
-        self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+            self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
+                                                           text='--', state=tkinter.NORMAL,
+                                                           command=None)
+
+        self.window_selection.button4 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                        text='Close', state=tkinter.NORMAL,
                                                        command=self.window_selection.destroy)
         self.window_selection.button1.grid(row=0, column=2, padx=0, sticky='NE')
         self.window_selection.button2.grid(row=1, column=2, padx=0, sticky='NE')
         self.window_selection.button3.grid(row=2, column=2, padx=0, sticky='NE')
+        self.window_selection.button4.grid(row=3, column=2, padx=0, sticky='NE')
+
+    @staticmethod
+    def do_nothing():
+        pass
 
     def action_delay_flowchart_creation_show_var_show_cond_create_biderectional(self):
         self.action_flowchart_create(show_conditions=True, show_varnames=True, create_biderectional_edges=False)
+
+    def action_delay_flowchart_creation_omit_var_show_cond_no_biderectional(self):
+        self.action_flowchart_create(show_conditions=True, show_varnames=False, create_biderectional_edges=False)
 
     def action_delay_flowchart_creation_omit_var_omit_cond_no_biderectional(self):
         self.action_flowchart_create(show_conditions=False, show_varnames=False, create_biderectional_edges=False)
