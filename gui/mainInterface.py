@@ -329,7 +329,7 @@ class Window(tkinter.Frame):
                                                            text='--', state=tkinter.NORMAL,
                                                            command=None)
 
-            self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
+            self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                            text='--', state=tkinter.NORMAL,
                                                            command=None)
 
@@ -355,7 +355,7 @@ class Window(tkinter.Frame):
                                                            text='', state=tkinter.NORMAL,
                                                            command=None)
 
-            self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
+            self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                            text='--', state=tkinter.NORMAL,
                                                            command=None)
 
