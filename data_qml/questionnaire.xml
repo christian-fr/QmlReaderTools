@@ -1830,7 +1830,7 @@
 			</zofar:questionOpen>
 		</zofar:body>
 		<zofar:transitions>
-			<zofar:transition target="A55"/>
+			<zofar:transition target="cancel1"/>
 		</zofar:transitions>
 	</zofar:page>
 
