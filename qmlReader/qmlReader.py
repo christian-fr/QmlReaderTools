@@ -164,6 +164,8 @@ class QmlReader:
                     tmp_target = tmp_transition_dict['target']
 
                     source_page_index = self.list_of_pages().index(uid)
+                    if tmp_target not in self.list_of_pages():
+                        self.questionnaire.pages.add_page(qmlpage=questionnaire.QmlPage(uid=tmp_target, declared=False))
                     target_page_index = self.list_of_pages().index(tmp_target)
                     tmp_distance = target_page_index - source_page_index
                     if 'condition' in tmp_transition_dict:
