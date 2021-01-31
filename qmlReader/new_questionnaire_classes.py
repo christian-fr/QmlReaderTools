@@ -43,9 +43,8 @@ class OnPageObjectWithoutUid:
 
 class ConditionObject:
     def __init__(self, condition_string):
-        self.condition = None
         self.python_condition = None
-        self.condition(condition_string)
+        self.condition = condition_string
 
     def evaluate(self):
         if self.python_condition is not None:
@@ -59,12 +58,12 @@ class ConditionObject:
 
     @property
     def condition(self):
-        return self.__condition
+        return self._condition
 
     @condition.setter
     def condition(self, condition_string):
         assert isinstance(condition_string, str) or isinstance(condition_string, bool) or condition_string is None
-        self.__condition = condition_string
+        self._condition = condition_string
 
     def translate_condition_to_python_logic(self):
         pass

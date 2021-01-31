@@ -15,19 +15,16 @@ for node in di_graph.nodes:
 
 
 
-# load Nacaps2020-1 data
-    # di_graph2 = nx.read_gml(r'/media/a/virtualbox/flowcharts/2021-01-27_15-34-47_2021-01-27_questionnaire_generated_HISBUS_Pretest.gml')
-    # di_graph2 = nx.read_gml(r'/media/a/virtualbox/flowcharts/2021-01-29_14-26-07_2021-01-26_questionnaire_Nacaps20201-1.gml')
-    #
-    # nodes_data = list(di_graph2.nodes)
-    # edges_data = list(di_graph2.edges)
+# load gml data
+# di_graph2 = nx.read_gml(r'/media/a/virtualbox/flowcharts/2021-01-27_15-34-47_2021-01-27_questionnaire_generated_HISBUS_Pretest.gml')
+di_graph2 = nx.read_gml('../flowcharts/2021-01-30_01-18-09_questionnaire.gml')
 
-
+nodes_data = list(di_graph2.nodes)
+edges_data = list(di_graph2.edges)
 
 print(('#'*100 + '\n')*2)
 
 # Python program to print all paths from a source to destination.
-
 from collections import defaultdict
 
 # This class represents a directed graph
@@ -136,3 +133,29 @@ for node in deflation_candidates_list:
     list_of_edge_targets_from_target_node = [edge[1] for edge in di_graph.edges if edge[0] == target_node]
     #  ToDo: further work needed!!!!
     # [di_graph.add_edge(new_node_label, ) ]
+
+
+def look_for_bottleneck_nodes(di_graph_object, list_of_nodes_to_remove):
+    assert isinstance(di_graph_object, nx.DiGraph)
+    assert isinstance(list_of_nodes_to_remove, list) or list_of_nodes_to_remove is None
+    assert nx.is_weakly_connected(di_graph_object)
+
+    if list_of_nodes_to_remove is not None:
+        for node in list_of_nodes_to_remove:
+            di_graph_object.remove_node(node)
+    for node in di_graph_object.nodes:
+        tmp_di_graph_object_copy = di_graph_object.copy()
+        tmp_di_graph_object_copy.remove_node(node)
+        if not nx.is_weakly_connected(tmp_di_graph_object_copy):
+            print(node)
+            # print(nx.is_strongly_connected(tmp_di_graph_object_copy))
+            nx.is_strongly_connected(di_graph_object)
+            tmp_list_connected_components = list(nx.connected_components(nx.to_undirected(di_graph_object)))
+            print(len(tmp_list_connected_components))
+            print(tmp_list_connected_components)
+
+
+nx.is_weakly_connected(di_graph2)
+look_for_bottleneck_nodes(di_graph2, list_of_nodes_to_remove=['cancel1', 'cancel2', 'end'])
+
+print(list(nx.connected_components(nx.to_undirected(di_graph2))))
