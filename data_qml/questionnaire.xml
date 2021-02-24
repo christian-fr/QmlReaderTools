@@ -1151,6 +1151,7 @@
 		</zofar:body>
 		<zofar:transitions>
 			<zofar:transition target="A27"/>
+			<zofar:transition target="A28"/>
 		</zofar:transitions>
 	</zofar:page>
 
@@ -1830,7 +1831,7 @@
 			</zofar:questionOpen>
 		</zofar:body>
 		<zofar:transitions>
-			<zofar:transition target="A55"/>
+			<zofar:transition target="cancel1"/>
 		</zofar:transitions>
 	</zofar:page>
 
