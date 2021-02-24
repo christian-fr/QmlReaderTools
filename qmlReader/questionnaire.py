@@ -902,7 +902,7 @@ class Questionnaire:
                 mapping[pagename] = pagename + '\n\n[' + tmp_output_string
         self.DiGraph = nx.relabel_nodes(self.DiGraph, mapping)
 
-    def flowchart_create_graph(self):
+    def flowchart_create_graph(self, output_dir=None):
         """
         :param: None
         :return: None
@@ -910,7 +910,7 @@ class Questionnaire:
         logging.info("create_graph")
         self.transitions_to_nodes_edges()
         self.init_pgv_graph()
-        self.prepare_and_draw_pgv_graph()
+        self.prepare_and_draw_pgv_graph(output_dir=output_dir)
 
     def init_pgv_graph(self, graph_name='graph'):
         """
@@ -926,35 +926,46 @@ class Questionnaire:
         self.pgv_graph.node_attr['shape'] = 'box'
         self.pgv_graph.graph_attr[
             'label'] = 'title: ' + self.title + '\nfile: ' + self.filename + '\n timestamp: ' + timestamp
-        self.pgv_graph.layout("dot")
+        self.pgv_graph.layout(prog="dot")
 
-    def prepare_and_draw_pgv_graph(self):
+    def prepare_and_draw_pgv_graph(self, output_dir=None):
         """
         prepares an output folder and timestampfs; draws the graph
         :param:
         :return:
         """
         logging.info("prepare_pgv_graph")
-        output_folder = str(path.join(str(path.split(self.file)[0]), '../flowcharts'))
-        self.logger.info('output_folder: ' + output_folder)
-        try:
-            mkdir(output_folder)
-            self.logger.info('"' + output_folder + '" created.')
-        except OSError as exc:
-            self.logger.info('folder could not be created at first attempt: ' + output_folder)
-            if exc.errno == errno.EEXIST and path.isdir(output_folder):
-                self.logger.info('folder exists already: ' + output_folder)
-                pass
-            self.logger.exception('folder could not be created')
+
+        if output_dir is None:
+            output_folder = str(path.join(str(path.split(self.file)[0]), '../flowcharts'))
+            self.logger.info('output_folder: ' + output_folder)
+            try:
+                mkdir(output_folder)
+                self.logger.info('"' + output_folder + '" created.')
+            except OSError as exc:
+                self.logger.info('folder could not be created at first attempt: ' + output_folder)
+                if exc.errno == errno.EEXIST and path.isdir(output_folder):
+                    self.logger.info('folder exists already: ' + output_folder)
+                    pass
+                self.logger.exception('folder could not be created')
+        else:
+            output_folder = output_dir
 
         t = time.localtime()
         timestamp = time.strftime('%Y-%m-%d_%H-%M-%S', t)
         filename = timestamp + '_' + path.splitext(path.split(self.file)[1])[0]
+
+        # gml output
         self.logger.info('output_gml: ' + str(path.join(output_folder, filename + '.gml')))
         nx.write_gml(self.DiGraph, path.join(output_folder, filename + '.gml'))
-        self.logger.info('output_png: ' + str(path.join(output_folder, filename + '.png')))
-        self.pgv_graph.write(path.join(output_folder, filename + '.dot'))
+
+        # dot output
+
         self.logger.info('output_dot: ' + str(path.join(output_folder, filename + '.dot')))
+        self.pgv_graph.write(path.join(output_folder, filename + '.dot'))
+
+        # png output
+        self.logger.info('output_png: ' + str(path.join(output_folder, filename + '.png')))
         self.draw_pgv_graph(path.join(output_folder, filename + '.png'))
 
     def draw_pgv_graph(self, output_file='output_file.png'):

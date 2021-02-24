@@ -201,9 +201,8 @@ class Window(tkinter.Frame):
         temp_files.sort()
         return temp_files
 
-    def load_files(self):
-        self.logger.info('starting file dialog askopenfilenames')
-        temp_files = list(filedialog.askopenfilenames(filetypes=(("xml files", "*.xml"), ("all files", "*.*"))))
+    def load_files(self, filetypes=(("xml files", "*.xml"), ("all files", "*.*"))):
+        temp_files = self.open_files(filetypes=filetypes)
         self.logger.info('opening files: ' + str(temp_files))
         if len(temp_files) is 0:
             return
@@ -223,9 +222,16 @@ class Window(tkinter.Frame):
         self.redraw_path_label()
         self.redraw_file_text()
 
-    def load_dir(self, extension='.xml'):
+    def open_files(self, filetypes):
+        self.logger.info('starting file dialog askopenfilenames')
+        return list(filedialog.askopenfilenames(filetypes=filetypes))
+
+    def open_dir(self):
         self.logger.info('starting file dialog askdirectory')
-        selected_path = filedialog.askdirectory()
+        return filedialog.askdirectory()
+
+    def load_dir(self):
+        selected_path = self.open_dir()
         self.logger.info('selected path: ' + str(selected_path))
         if len(selected_path) is 0:
             return
@@ -405,6 +411,8 @@ class Window(tkinter.Frame):
 
     def action_flowchart_create(self, show_varnames=True, show_conditions=True, create_biderectional_edges=False):
         self.logger.info('clicked on "flowchart"')
+        output_dir = self.open_dir()
+        self.logger.info(f'output_dir: "{output_dir}"')
         self.logger.info('list of filenames from selection: ' + str(self.list_of_filenames_from_selection()))
         temp_list = [os.path.split(path)[1] for path in self.list_of_selected_files]
         if not show_varnames:
@@ -414,7 +422,7 @@ class Window(tkinter.Frame):
         if create_biderectional_edges:
             [self.__flowcharts_create_bidirectional_edges(key) for key in temp_list]
 
-        [self.prepare_flowcharts(key) for key in temp_list]
+        [self.prepare_flowcharts(key=key, output_dir=output_dir) for key in temp_list]
         count = len(self.list_of_selected_files)
         if count is 1:
             tkinter.messagebox.showinfo('Success', str(count) + ' flowchart has been created.')
@@ -423,9 +431,9 @@ class Window(tkinter.Frame):
         self.activate_button(['weighted_flowchart'])
         # self.window_selection.destroy()
 
-    def prepare_flowcharts(self, key):
+    def prepare_flowcharts(self, key, output_dir=None):
         self.dict_of_questionnaires[key].transitions_to_nodes_edges(truncate=False)
-        self.dict_of_questionnaires[key].flowchart_create_graph()
+        self.dict_of_questionnaires[key].flowchart_create_graph(output_dir=output_dir)
 
     def __flowcharts_omit_varnames(self, key):
         self.dict_of_questionnaires[key].flowchart_set_show_variablenames(False)
