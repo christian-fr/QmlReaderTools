@@ -761,7 +761,7 @@ class Questionnaire:
         tmp_list.sort()
         return tmp_list
 
-que    def return_list_of_all_transitions(self) -> list:
+    def return_list_of_all_transitions(self) -> list:
         list_of_all_transitions = []
         for pagename, page in self.pages.pages.items():
             if hasattr(page, 'transitions'):
