@@ -761,7 +761,7 @@ class Questionnaire:
         tmp_list.sort()
         return tmp_list
 
-    def return_list_of_all_transitions(self):
+que    def return_list_of_all_transitions(self) -> list:
         list_of_all_transitions = []
         for pagename, page in self.pages.pages.items():
             if hasattr(page, 'transitions'):
@@ -770,7 +770,8 @@ class Questionnaire:
                                                 page.transitions.transitions.items()]
         return list_of_all_transitions
 
-    def return_list_of_transitions(self, min_distance=None, max_distance=0, max_count=None, sort=True, sort_key='distance'):
+    def return_list_of_transitions(self, min_distance: int = None, max_distance: int = 0, max_count: int = None, sort: bool = True,
+                                   sort_key: str = 'distance') -> list:
         assert isinstance(min_distance, int) or min_distance is None
         assert isinstance(max_distance, int) or max_distance is None
         assert isinstance(max_count, int) or max_count is None

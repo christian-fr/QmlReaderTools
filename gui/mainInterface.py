@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "MIT"
-__version__ = "0.3.2"
+__version__ = "0.3.3"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
@@ -524,7 +524,7 @@ class Window(tkinter.Frame):
 
         details_string += f'\nlist of all transitions: [{str(len(tmp_list_of_all_transitions))}]\n'
         for entry in tmp_list_of_all_transitions:
-            details_string += str(entry) + '\n'
+            details_string += str(entry) + '\t' + str(entry.condition) + '\n'
         # details_string += '\npages declared in data_qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
         # details_string += str(set(qml_reader_object.list_of_pages_declared))
         # details_string += '\n\n'
