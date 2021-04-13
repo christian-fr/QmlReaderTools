@@ -61,7 +61,16 @@ import time
 # ### pages = ['index', 'Q01', 'K01', 'R01', 'V01', 'Y01', 'W01', 'M01', 'G01']
 
 # Nacaps2018-3
-pages = ['index', 'offer', 'X01', 'A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08', 'A09', 'A10', 'A11', 'A12', 'A13', 'A14', 'A15', 'A15a', 'A16', 'A17', 'A18', 'A19', 'A20', 'A21', 'A22', 'A23', 'A24', 'A25', 'A26', 'A27', 'A28', 'A29', 'A30', 'A31', 'A32', 'A33', 'A34', 'A35', 'A36', 'A37', 'A38', 'A39', 'A40', 'A41', 'A42', 'A43', 'A44', 'A45', 'A46', 'A47', 'A48', 'A49', 'A50', 'A51', 'A52', 'A53', 'A54', 'A55', 'A56', 'A57', 'A58', 'A59', 'A60_intro', 'A60', 'A61', 'B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B09', 'B10', 'B11', 'B12', 'B13', 'B14', 'B15', 'B16', 'B17', 'B18', 'B19', 'B20', 'B21', 'B22', 'B23', 'B24', 'B25', 'B26', 'B27', 'B28', 'B29', 'B30', 'B31', 'B32', 'B33', 'B34', 'B35', 'B36', 'B37', 'B38', 'B39', 'B40', 'B41', 'B42', 'C01', 'C02', 'C03', 'C04', 'C05', 'C06', 'C07', 'C08', 'C09', 'C10', 'C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21', 'C22', 'C23', 'C24', 'C25', 'C26', 'C27', 'C28', 'C29', 'C30', 'C31', 'D01', 'D02', 'D03', 'D04', 'D05', 'E01', 'E02', 'cancel1', 'cancel2', 'end']
+pages = ['index', 'offer', 'X01', 'A01', 'A02', 'A03', 'A04', 'A05', 'A06', 'A07', 'A08', 'A09', 'A10', 'A11', 'A12',
+         'A13', 'A14', 'A15', 'A15a', 'A16', 'A17', 'A18', 'A19', 'A20', 'A21', 'A22', 'A23', 'A24', 'A25', 'A26',
+         'A27', 'A28', 'A29', 'A30', 'A31', 'A32', 'A33', 'A34', 'A35', 'A36', 'A37', 'A38', 'A39', 'A40', 'A41', 'A42',
+         'A43', 'A44', 'A45', 'A46', 'A47', 'A48', 'A49', 'A50', 'A51', 'A52', 'A53', 'A54', 'A55', 'A56', 'A57', 'A58',
+         'A59', 'A60_intro', 'A60', 'A61', 'B01', 'B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B09', 'B10', 'B11',
+         'B12', 'B13', 'B14', 'B15', 'B16', 'B17', 'B18', 'B19', 'B20', 'B21', 'B22', 'B23', 'B24', 'B25', 'B26', 'B27',
+         'B28', 'B29', 'B30', 'B31', 'B32', 'B33', 'B34', 'B35', 'B36', 'B37', 'B38', 'B39', 'B40', 'B41', 'B42', 'C01',
+         'C02', 'C03', 'C04', 'C05', 'C06', 'C07', 'C08', 'C09', 'C10', 'C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'C17',
+         'C18', 'C19', 'C20', 'C21', 'C22', 'C23', 'C24', 'C25', 'C26', 'C27', 'C28', 'C29', 'C30', 'C31', 'D01', 'D02',
+         'D03', 'D04', 'D05', 'E01', 'E02', 'cancel1', 'cancel2', 'end']
 # pages = ['B05', 'B06', 'B07', 'B08', 'B09', 'B10', 'B11', 'B12', 'B13', 'B14', 'B15', 'B16', 'B17', 'B18', 'B19', 'B20', 'B21', 'B22', 'B23', 'B24', 'B25', 'B26', 'B27', 'B28', 'B29', 'B30', 'B31', 'B32', 'B33', 'B34', 'B35', 'B36', 'B37', 'B38', 'B39', 'B40', 'B41', 'B42', 'C01', 'C02', 'C03', 'C04', 'C05', 'C06', 'C07', 'C08', 'C09', 'C10', 'C11', 'C12', 'C13', 'C14', 'C15', 'C16', 'C17', 'C18', 'C19', 'C20', 'C21', 'C22', 'C23', 'C24', 'C25', 'C26', 'C27', 'C28', 'C29', 'C30', 'C31', 'D01', 'D02', 'D03', 'D04', 'D05', 'E01', 'E02', 'cancel1', 'cancel2', 'end']
 
 # Eurostudent-Albania
@@ -95,7 +104,8 @@ url_survey = url[2]
 workdir = os.getcwd()
 
 # ToDo (2021-02-02): restructure; create main.py; create classes to really make use of OOP
-
+# ToDO (2021-02-24): create Tk-interface, parse page list, option page, etc. - create profiles for surveys,
+#  remember data entries!
 
 
 list_of_tokens_languages_and_resolutions.append((url_server, url_port, url_survey, 'tester1', 'de', False, 1024, True))
@@ -122,7 +132,8 @@ if generate_tokens:
             str_i = '0' + str_i
         tmp_token_list.append('pltest' + str_i)
 
-    [list_of_tokens_languages_and_resolutions.append((url_server, url_port, url_survey, token, 'de', False, 768, True)) for
+    [list_of_tokens_languages_and_resolutions.append((url_server, url_port, url_survey, token, 'de', False, 768, True))
+     for
      token
      in tmp_token_list]
 
@@ -160,9 +171,9 @@ def prepare_thread_list(tokens_languages_and_resolutions_list, start_index_int, 
     for item in tokens_languages_and_resolutions_list:
         drivers_list.append(
             screenshotter.Screenshotter(url_server=item[0], url_port=item[1], url_survey=item[2], token=item[3],
-                                   language_suffix=item[4], carousel=item[5], viewport_width=item[6],
-                                   click_on_next_and_screenshot=click_on_next_and_screenshot_bool,
-                                   end_when_done=end_when_done_bool, headless=item[7]))
+                                        language_suffix=item[4], carousel=item[5], viewport_width=item[6],
+                                        click_on_next_and_screenshot=click_on_next_and_screenshot_bool,
+                                        end_when_done=end_when_done_bool, headless=item[7]))
         drivers_list[tmp_i].add_pages(pages)
         drivers_list[tmp_i].driver.set_window_size(item[6], standard_viewport_height)
         threads_list.append(threading.Thread(name='screenshotter nr ' + str(start_index_int),
@@ -205,9 +216,9 @@ if multi_threaded:
 else:
     for item in list_of_tokens_languages_and_resolutions:
         driver = screenshotter.Screenshotter(url_server=item[0], url_port=item[1], url_survey=item[2], token=item[3],
-                                        language_suffix=item[4], carousel=item[5], viewport_width=item[6],
-                                        click_on_next_and_screenshot=click_on_next_and_screenshot,
-                                        end_when_done=end_when_done, headless=item[7])
+                                             language_suffix=item[4], carousel=item[5], viewport_width=item[6],
+                                             click_on_next_and_screenshot=click_on_next_and_screenshot,
+                                             end_when_done=end_when_done, headless=item[7])
         driver.add_pages(pages)
         driver.driver.set_window_size(item[6], standard_viewport_height)
         driver.iterate_through_dict_of_pages(output_token=True)
