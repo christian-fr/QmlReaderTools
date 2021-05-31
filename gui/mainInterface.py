@@ -508,7 +508,7 @@ class Window(tkinter.Frame):
         details_string += '\n### topologically sorted list of pages:\n'
         tmp_list_of_topologically_sorted_pages = qml_reader_object.questionnaire.return_topologically_sorted_list_of_pages()
         if tmp_list_of_topologically_sorted_pages:
-            details_string += '\n'.join(tmp_list_of_topologically_sorted_pages)
+            details_string += str(tmp_list_of_topologically_sorted_pages)
         else:
             details_string += '!! Graph contains cycles and can therefore not be topologically sorted. !!'
 
@@ -557,6 +557,12 @@ class Window(tkinter.Frame):
         if tmp_list_of_topologically_sorted_pages:
             for i in range(len(tmp_list_of_topologically_sorted_pages)):
                 details_string += f'replace pagenum = {i} if page =="{tmp_list_of_topologically_sorted_pages[i]}"\n'
+
+            details_string += '\n\n'
+            details_string += 'label define pagenumlb '
+            for i in range(len(tmp_list_of_topologically_sorted_pages)):
+                details_string += f' {i} "{tmp_list_of_topologically_sorted_pages[i]}"'
+            details_string += 'label val pagenum pagenumlb'
         else:
             details_string += '!! Graph contains cycles and can therefore not be topologically sorted. !!'
 
@@ -566,7 +572,11 @@ class Window(tkinter.Frame):
         tmp_list_of_sorted_as_declared_pages = qml_reader_object.questionnaire.pages.list_of_all_pagenames()
         for i in range(len(tmp_list_of_sorted_as_declared_pages)):
             details_string += f'replace pagenum = {i} if page =="{tmp_list_of_sorted_as_declared_pages[i]}"\n'
-
+        details_string += '\n\n'
+        details_string += 'label define pagenumlb '
+        for i in range(len(tmp_list_of_sorted_as_declared_pages)):
+            details_string += f' {i} "{tmp_list_of_sorted_as_declared_pages[i]}"'
+        details_string += 'label val pagenum pagenumlb'
 
 
 

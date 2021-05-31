@@ -755,7 +755,7 @@ class Questionnaire:
         self.logger.addHandler(fh)
 
     def return_topologically_sorted_list_of_pages(self) -> list:
-        self.transitions_to_nodes_edges()
+        self.transitions_to_nodes_edges_no_additional_node_label()
         list_of_looped_edges = []
         for u,v in self.DiGraph.edges:
             if u == v:
@@ -852,6 +852,11 @@ class Questionnaire:
         for edge in self.DiGraph.edges():
             if edge[0] != edge[1]:
                 self.DiGraph.add_edge(edge[1], edge[0])
+
+    def transitions_to_nodes_edges_no_additional_node_label(self):
+        for page in self.pages.pages.values():
+            for transition in page.transitions.transitions.values():
+                self.DiGraph.add_edge(page.uid, transition.target)
 
     def transitions_to_nodes_edges(self, truncate=False):
         self.DiGraph = nx.DiGraph()
