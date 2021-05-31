@@ -177,7 +177,7 @@ class Window(tkinter.Frame):
         print(self.listOfFiles)
         self.text1.config(state=tkinter.NORMAL)
         self.text1.delete('1.0', tkinter.END)
-        if len(self.listOfFiles) is 0:
+        if len(self.listOfFiles) == 0:
             self.fileNameText = ' --> no *.xml-files found in this path!'
             self.deactivate_all_buttons()
             self.no_files_selected()
@@ -204,7 +204,7 @@ class Window(tkinter.Frame):
     def load_files(self, filetypes=(("xml files", "*.xml"), ("all files", "*.*"))):
         temp_files = self.open_files(filetypes=filetypes)
         self.logger.info('opening files: ' + str(temp_files))
-        if len(temp_files) is 0:
+        if len(temp_files) == 0:
             return
         try:
             assert isinstance(temp_files, list)
@@ -214,7 +214,7 @@ class Window(tkinter.Frame):
         temp_files = self.sort_list_of_files(temp_files)
         self.listOfFilesFull = temp_files
         self.listOfFiles = [os.path.split(f)[1] for f in temp_files]
-        if len(temp_files) is 0:
+        if len(temp_files) == 0:
             self.dirText = '(no path selected)'
         else:
             self.dirText = os.path.split(temp_files[0])[0]
@@ -233,7 +233,7 @@ class Window(tkinter.Frame):
     def load_dir(self):
         selected_path = self.open_dir()
         self.logger.info('selected path: ' + str(selected_path))
-        if len(selected_path) is 0:
+        if len(selected_path) == 0:
             return
         self.dirText = selected_path
         only_files = [f for f in listdir(selected_path) if
@@ -326,7 +326,7 @@ class Window(tkinter.Frame):
             self.window_selection.checkbox_list[i].grid(row=i, column=0, sticky='NW', padx=0)
             self.window_selection.checkbox_list[i].select()
 
-        if action is 'details':
+        if action == 'details':
             self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                            text='Show details', state=tkinter.NORMAL,
                                                            command=self.action_details_show)
@@ -339,7 +339,7 @@ class Window(tkinter.Frame):
                                                            text='--', state=tkinter.NORMAL,
                                                            command=None)
 
-        if action is 'flowchart':
+        if action == 'flowchart':
             self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
                                                            text='Flowchart(s)\nw/ var & cond', state=tkinter.NORMAL,
                                                            command=self.action_delay_flowchart_creation_show_var_show_cond_create_biderectional)
@@ -352,7 +352,7 @@ class Window(tkinter.Frame):
                                                            text='Flowchart(s)\nw/o var & cond', state=tkinter.NORMAL,
                                                            command=self.action_delay_flowchart_creation_omit_var_omit_cond_no_biderectional)
 
-        if action is 'combine':
+        if action == 'combine':
             self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                            text='Combine QMLs', state=tkinter.NORMAL,
                                                            command=self.action_combine_questionnaires)
@@ -424,7 +424,7 @@ class Window(tkinter.Frame):
 
         [self.prepare_flowcharts(key=key, output_dir=output_dir) for key in temp_list]
         count = len(self.list_of_selected_files)
-        if count is 1:
+        if count == 1:
             tkinter.messagebox.showinfo('Success', str(count) + ' flowchart has been created.')
         if count > 1:
             tkinter.messagebox.showinfo('Success', str(count) + ' flowcharts have been created.')
@@ -446,7 +446,7 @@ class Window(tkinter.Frame):
 
     def list_of_filenames_from_selection(self):
         local_list = [self.window_selection.dict_of_vars[i][0] for i in self.window_selection.dict_of_vars if
-                      self.window_selection.dict_of_vars[i][1].get() is 1]
+                      self.window_selection.dict_of_vars[i][1].get() == 1]
         self.logger.info('List of filenames from checkboxes created: ' + str(local_list))
         print('List of filenames from checkboxes created: ' + str(local_list))
         self.list_of_selected_files = local_list
@@ -498,31 +498,52 @@ class Window(tkinter.Frame):
             logger.exception('Wrong input type: ' + str(type(qml_reader_object)))
 
         details_string = ''
-        details_string += '\ntitle:\n'
+        details_string += '\n### title:\n'
         details_string += str(qml_reader_object.title)
-        details_string += '\nlist of pages: [' + str(
+        details_string += '\n### list of pages: [' + str(
             len(qml_reader_object.questionnaire.pages.list_of_all_pagenames())) + ']\n'
         details_string += str(qml_reader_object.questionnaire.pages.list_of_all_pagenames())
         details_string += '\n\n'
-        details_string += '\nvariables: [' + str(
+
+        details_string += '\n### topologically sorted list of pages:\n'
+        tmp_list_of_topologically_sorted_pages = qml_reader_object.questionnaire.return_topologically_sorted_list_of_pages()
+        if tmp_list_of_topologically_sorted_pages:
+            details_string += '\n'.join(tmp_list_of_topologically_sorted_pages)
+        else:
+            details_string += '!! Graph contains cycles and can therefore not be topologically sorted. !!'
+
+        details_string += '\n\n'
+
+
+        details_string += '\n### variables: [' + str(
             len(qml_reader_object.questionnaire.variables.list_all_vars())) + ']\n'
         details_string += str(qml_reader_object.questionnaire.variables.list_all_vars())
         details_string += '\n\n'
-        # details_string += '\nvariables extracted from declaration: [' + str(
+
+        details_string += '\n#### used variables per page:\n'
+        for page_name, page_object in qml_reader_object.questionnaire.pages.pages.items():
+            details_string += f'{page_name}\t{[var_name for var_name in page_object.variables.variables.keys()]}\n'
+
+            # details_string += '\nvariables extracted from declaration: [' + str(
         #     len(qml_reader_object.list_of_variables_from_declaration())) + ']\n'
         # details_string += str(qml_reader_object.list_of_variables_from_declaration())
         # details_string += '\n\n'
 
         tmp_list_unused_variables = qml_reader_object.questionnaire.find_unused_variables()
-        details_string += '\nunused variables:  [' + str(len(tmp_list_unused_variables)) + ']\n'
+        details_string += '\n### unused variables:  [' + str(len(tmp_list_unused_variables)) + ']\n'
         details_string += str(tmp_list_unused_variables)
         details_string += '\n\n'
+
+        details_string += '\n### shown variables per page:\n'
+        for pagename, page_object in qml_reader_object.questionnaire.pages.pages.items():
+            if page_object.variables.list_all_shown_vars():
+                details_string += f'{pagename}\t{page_object.variables.list_all_shown_vars()}\n'
 
         tmp_list_of_all_transitions = qml_reader_object.questionnaire.return_list_of_transitions(min_distance=None,
                                                                                                  max_distance=None,
                                                                                                  max_count=None)
 
-        details_string += f'\nlist of all transitions: [{str(len(tmp_list_of_all_transitions))}]\n'
+        details_string += f'\n### list of all transitions: [{str(len(tmp_list_of_all_transitions))}]\n'
         for entry in tmp_list_of_all_transitions:
             details_string += str(entry) + '\t' + str(entry.condition) + '\n'
         # details_string += '\npages declared in data_qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
@@ -530,6 +551,26 @@ class Window(tkinter.Frame):
         # details_string += '\n\n'
         # details_string += '\npages not declared in data_qml, but mentioned in transitions:  [' + str(len(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))) + ']\n'
         # details_string += str(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))
+
+        details_string += '\n### STATA code for maxpage (topologically sorted):\n'
+        tmp_list_of_topologically_sorted_pages = qml_reader_object.questionnaire.return_topologically_sorted_list_of_pages()
+        if tmp_list_of_topologically_sorted_pages:
+            for i in range(len(tmp_list_of_topologically_sorted_pages)):
+                details_string += f'replace pagenum = {i} if page =="{tmp_list_of_topologically_sorted_pages[i]}"\n'
+        else:
+            details_string += '!! Graph contains cycles and can therefore not be topologically sorted. !!'
+
+        details_string += '\n\n'
+
+        details_string += '\n### STATA code for maxpage (sorted as declared in QML):\n'
+        tmp_list_of_sorted_as_declared_pages = qml_reader_object.questionnaire.pages.list_of_all_pagenames()
+        for i in range(len(tmp_list_of_sorted_as_declared_pages)):
+            details_string += f'replace pagenum = {i} if page =="{tmp_list_of_sorted_as_declared_pages[i]}"\n'
+
+
+
+
+
 
         return details_string
 

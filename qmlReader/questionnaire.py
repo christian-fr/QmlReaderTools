@@ -505,7 +505,7 @@ class Sources:
 class Variable:
     def __init__(self, varname, vartype, varplace=None):
         self.__allowed_vartypes = ['boolean', 'singleChoiceAnswerOption', 'string', 'number']
-        self.__allowed_varplaces = ['body', 'triggers', None]
+        self.__allowed_varplaces = ['body', 'triggers', 'shown', None]
         if isinstance(varname, str) and isinstance(vartype, str):
             self.varname = varname
             if vartype in self.__allowed_vartypes:
@@ -551,8 +551,11 @@ class Variables:
             dict_tmp[var.varname] = self.variables[var].vartype
         return dict_tmp
 
+    def list_all_shown_vars(self):
+        return [var.varname for var in self.variables.values() if var.varplace == 'shown']
+
     def list_all_vars(self):
-        return [var.varname for var in self.variables.values()]
+        return [var.varname for var in self.variables.values() if var.varplace != 'shown']
 
     def list_all_vartypes(self):
         return [var.vartype for var in self.variables.values()]
@@ -750,6 +753,21 @@ class Questionnaire:
                                       '%(levelname)-8s\t%(message)s')
         fh.setFormatter(fh_format)
         self.logger.addHandler(fh)
+
+    def return_topologically_sorted_list_of_pages(self) -> list:
+        self.transitions_to_nodes_edges()
+        list_of_looped_edges = []
+        for u,v in self.DiGraph.edges:
+            if u == v:
+                list_of_looped_edges.append((u,v))
+
+        for u, v in list_of_looped_edges:
+            self.DiGraph.remove_edge(u, v)
+        try:
+            return [node for node in nx.topological_sort(self.DiGraph)]
+        except nx.exception.NetworkXUnfeasible:
+            return []
+
 
     def find_unused_variables(self):
         vars_from_pages_list = []

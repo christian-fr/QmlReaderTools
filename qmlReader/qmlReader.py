@@ -11,7 +11,7 @@ import lxml
 from lxml import objectify
 import logging
 from qmlReader import questionnaire
-
+import re
 
 class QmlReader:
     """
@@ -81,21 +81,45 @@ class QmlReader:
         for pagenr in range(0, len(self.root.page)):
             tmp_pagename = self.root.page[pagenr].attrib['uid']
             if hasattr(self.root.page[pagenr], 'body'):
-                for i in self.root.page[pagenr].body.iterdescendants():
-                    if 'variable' in i.attrib:
-                        tmp_varname = i.attrib['variable']
-                        tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace(
-                            varplace='body', varname=tmp_varname)
-                        if tmp_varname not in self.questionnaire.pages.pages[
-                            tmp_pagename].variables.list_all_vars() and tmp_varname not in \
-                                self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.list_all_vars():
-                            self.questionnaire.pages.pages[tmp_pagename].variables.add_variable(tmp_var_object)
-                        else:
-                            self.logger.info(
-                                'Variable "' + str(tmp_varname) + '" already in self.variables of page "' + str(
-                                    tmp_pagename) + '". Possible duplicate.')
-                            self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.add_variable(
-                                tmp_var_object, replace=True)
+                for element in self.root.page[pagenr].body.iterdescendants():
+                    if 'variable' in element.attrib:  # ToDo: if condition added just for debugging - remove later!
+                        tmp_varname = element.attrib['variable']
+                        if tmp_varname in self.questionnaire.variables.variables.keys():
+                            tmp_var_object = self.questionnaire.variables.variables[tmp_varname].set_varplace(
+                                varplace='body', varname=tmp_varname)
+                            if tmp_varname not in self.questionnaire.pages.pages[
+                                tmp_pagename].variables.list_all_vars() and tmp_varname not in \
+                                    self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.list_all_vars():
+                                self.questionnaire.pages.pages[tmp_pagename].variables.add_variable(tmp_var_object)
+                            else:
+                                self.logger.info(
+                                    'Variable "' + str(tmp_varname) + '" already in self.variables of page "' + str(
+                                        tmp_pagename) + '". Possible duplicate.')
+                                self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.add_variable(
+                                    tmp_var_object, replace=True)
+
+            shown_var_list = self.return_list_of_shown_variables_in_objectified_element_descendants(self.root.page[pagenr])
+            for shown_variable in shown_var_list:
+                if shown_variable not in self.questionnaire.pages.pages[tmp_pagename].variables.list_all_shown_vars():
+                    self.questionnaire.pages.pages[tmp_pagename].variables.add_variable(questionnaire.Variable(varname=shown_variable, vartype='string', varplace='shown'))
+
+                # print(f'## shown: {shown_variable}')
+
+    @staticmethod
+    def return_list_of_shown_variables_in_objectified_element_descendants(
+            objectified_element: lxml.objectify.ObjectifiedElement) -> list:
+        tmp_list_text = [element for element in objectified_element.iterdescendants() if
+                         hasattr(element, 'text')]
+        tmp_list_with_actual_text = [element for element in tmp_list_text if
+                                     element.text is not None]
+        tmp_list_with_shown_variables = [element for element in tmp_list_with_actual_text if '.value}' in element.text]
+
+        results_list = []
+
+        for entry in tmp_list_with_shown_variables:
+            if isinstance(entry.text, str):
+                [results_list.append(found_string) for found_string in re.findall('\{([a-zA-Z0-9_-]+)\.value\}', entry.text) if found_string not in results_list]
+        return results_list
 
     def extract_variables_from_pages_triggers(self):
         self.logger.info("extract_variables_from_pages_triggers")
@@ -174,7 +198,8 @@ class QmlReader:
                         tmp_condition = None
 
                     self.questionnaire.pages.pages[uid].transitions.add_transitions(
-                        questionnaire.Transition(index=tmp_index, target=tmp_target, condition=tmp_condition, source=uid, distance=tmp_distance))
+                        questionnaire.Transition(index=tmp_index, target=tmp_target, condition=tmp_condition,
+                                                 source=uid, distance=tmp_distance))
 
     def extract_questions_from_pages(self):
         self.logger.info("extract_questions_from_pages")
@@ -284,7 +309,28 @@ class QmlReader:
                     pass
 
                 elif tmp_tag == 'matrixQuestionSingleChoice':
-                    pass
+                    list_of_items_aos = []
+                    list_of_elements = []
+                    for entry in element.iterdescendants():
+                        if entry.tag[entry.tag.rfind('}') + 1:] == 'item':
+                            list_of_elements.append(entry)
+
+                    for item in list_of_elements:
+                        list_of_answeroptions = []
+                        for item_element in item.iterdescendants():
+                            print('444')
+                            if item_element.tag[item_element.tag.rfind('}') + 1:] == 'answerOption':
+                                tmp_value = None
+                                if 'label' in item_element.attrib:
+                                    tmp_value = item_element.attrib['label']
+                                list_of_answeroptions.append(tmp_value)
+                        list_of_items_aos.append(tuple(list_of_answeroptions))
+
+                    if list_of_items_aos:
+                        if len(set(list_of_items_aos)) != 1:
+                            print(page_uid)
+                    print(list_of_items_aos)
+
 
                 elif tmp_tag == 'multipleChoice':
                     pass
@@ -298,14 +344,41 @@ class QmlReader:
                 elif tmp_tag == 'questionSingleChoice':
                     pass
 
-                    # ToDo
-                    ## self.questionnaire.pages.pages[page_uid].questions.add_question_object()
-
-                    (self.extract_question_header_from_qml_element_source(element, page_uid))
+                    # a = self.find_tag_in_descendants(element, 'responseDomain')
+                    # b = self.find_attribute_in_descendants(element, 'responseDomain', 'type', 'dropDown')
+                    # # ToDo
+                    # ## self.questionnaire.pages.pages[page_uid].questions.add_question_object()
+                    #
+                    # (self.extract_question_header_from_qml_element_source(element, page_uid))
                 if tmp_tag == 'section':
                     pass
 
         pass
+
+    @staticmethod
+    def find_tag_in_descendants(objectified_xml_element: lxml.objectify.ObjectifiedElement, tag_str: str) -> bool:
+        found_element_bool = False
+        y = []
+        for entry in objectified_xml_element.iterdescendants():
+            if entry.tag[entry.tag.rfind('}') + 1:] == tag_str:
+                found_element_bool = True
+        return found_element_bool
+
+    @staticmethod
+    def find_attribute_in_descendants(objectified_xml_element: lxml.objectify.ObjectifiedElement, tag_str: str,
+                                      attribute_str: str, value_str: str) -> bool:
+        found_element_bool = False
+        y = []
+        for entry in objectified_xml_element.iterdescendants():
+            if entry.tag[entry.tag.rfind('}') + 1:] == tag_str:
+                y.append(entry)
+
+        for entry in y:
+            if hasattr(y[0], tag_str) is True:
+                if attribute_str in entry.attrib:
+                    if entry.attrib[attribute_str] == value_str:
+                        found_element_bool = True
+        return found_element_bool
 
     @staticmethod
     def find_question_type_class_to_tag_string(string):
