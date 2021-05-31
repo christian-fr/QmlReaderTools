@@ -514,7 +514,6 @@ class Window(tkinter.Frame):
 
         details_string += '\n\n'
 
-
         details_string += '\n### variables: [' + str(
             len(qml_reader_object.questionnaire.variables.list_all_vars())) + ']\n'
         details_string += str(qml_reader_object.questionnaire.variables.list_all_vars())
@@ -553,34 +552,35 @@ class Window(tkinter.Frame):
         # details_string += str(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))
 
         details_string += '\n### STATA code for maxpage (topologically sorted):\n'
+        details_string += '''*********************************************************************\n*_______________ XXXXX BEFRAGUNG (JAHR) ___________\nglobal version "XXXXX JAHR-MONAT-TAG"\nglobal workdir "XXXXX P:\Zofar\Promoviertenpanel\ORDNER\"	\nglobal orig "XXXXX ${workdir}orig\\${version}\"\nglobal out "XXXXX ${workdir}lieferung\BEFRAGUNG\${version}\"\n\n//log using "${workdir}maxpage-aufbereitung.smcl", replace\ncd "${workdir}doc"\ncap log close\nlog using maxpage-aufbereitung_`: di %tdCY-N-D daily("$S_DATE", "DMY")', replace\n\n\n****************************************************************************\n** Projekt/ Studie: XXXXX BEFRAGUNG\n** Erstellung: XXXXX AUTOR*IN\n** Erstelldatum: XXXXX TAG.MONAT.JAHR\n** Rohdaten: history.csv \n** Datensatz-Ergebnis: \n************** XXXXX INPUT-DATEI\n** Log File:   maxpage-aufbereitung_.smcl\n*************************************************************************\nset more off					// Anzeige wird nicht unterbrochen\nclear						// löscht die Daten im Memory\n\n*________Rohdaten importieren___________________\nimport delimited "${orig}history.csv", clear\n\n*__________Fragebogenseiten nummerieren___________\n// Alle Seiten mit nichtnumerischer Bezeichnung (zusätzlich zu "index" und "end")\n// müssen manuell nachkodiert werden (siehe replace-command)\ngen pagenum=.\n'''
         tmp_list_of_topologically_sorted_pages = qml_reader_object.questionnaire.return_topologically_sorted_list_of_pages()
         if tmp_list_of_topologically_sorted_pages:
             for i in range(len(tmp_list_of_topologically_sorted_pages)):
                 details_string += f'replace pagenum = {i} if page =="{tmp_list_of_topologically_sorted_pages[i]}"\n'
 
-            details_string += '\n\n'
+            details_string += '\n\ntab pagenum, miss\nlabel var pagenum "Nummer der  Fragebogenseite"\n'
             details_string += 'label define pagenumlb '
             for i in range(len(tmp_list_of_topologically_sorted_pages)):
                 details_string += f' {i} "{tmp_list_of_topologically_sorted_pages[i]}"'
-            details_string += 'label val pagenum pagenumlb'
+            details_string += '\nlabel val pagenum pagenumlb\n'
+            details_string += '*__________maximaler Fragebogenfortschritt___________\nsort participant_id id, stable\nbysort participant_id: egen maxpage = max(pagenum)\nlabel var maxpage "maximaler Fortschritt im Fragebogen"\n\n*________überflüssige Variablen löschen____________________\ndrop timestamp page\n\n\n*________Datensatz aggregieren____________________\n// maximaler Wert der Seitennummer, letzter Token, Mittelwert des maximalen Seitenfortschrittes\nsort id\ncollapse (last) token (max) pagenum (mean)  maxpage , by(participant_id)\n\ntab token if maxpage!=pagenum\nlabel val maxpage pagenumlb\ndrop pagenum\n\n\n*________Datensatz speichern____________________\nsave "XXXXX ${out}csv\OUTPUT_DATEI.dta", replace\n\nlog close'
         else:
             details_string += '!! Graph contains cycles and can therefore not be topologically sorted. !!'
 
         details_string += '\n\n'
 
         details_string += '\n### STATA code for maxpage (sorted as declared in QML):\n'
+        details_string += '''*********************************************************************\n*_______________ XXXXX BEFRAGUNG (JAHR) ___________\nglobal version "XXXXX JAHR-MONAT-TAG"\nglobal workdir "XXXXX P:\Zofar\Promoviertenpanel\ORDNER\"	\nglobal orig "XXXXX ${workdir}orig\\${version}\"\nglobal out "XXXXX ${workdir}lieferung\BEFRAGUNG\${version}\"\n\n//log using "${workdir}maxpage-aufbereitung.smcl", replace\ncd "${workdir}doc"\ncap log close\nlog using maxpage-aufbereitung_`: di %tdCY-N-D daily("$S_DATE", "DMY")', replace\n\n\n****************************************************************************\n** Projekt/ Studie: XXXXX BEFRAGUNG\n** Erstellung: XXXXX AUTOR*IN\n** Erstelldatum: XXXXX TAG.MONAT.JAHR\n** Rohdaten: history.csv \n** Datensatz-Ergebnis: \n************** XXXXX INPUT-DATEI\n** Log File:   maxpage-aufbereitung_.smcl\n*************************************************************************\nset more off					// Anzeige wird nicht unterbrochen\nclear						// löscht die Daten im Memory\n\n*________Rohdaten importieren___________________\nimport delimited "${orig}history.csv", clear\n\n*__________Fragebogenseiten nummerieren___________\n// Alle Seiten mit nichtnumerischer Bezeichnung (zusätzlich zu "index" und "end")\n// müssen manuell nachkodiert werden (siehe replace-command)\ngen pagenum=.\n'''
         tmp_list_of_sorted_as_declared_pages = qml_reader_object.questionnaire.pages.list_of_all_pagenames()
         for i in range(len(tmp_list_of_sorted_as_declared_pages)):
             details_string += f'replace pagenum = {i} if page =="{tmp_list_of_sorted_as_declared_pages[i]}"\n'
-        details_string += '\n\n'
+        details_string += 'label var pagenum "Nummer der Fragebogenseite"'
+        details_string += '\n\ntab pagenum, miss\nlabel var pagenum "Nummer der  Fragebogenseite"\n'
         details_string += 'label define pagenumlb '
         for i in range(len(tmp_list_of_sorted_as_declared_pages)):
             details_string += f' {i} "{tmp_list_of_sorted_as_declared_pages[i]}"'
-        details_string += 'label val pagenum pagenumlb'
-
-
-
-
+        details_string += '\nlabel val pagenum pagenumlb\n'
+        details_string += '*__________maximaler Fragebogenfortschritt___________\nsort participant_id id, stable\nbysort participant_id: egen maxpage = max(pagenum)\nlabel var maxpage "maximaler Fortschritt im Fragebogen"\n\n*________überflüssige Variablen löschen____________________\ndrop timestamp page\n\n\n*________Datensatz aggregieren____________________\n// maximaler Wert der Seitennummer, letzter Token, Mittelwert des maximalen Seitenfortschrittes\nsort id\ncollapse (last) token (max) pagenum (mean)  maxpage , by(participant_id)\n\ntab token if maxpage!=pagenum\nlabel val maxpage pagenumlb\ndrop pagenum\n\n\n*________Datensatz speichern____________________\nsave "XXXXX ${out}csv\OUTPUT_DATEI.dta", replace\n\nlog close'
 
         return details_string
 
