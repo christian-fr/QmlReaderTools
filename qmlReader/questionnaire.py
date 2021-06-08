@@ -494,12 +494,15 @@ class Transitions:
 
 class Sources:
     def __init__(self):
-        self.sources = []
+        self.sources = {}
 
-    def add_source(self, source):
-        assert isinstance(source, str)
-        if source not in self.sources:
-            self.sources.append(source)
+    def add_source(self, transition_object: Transition):
+        assert isinstance(transition_object, Transition)
+
+        if transition_object.source not in self.sources:
+            self.sources[transition_object.source] = [transition_object]
+        else:
+            self.sources[transition_object.source].append(transition_object)
 
 
 class Variable:
@@ -632,6 +635,41 @@ class QmlPages:
             tmp_list.append(key)
         return tmp_list
 
+    def return_list_of_pagenames_with_condition_false(self) -> list:
+        tmp_list = []
+        for page_uid, page_object in self.pages.items():
+            for source_uid, transition_list in page_object.sources.sources.items():
+                for entry in transition_list:
+                    if entry.condition == 'false':
+                        if page_uid not in tmp_list:
+                            tmp_list.append(page_uid)
+        return tmp_list
+
+    def return_list_of_pagenames_with_only_condition_false(self) -> list:
+        tmp_list_of_pagenames_with_condition_false = self.return_list_of_pagenames_with_condition_false()
+        tmp_list = []
+
+        # iterate through all pages
+        for page_uid, page_object in self.pages.items():
+            # continue on next loop if page is not in list of pages with transition condition == false
+            if page_uid not in tmp_list_of_pagenames_with_condition_false:
+                continue
+
+            # initiate a flag
+            flag_non_false_transition = False
+
+            # iterate through all sources Transition objects of this page
+            for source_uid, transition_list in page_object.sources.sources.items():
+                # iterate through all sources within list:
+                for entry in transition_list:
+                    # set flag = True if at least one condition is not 'false'
+                    if entry.condition != 'false':
+                        flag_non_false_transition = True
+            if not flag_non_false_transition:
+                tmp_list.append(page_uid)
+
+        return tmp_list
+
 
 class DuplicateVariables(Variables):
     def __init__(self):
@@ -757,9 +795,9 @@ class Questionnaire:
     def return_topologically_sorted_list_of_pages(self) -> list:
         self.transitions_to_nodes_edges_no_additional_node_label()
         list_of_looped_edges = []
-        for u,v in self.DiGraph.edges:
+        for u, v in self.DiGraph.edges:
             if u == v:
-                list_of_looped_edges.append((u,v))
+                list_of_looped_edges.append((u, v))
 
         for u, v in list_of_looped_edges:
             self.DiGraph.remove_edge(u, v)
@@ -767,7 +805,6 @@ class Questionnaire:
             return [node for node in nx.topological_sort(self.DiGraph)]
         except nx.exception.NetworkXUnfeasible:
             return []
-
 
     def find_unused_variables(self):
         vars_from_pages_list = []
@@ -788,7 +825,8 @@ class Questionnaire:
                                                 page.transitions.transitions.items()]
         return list_of_all_transitions
 
-    def return_list_of_transitions(self, min_distance: int = None, max_distance: int = 0, max_count: int = None, sort: bool = True,
+    def return_list_of_transitions(self, min_distance: int = None, max_distance: int = 0, max_count: int = None,
+                                   sort: bool = True,
                                    sort_key: str = 'distance') -> list:
         assert isinstance(min_distance, int) or min_distance is None
         assert isinstance(max_distance, int) or max_distance is None
@@ -799,7 +837,7 @@ class Questionnaire:
         if min_distance is None:
             min_distance = float('-inf')  # set value to negative infinity
         if max_distance is None:
-            max_distance = float('inf')   # set value to positive infinity
+            max_distance = float('inf')  # set value to positive infinity
         tmp_transitions_list = self.return_list_of_all_transitions()
 
         if sort:

@@ -277,25 +277,25 @@ class Window(tkinter.Frame):
             for key in self.dict_of_qmls:
                 self.dict_of_questionnaires[key] = self.dict_of_qmls[key].questionnaire
 
-    """
-    def read_into_page_objects(self, key_page, page):
-                string_pagename = key_page
-                dict_of_transitions = self.dict_of_qmls[key_page].dict_of_transitions[page]
-                dict_of_sources = self.dict_of_qmls[key_page].dict_of_sources[page]
-                list_of_variables = None
-                question_string = None
-                instruction_string = None
-                title_string = None
-                temp_page = Questionnaire.QmlPage(string_pagename=string_pagename,
-                                                  dict_of_transitions=dict_of_transitions,
-                                                  dict_of_sources=dict_of_sources,
-                                                  list_of_variables=list_of_variables,
-                                                  question_string=question_string,
-                                                  instruction_string=instruction_string,
-                                                  title_string=title_string)
-        
-                self.dict_of_questionnaires[key_page].add_page(temp_page)
-    """
+
+    # def read_into_page_objects(self, key_page, page):
+    #             string_pagename = key_page
+    #             dict_of_transitions = self.dict_of_qmls[key_page].dict_of_transitions[page]
+    #             dict_of_sources = self.dict_of_qmls[key_page].dict_of_sources[page]
+    #             list_of_variables = None
+    #             question_string = None
+    #             instruction_string = None
+    #             title_string = None
+    #             temp_page = Questionnaire.QmlPage(string_pagename=string_pagename,
+    #                                               dict_of_transitions=dict_of_transitions,
+    #                                               dict_of_sources=dict_of_sources,
+    #                                               list_of_variables=list_of_variables,
+    #                                               question_string=question_string,
+    #                                               instruction_string=instruction_string,
+    #                                               title_string=title_string)
+    #
+    #             self.dict_of_questionnaires[key_page].add_page(temp_page)
+    #
 
     def run_qml_details_dialogue(self):
         self.selection_dialogue('details')
@@ -554,6 +554,11 @@ class Window(tkinter.Frame):
         details_string += '\n### STATA code for maxpage (topologically sorted):\n'
         details_string += '''*********************************************************************\n*_______________ XXXXX BEFRAGUNG (JAHR) ___________\nglobal version "XXXXX JAHR-MONAT-TAG"\nglobal workdir "XXXXX P:\Zofar\Promoviertenpanel\ORDNER\"	\nglobal orig "XXXXX ${workdir}orig\\${version}\"\nglobal out "XXXXX ${workdir}lieferung\BEFRAGUNG\${version}\"\n\n//log using "${workdir}maxpage-aufbereitung.smcl", replace\ncd "${workdir}doc"\ncap log close\nlog using maxpage-aufbereitung_`: di %tdCY-N-D daily("$S_DATE", "DMY")', replace\n\n\n****************************************************************************\n** Projekt/ Studie: XXXXX BEFRAGUNG\n** Erstellung: XXXXX AUTOR*IN\n** Erstelldatum: XXXXX TAG.MONAT.JAHR\n** Rohdaten: history.csv \n** Datensatz-Ergebnis: \n************** XXXXX INPUT-DATEI\n** Log File:   maxpage-aufbereitung_.smcl\n*************************************************************************\nset more off					// Anzeige wird nicht unterbrochen\nclear						// löscht die Daten im Memory\n\n*________Rohdaten importieren___________________\nimport delimited "${orig}history.csv", clear\n\n*__________Fragebogenseiten nummerieren___________\n// Alle Seiten mit nichtnumerischer Bezeichnung (zusätzlich zu "index" und "end")\n// müssen manuell nachkodiert werden (siehe replace-command)\ngen pagenum=.\n'''
         tmp_list_of_topologically_sorted_pages = qml_reader_object.questionnaire.return_topologically_sorted_list_of_pages()
+
+        for entry in qml_reader_object.questionnaire.pages.return_list_of_pagenames_with_only_condition_false():
+            if entry in tmp_list_of_topologically_sorted_pages:
+                tmp_list_of_topologically_sorted_pages.remove(entry)
+
         if tmp_list_of_topologically_sorted_pages:
             for i in range(len(tmp_list_of_topologically_sorted_pages)):
                 details_string += f'replace pagenum = {i} if page =="{tmp_list_of_topologically_sorted_pages[i]}"\n'
@@ -572,6 +577,12 @@ class Window(tkinter.Frame):
         details_string += '\n### STATA code for maxpage (sorted as declared in QML):\n'
         details_string += '''*********************************************************************\n*_______________ XXXXX BEFRAGUNG (JAHR) ___________\nglobal version "XXXXX JAHR-MONAT-TAG"\nglobal workdir "XXXXX P:\Zofar\Promoviertenpanel\ORDNER\"	\nglobal orig "XXXXX ${workdir}orig\\${version}\"\nglobal out "XXXXX ${workdir}lieferung\BEFRAGUNG\${version}\"\n\n//log using "${workdir}maxpage-aufbereitung.smcl", replace\ncd "${workdir}doc"\ncap log close\nlog using maxpage-aufbereitung_`: di %tdCY-N-D daily("$S_DATE", "DMY")', replace\n\n\n****************************************************************************\n** Projekt/ Studie: XXXXX BEFRAGUNG\n** Erstellung: XXXXX AUTOR*IN\n** Erstelldatum: XXXXX TAG.MONAT.JAHR\n** Rohdaten: history.csv \n** Datensatz-Ergebnis: \n************** XXXXX INPUT-DATEI\n** Log File:   maxpage-aufbereitung_.smcl\n*************************************************************************\nset more off					// Anzeige wird nicht unterbrochen\nclear						// löscht die Daten im Memory\n\n*________Rohdaten importieren___________________\nimport delimited "${orig}history.csv", clear\n\n*__________Fragebogenseiten nummerieren___________\n// Alle Seiten mit nichtnumerischer Bezeichnung (zusätzlich zu "index" und "end")\n// müssen manuell nachkodiert werden (siehe replace-command)\ngen pagenum=.\n'''
         tmp_list_of_sorted_as_declared_pages = qml_reader_object.questionnaire.pages.list_of_all_pagenames()
+
+        for entry in qml_reader_object.questionnaire.pages.return_list_of_pagenames_with_only_condition_false():
+            if entry in tmp_list_of_sorted_as_declared_pages:
+                tmp_list_of_sorted_as_declared_pages.remove(entry)
+
+
         for i in range(len(tmp_list_of_sorted_as_declared_pages)):
             details_string += f'replace pagenum = {i} if page =="{tmp_list_of_sorted_as_declared_pages[i]}"\n'
         details_string += 'label var pagenum "Nummer der Fragebogenseite"'

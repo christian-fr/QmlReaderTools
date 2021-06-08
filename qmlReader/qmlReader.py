@@ -13,6 +13,7 @@ import logging
 from qmlReader import questionnaire
 import re
 
+
 class QmlReader:
     """
     Class for Reading and extracting elements from QML-Files.
@@ -98,10 +99,12 @@ class QmlReader:
                                 self.questionnaire.pages.pages[tmp_pagename].duplicate_variables.add_variable(
                                     tmp_var_object, replace=True)
 
-            shown_var_list = self.return_list_of_shown_variables_in_objectified_element_descendants(self.root.page[pagenr])
+            shown_var_list = self.return_list_of_shown_variables_in_objectified_element_descendants(
+                self.root.page[pagenr])
             for shown_variable in shown_var_list:
                 if shown_variable not in self.questionnaire.pages.pages[tmp_pagename].variables.list_all_shown_vars():
-                    self.questionnaire.pages.pages[tmp_pagename].variables.add_variable(questionnaire.Variable(varname=shown_variable, vartype='string', varplace='shown'))
+                    self.questionnaire.pages.pages[tmp_pagename].variables.add_variable(
+                        questionnaire.Variable(varname=shown_variable, vartype='string', varplace='shown'))
 
                 # print(f'## shown: {shown_variable}')
 
@@ -118,7 +121,8 @@ class QmlReader:
 
         for entry in tmp_list_with_shown_variables:
             if isinstance(entry.text, str):
-                [results_list.append(found_string) for found_string in re.findall('\{([a-zA-Z0-9_-]+)\.value\}', entry.text) if found_string not in results_list]
+                [results_list.append(found_string) for found_string in
+                 re.findall('\{([a-zA-Z0-9_-]+)\.value\}', entry.text) if found_string not in results_list]
         return results_list
 
     def extract_variables_from_pages_triggers(self):
@@ -197,9 +201,15 @@ class QmlReader:
                     else:
                         tmp_condition = None
 
-                    self.questionnaire.pages.pages[uid].transitions.add_transitions(
-                        questionnaire.Transition(index=tmp_index, target=tmp_target, condition=tmp_condition,
-                                                 source=uid, distance=tmp_distance))
+                    tmp_transition_object = questionnaire.Transition(index=tmp_index,
+                                                                     target=tmp_target,
+                                                                     condition=tmp_condition,
+                                                                     source=uid,
+                                                                     distance=tmp_distance)
+                    self.questionnaire.pages.pages[uid].transitions.add_transitions(tmp_transition_object)
+
+                    # add transition to sources for each page
+                    self.questionnaire.pages.pages[tmp_target].sources.add_source(tmp_transition_object)
 
     def extract_questions_from_pages(self):
         self.logger.info("extract_questions_from_pages")
