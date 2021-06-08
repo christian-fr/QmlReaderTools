@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "MIT"
-__version__ = "0.3.3"
+__version__ = "0.3.4"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
