@@ -779,6 +779,7 @@ class Questionnaire:
         self.pgv_graph = None
         self.variables = Variables()
         self.pages = QmlPages()
+        self.details = None
 
     def startup_logger(self, log_level=logging.DEBUG):
         """

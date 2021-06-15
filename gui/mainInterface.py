@@ -11,6 +11,20 @@ from tkinter import filedialog, scrolledtext, IntVar, messagebox
 from os import listdir
 import os.path
 import logging
+import configparser
+
+
+class QmlDetails(dict):
+    def __init__(self):
+        super(QmlDetails, self).__init__()
+
+    def __str__(self):
+        tmp_str = ''
+        for key, val in self.items():
+            tmp_str += '\n\n'
+            tmp_str += '### ' + str(key) + '\n\n'
+            tmp_str += str(val)
+        return tmp_str
 
 
 class Window(tkinter.Frame):
@@ -18,7 +32,7 @@ class Window(tkinter.Frame):
     main application
     """
 
-    def __init__(self, master=None):
+    def __init__(self, config_object: configparser.ConfigParser, master=None):
         self.window_selection = None
         self.logger = logging.getLogger('debug')
         self.startup_logger(log_level=logging.DEBUG)
@@ -35,6 +49,8 @@ class Window(tkinter.Frame):
         self.list_of_selected_files = []
         menu = tkinter.Menu(self.master)
         self.master.config(menu=menu)
+
+        self.config = config_object
 
         file_menu = tkinter.Menu(menu, tearoff=False)
         file_menu.add_command(label="Import File", command=self.load_files)
@@ -224,7 +240,7 @@ class Window(tkinter.Frame):
 
     def open_files(self, filetypes):
         self.logger.info('starting file dialog askopenfilenames')
-        return list(filedialog.askopenfilenames(filetypes=filetypes))
+        return list(filedialog.askopenfilenames(filetypes=filetypes, initialdir=self.config.get('paths', 'workspace')))
 
     def open_dir(self):
         self.logger.info('starting file dialog askdirectory')
@@ -276,7 +292,6 @@ class Window(tkinter.Frame):
         for page in self.dict_of_qmls[key].list_of_pages():
             for key in self.dict_of_qmls:
                 self.dict_of_questionnaires[key] = self.dict_of_qmls[key].questionnaire
-
 
     # def read_into_page_objects(self, key_page, page):
     #             string_pagename = key_page
@@ -339,18 +354,42 @@ class Window(tkinter.Frame):
                                                            text='--', state=tkinter.NORMAL,
                                                            command=None)
 
+            self.window_selection.button4 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+                                                           text='--', state=tkinter.NORMAL,
+                                                           command=None)
+
+            self.window_selection.button5 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+                                                           text='--', state=tkinter.NORMAL,
+                                                           command=None)
+
+            self.window_selection.button6 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+                                                           text='--', state=tkinter.NORMAL,
+                                                           command=None)
+
         if action == 'flowchart':
-            self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
+            self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=20, height=2,
                                                            text='Flowchart(s)\nw/ var & cond', state=tkinter.NORMAL,
                                                            command=self.action_delay_flowchart_creation_show_var_show_cond_create_biderectional)
 
-            self.window_selection.button2 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
+            self.window_selection.button2 = tkinter.Button(self.window_selection.canvas2, width=20, height=2,
                                                            text='Flowchart(s)\nw/o var, w/ cond', state=tkinter.NORMAL,
                                                            command=self.action_delay_flowchart_creation_omit_var_show_cond_no_biderectional)
 
-            self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=20, height=1,
+            self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=20, height=2,
                                                            text='Flowchart(s)\nw/o var & cond', state=tkinter.NORMAL,
                                                            command=self.action_delay_flowchart_creation_omit_var_omit_cond_no_biderectional)
+
+            self.window_selection.button4 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+                                                           text='--', state=tkinter.NORMAL,
+                                                           command=None)
+
+            self.window_selection.button5 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+                                                           text='--', state=tkinter.NORMAL,
+                                                           command=None)
+
+            self.window_selection.button6 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+                                                           text='--', state=tkinter.NORMAL,
+                                                           command=None)
 
         if action == 'combine':
             self.window_selection.button1 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
@@ -365,13 +404,28 @@ class Window(tkinter.Frame):
                                                            text='--', state=tkinter.NORMAL,
                                                            command=None)
 
-        self.window_selection.button4 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+            self.window_selection.button4 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+                                                           text='--', state=tkinter.NORMAL,
+                                                           command=None)
+
+            self.window_selection.button5 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+                                                           text='--', state=tkinter.NORMAL,
+                                                           command=None)
+
+            self.window_selection.button6 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+                                                           text='--', state=tkinter.NORMAL,
+                                                           command=None)
+
+        self.window_selection.button7 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
                                                        text='Close', state=tkinter.NORMAL,
                                                        command=self.window_selection.destroy)
         self.window_selection.button1.grid(row=0, column=2, padx=0, sticky='NE')
         self.window_selection.button2.grid(row=1, column=2, padx=0, sticky='NE')
         self.window_selection.button3.grid(row=2, column=2, padx=0, sticky='NE')
         self.window_selection.button4.grid(row=3, column=2, padx=0, sticky='NE')
+        self.window_selection.button5.grid(row=4, column=2, padx=0, sticky='NE')
+        self.window_selection.button6.grid(row=5, column=2, padx=0, sticky='NE')
+        self.window_selection.button7.grid(row=6, column=2, padx=0, sticky='NE')
 
     @staticmethod
     def do_nothing():
@@ -450,7 +504,7 @@ class Window(tkinter.Frame):
         self.logger.info('List of filenames from checkboxes created: ' + str(local_list))
         print('List of filenames from checkboxes created: ' + str(local_list))
         self.list_of_selected_files = local_list
-        self.window_selection.details_string = self.details_preparation(local_list)
+        self.window_selection.details_string_dict = self.details_preparation(local_list)
 
     def action_details_show(self):
         self.logger.info('clicked on "details"')
@@ -459,51 +513,95 @@ class Window(tkinter.Frame):
         for checkbox in self.window_selection.checkbox_list:
             checkbox.destroy()
         self.window_selection.button1.config(state=tkinter.DISABLED)
-        self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=10, height=1,
+        self.window_selection.button3 = tkinter.Button(self.window_selection.canvas2, width=10, height=2,
                                                        text='Save as...', state=tkinter.NORMAL,
                                                        command=self.details_write_file)
         self.window_selection.button3.grid(row=0, column=2, padx=0, pady=0, sticky='NE')
 
+        self.window_selection.button4 = tkinter.Button(self.window_selection.canvas2, width=10, height=2,
+                                                       text='Save Stata\ntopologically', state=tkinter.NORMAL,
+                                                       command=self.details_write_stata_topologically)
+        self.window_selection.button4.grid(row=2, column=2, padx=0, pady=0, sticky='NE')
+
+        self.window_selection.button5 = tkinter.Button(self.window_selection.canvas2, width=10, height=2,
+                                                       text='Save Stata\ndeclared', state=tkinter.NORMAL,
+                                                       command=self.details_write_stata_declared)
+        self.window_selection.button5.grid(row=4, column=2, padx=0, pady=0, sticky='NE')
+
         self.window_selection.text1 = scrolledtext.ScrolledText(self.window_selection, width=80, height=25)
         self.window_selection.text1.grid(row=0, column=0, sticky='W')
-        self.window_selection.text1.insert(tkinter.END, self.window_selection.details_string)
+        self.window_selection.text1.insert(tkinter.END, self.window_selection.details_string_dict)
         self.window_selection.text1.config(state=tkinter.NORMAL)
+
+    def details_write_stata_topologically(self):
+        self.logger.info('"save stata topologically" dialog starts')
+        fullpath = tkinter.filedialog.asksaveasfilename(initialdir=self.config.get('paths', 'faust_out'),
+                                                        defaultextension='.txt',
+                                                        confirmoverwrite=True,
+                                                        filetypes=[("Stata Do-Files", "*.do")],
+                                                        initialfile='maxpage_.do')
+        self.logger.info('chosen full path: ' + str(fullpath))
+        with open(fullpath, 'w') as file:
+            # ToDo 2021-06-15: needs fixing, does not yet save only the stata string to a file
+            # ToDo 2021-06-15: needs restructuring, maybe a separate details class containing all relevant information that is stored within
+            #  self.dict_of_questionnaires[questionnaire_filename].details
+            # ToDo 2021-06-15: restructuring so that the output of multiple questionnaire details are possible (maybe subsequently, one askfilesave at a time
+            file.writelines(self.window_selection.details_string_dict['stata_maxpage_topologically'])
+
+    def details_write_stata_declared(self):
+        pass
 
     # ToDo: disentangle from method "list_of_filenames_from_selection"
     def details_preparation(self, list_of_fullpaths):
         list_of_filenames = [os.path.split(file)[1] for file in list_of_fullpaths]
-        return '\n\n###########################################\n\n'.join(
-            ['filename: ' + str(key) + '\n\n' + self.details_prepare_from_qml(self.dict_of_qmls[key], self.logger) for
-             key in self.dict_of_qmls if
-             key in list_of_filenames])
+
+        tmp_return_string = ''
+        for filename in list_of_filenames:
+            details_object = self.details_prepare_from_qml(self.dict_of_qmls[filename])
+            tmp_return_string += '\n\n###########################################\n\n'
+            tmp_return_string += 'filename: ' + str(filename) + '\n\n' + str(details_object)
+
+        # add details_object to questionnaire
+        for filename in self.dict_of_questionnaires.keys():
+            self.dict_of_questionnaires[filename].details = details_object
+
+        return tmp_return_string
 
     def details_write_file(self):
         self.logger.info('"save as" dialog starts')
         fullpath = tkinter.filedialog.asksaveasfilename(defaultextension='.txt', confirmoverwrite=True)
         self.logger.info('chosen full path: ' + str(fullpath))
         with open(fullpath, 'w') as file:
-            file.writelines(self.window_selection.details_string)
+            file.writelines(self.window_selection.details_string_dict)
 
     # ToDo (inherited from method "details_preparation"): disentangle from method "list_of_filenames_from_selection"
-    @staticmethod
-    def details_prepare_from_qml(qml_reader_object, logger):
+    def details_prepare_from_qml(self, qml_reader_object):
         """
         input: a single qml_reader_object
         :return: a string of details
         """
 
+        details_object = QmlDetails()
+
         try:
             assert isinstance(qml_reader_object, qmlReader.QmlReader)
         except AssertionError:
-            logger.exception('Wrong input type: ' + str(type(qml_reader_object)))
+            self.logger.exception('Wrong input type: ' + str(type(qml_reader_object)))
 
         details_string = ''
         details_string += '\n### title:\n'
         details_string += str(qml_reader_object.title)
+
+        details_object['title'] = str(qml_reader_object.title)
+
         details_string += '\n### list of pages: [' + str(
             len(qml_reader_object.questionnaire.pages.list_of_all_pagenames())) + ']\n'
         details_string += str(qml_reader_object.questionnaire.pages.list_of_all_pagenames())
         details_string += '\n\n'
+
+        details_object[
+            'number_of_pages'] = f'[{str(len(qml_reader_object.questionnaire.pages.list_of_all_pagenames()))}]'
+        details_object['list_of_pages'] = str(qml_reader_object.questionnaire.pages.list_of_all_pagenames())
 
         details_string += '\n### topologically sorted list of pages:\n'
         tmp_list_of_topologically_sorted_pages = qml_reader_object.questionnaire.return_topologically_sorted_list_of_pages()
@@ -512,6 +610,12 @@ class Window(tkinter.Frame):
         else:
             details_string += '!! Graph contains cycles and can therefore not be topologically sorted. !!'
 
+        if tmp_list_of_topologically_sorted_pages:
+            details_object['list_of_pages_topologically_sorted'] = str(
+                qml_reader_object.questionnaire.return_topologically_sorted_list_of_pages())
+        else:
+            details_object['list_of_pages_topologically_sorted'] = None
+
         details_string += '\n\n'
 
         details_string += '\n### variables: [' + str(
@@ -519,40 +623,64 @@ class Window(tkinter.Frame):
         details_string += str(qml_reader_object.questionnaire.variables.list_all_vars())
         details_string += '\n\n'
 
+        details_object[
+            'number_of_variables'] = f'[{str(len(qml_reader_object.questionnaire.variables.list_all_vars()))}]'
+        details_object['list_of_variables'] = str(qml_reader_object.questionnaire.variables.list_all_vars())
+
         details_string += '\n#### used variables per page:\n'
+
+        details_object['used_variables_per_page'] = ''
+
         for page_name, page_object in qml_reader_object.questionnaire.pages.pages.items():
             details_string += f'{page_name}\t{[var_name for var_name in page_object.variables.variables.keys()]}\n'
+            details_object[
+                'used_variables_per_page'] += f'{page_name}\t{[var_name for var_name in page_object.variables.variables.keys()]}\n'
 
-            # details_string += '\nvariables extracted from declaration: [' + str(
+        # details_string_dict += '\nvariables extracted from declaration: [' + str(
         #     len(qml_reader_object.list_of_variables_from_declaration())) + ']\n'
-        # details_string += str(qml_reader_object.list_of_variables_from_declaration())
-        # details_string += '\n\n'
+        # details_string_dict += str(qml_reader_object.list_of_variables_from_declaration())
+        # details_string_dict += '\n\n'
 
         tmp_list_unused_variables = qml_reader_object.questionnaire.find_unused_variables()
         details_string += '\n### unused variables:  [' + str(len(tmp_list_unused_variables)) + ']\n'
         details_string += str(tmp_list_unused_variables)
         details_string += '\n\n'
 
+        details_object['unused_variables'] = str(tmp_list_unused_variables)
+
+        details_object['shown_variables_per_page'] = ''
         details_string += '\n### shown variables per page:\n'
         for pagename, page_object in qml_reader_object.questionnaire.pages.pages.items():
             if page_object.variables.list_all_shown_vars():
                 details_string += f'{pagename}\t{page_object.variables.list_all_shown_vars()}\n'
+                details_object[
+                    'shown_variables_per_page'] += f'{pagename}\t{page_object.variables.list_all_shown_vars()}\n'
 
         tmp_list_of_all_transitions = qml_reader_object.questionnaire.return_list_of_transitions(min_distance=None,
                                                                                                  max_distance=None,
                                                                                                  max_count=None)
 
         details_string += f'\n### list of all transitions: [{str(len(tmp_list_of_all_transitions))}]\n'
+        details_object['list_of_all_transitions'] = ''
         for entry in tmp_list_of_all_transitions:
             details_string += str(entry) + '\t' + str(entry.condition) + '\n'
-        # details_string += '\npages declared in data_qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
-        # details_string += str(set(qml_reader_object.list_of_pages_declared))
-        # details_string += '\n\n'
-        # details_string += '\npages not declared in data_qml, but mentioned in transitions:  [' + str(len(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))) + ']\n'
-        # details_string += str(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))
+            details_object['list_of_all_transitions'] += str(entry) + '\t' + str(entry.condition) + '\n'
 
+        details_object['len_list_of_all_transitions'] = str(len(tmp_list_of_all_transitions))
+
+        # details_string_dict += '\npages declared in data_qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
+        # details_string_dict += str(set(qml_reader_object.list_of_pages_declared))
+        # details_string_dict += '\n\n'
+        # details_string_dict += '\npages not declared in data_qml, but mentioned in transitions:  [' + str(len(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))) + ']\n'
+        # details_string_dict += str(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))
+
+        details_object['stata_maxpage_topologically'] = '### STATA code for maxpage (topologically sorted):\n'
         details_string += '\n### STATA code for maxpage (topologically sorted):\n'
+
         details_string += '''*********************************************************************\n*_______________ XXXXX BEFRAGUNG (JAHR) ___________\nglobal version "XXXXX JAHR-MONAT-TAG"\nglobal workdir "XXXXX P:\\Zofar\\Promoviertenpanel\\ORDNER\\"	\nglobal orig "XXXXX ${workdir}orig\\${version}\\"\nglobal out "XXXXX ${workdir}\\lieferung\\BEFRAGUNG\\${version}\"\n\n//log using "${workdir}maxpage-aufbereitung.smcl", replace\ncd "${workdir}\\doc"\ncap log close\nlog using maxpage-aufbereitung_`: di %tdCY-N-D daily("$S_DATE", "DMY")', replace\n\n\n****************************************************************************\n** Projekt/ Studie: XXXXX BEFRAGUNG\n** Erstellung: XXXXX AUTOR*IN\n** Erstelldatum: XXXXX TAG.MONAT.JAHR\n** Rohdaten: history.csv \n** Datensatz-Ergebnis: \n************** XXXXX INPUT-DATEI\n** Log File:   maxpage-aufbereitung_.smcl\n*************************************************************************\nset more off					// Anzeige wird nicht unterbrochen\nclear						// löscht die Daten im Memory\n\n*________Rohdaten importieren___________________\nimport delimited "${orig}history.csv", clear\n\n*__________Fragebogenseiten nummerieren___________\n// Alle Seiten mit nichtnumerischer Bezeichnung (zusätzlich zu "index" und "end")\n// müssen manuell nachkodiert werden (siehe replace-command)\ngen pagenum=.\n'''
+        details_object[
+            'stata_maxpage_topologically'] += '''*********************************************************************\n*_______________ XXXXX BEFRAGUNG (JAHR) ___________\nglobal version "XXXXX JAHR-MONAT-TAG"\nglobal workdir "XXXXX P:\\Zofar\\Promoviertenpanel\\ORDNER\\"	\nglobal orig "XXXXX ${workdir}orig\\${version}\\"\nglobal out "XXXXX ${workdir}\\lieferung\\BEFRAGUNG\\${version}\"\n\n//log using "${workdir}maxpage-aufbereitung.smcl", replace\ncd "${workdir}\\doc"\ncap log close\nlog using maxpage-aufbereitung_`: di %tdCY-N-D daily("$S_DATE", "DMY")', replace\n\n\n****************************************************************************\n** Projekt/ Studie: XXXXX BEFRAGUNG\n** Erstellung: XXXXX AUTOR*IN\n** Erstelldatum: XXXXX TAG.MONAT.JAHR\n** Rohdaten: history.csv \n** Datensatz-Ergebnis: \n************** XXXXX INPUT-DATEI\n** Log File:   maxpage-aufbereitung_.smcl\n*************************************************************************\nset more off					// Anzeige wird nicht unterbrochen\nclear						// löscht die Daten im Memory\n\n*________Rohdaten importieren___________________\nimport delimited "${orig}history.csv", clear\n\n*__________Fragebogenseiten nummerieren___________\n// Alle Seiten mit nichtnumerischer Bezeichnung (zusätzlich zu "index" und "end")\n// müssen manuell nachkodiert werden (siehe replace-command)\ngen pagenum=.\n'''
+
         tmp_list_of_topologically_sorted_pages = qml_reader_object.questionnaire.return_topologically_sorted_list_of_pages()
 
         for entry in qml_reader_object.questionnaire.pages.return_list_of_pagenames_with_only_condition_false():
@@ -562,38 +690,75 @@ class Window(tkinter.Frame):
         if tmp_list_of_topologically_sorted_pages:
             for i in range(len(tmp_list_of_topologically_sorted_pages)):
                 details_string += f'replace pagenum = {i} if page =="{tmp_list_of_topologically_sorted_pages[i]}"\n'
+                details_object[
+                    'stata_maxpage_topologically'] += f'replace pagenum = {i} if page =="{tmp_list_of_topologically_sorted_pages[i]}"\n'
 
             details_string += '\n\ntab pagenum, miss\nlabel var pagenum "Nummer der  Fragebogenseite"\n'
+            details_object[
+                'stata_maxpage_topologically'] += '\n\ntab pagenum, miss\nlabel var pagenum "Nummer der  Fragebogenseite"\n'
+
             details_string += 'label define pagenumlb '
+            details_object['stata_maxpage_topologically'] += 'label define pagenumlb '
+
             for i in range(len(tmp_list_of_topologically_sorted_pages)):
                 details_string += f' {i} "{tmp_list_of_topologically_sorted_pages[i]}"'
+                details_object['stata_maxpage_topologically'] += f' {i} "{tmp_list_of_topologically_sorted_pages[i]}"'
+
             details_string += '\nlabel val pagenum pagenumlb\n'
+            details_object['stata_maxpage_topologically'] += '\nlabel val pagenum pagenumlb\n'
+
             details_string += '*__________maximaler Fragebogenfortschritt___________\nsort participant_id id, stable\nbysort participant_id: egen maxpage = max(pagenum)\nlabel var maxpage "maximaler Fortschritt im Fragebogen"\n\n*________überflüssige Variablen löschen____________________\ndrop timestamp page\n\n\n*________Datensatz aggregieren____________________\n// maximaler Wert der Seitennummer, letzter Token, Mittelwert des maximalen Seitenfortschrittes\nsort id\ncollapse (last) token (max) pagenum (mean)  maxpage , by(participant_id)\n\ntab token if maxpage!=pagenum\nlabel val maxpage pagenumlb\ndrop pagenum\n\n\n*________Datensatz speichern____________________\nsave "XXXXX ${out}csv\\OUTPUT_DATEI.dta", replace\n\nlog close'
+            details_object[
+                'stata_maxpage_topologically'] += '*__________maximaler Fragebogenfortschritt___________\nsort participant_id id, stable\nbysort participant_id: egen maxpage = max(pagenum)\nlabel var maxpage "maximaler Fortschritt im Fragebogen"\n\n*________überflüssige Variablen löschen____________________\ndrop timestamp page\n\n\n*________Datensatz aggregieren____________________\n// maximaler Wert der Seitennummer, letzter Token, Mittelwert des maximalen Seitenfortschrittes\nsort id\ncollapse (last) token (max) pagenum (mean)  maxpage , by(participant_id)\n\ntab token if maxpage!=pagenum\nlabel val maxpage pagenumlb\ndrop pagenum\n\n\n*________Datensatz speichern____________________\nsave "XXXXX ${out}csv\\OUTPUT_DATEI.dta", replace\n\nlog close'
+
         else:
             details_string += '!! Graph contains cycles and can therefore not be topologically sorted. !!'
+            details_object[
+                'stata_maxpage_topologically'] += '!! Graph contains cycles and can therefore not be topologically sorted. !!'
 
         details_string += '\n\n'
 
         details_string += '\n### STATA code for maxpage (sorted as declared in QML):\n'
+        details_object['stata_maxpage_declared'] = '\n### STATA code for maxpage (sorted as declared in QML):\n'
+
         details_string += '''*********************************************************************\n*_______________ XXXXX BEFRAGUNG (JAHR) ___________\nglobal version "XXXXX JAHR-MONAT-TAG"\nglobal workdir "XXXXX P:\\Zofar\\Promoviertenpanel\\ORDNER\\"	\nglobal orig "XXXXX ${workdir}orig\\${version}\\"\nglobal out "XXXXX ${workdir}\\lieferung\\BEFRAGUNG\\${version}\"\n\n//log using "${workdir}maxpage-aufbereitung.smcl", replace\ncd "${workdir}\\doc"\ncap log close\nlog using maxpage-aufbereitung_`: di %tdCY-N-D daily("$S_DATE", "DMY")', replace\n\n\n****************************************************************************\n** Projekt/ Studie: XXXXX BEFRAGUNG\n** Erstellung: XXXXX AUTOR*IN\n** Erstelldatum: XXXXX TAG.MONAT.JAHR\n** Rohdaten: history.csv \n** Datensatz-Ergebnis: \n************** XXXXX INPUT-DATEI\n** Log File:   maxpage-aufbereitung_.smcl\n*************************************************************************\nset more off					// Anzeige wird nicht unterbrochen\nclear						// löscht die Daten im Memory\n\n*________Rohdaten importieren___________________\nimport delimited "${orig}history.csv", clear\n\n*__________Fragebogenseiten nummerieren___________\n// Alle Seiten mit nichtnumerischer Bezeichnung (zusätzlich zu "index" und "end")\n// müssen manuell nachkodiert werden (siehe replace-command)\ngen pagenum=.\n'''
+        details_object[
+            'stata_maxpage_declared'] += '''*********************************************************************\n*_______________ XXXXX BEFRAGUNG (JAHR) ___________\nglobal version "XXXXX JAHR-MONAT-TAG"\nglobal workdir "XXXXX P:\\Zofar\\Promoviertenpanel\\ORDNER\\"	\nglobal orig "XXXXX ${workdir}orig\\${version}\\"\nglobal out "XXXXX ${workdir}\\lieferung\\BEFRAGUNG\\${version}\"\n\n//log using "${workdir}maxpage-aufbereitung.smcl", replace\ncd "${workdir}\\doc"\ncap log close\nlog using maxpage-aufbereitung_`: di %tdCY-N-D daily("$S_DATE", "DMY")', replace\n\n\n****************************************************************************\n** Projekt/ Studie: XXXXX BEFRAGUNG\n** Erstellung: XXXXX AUTOR*IN\n** Erstelldatum: XXXXX TAG.MONAT.JAHR\n** Rohdaten: history.csv \n** Datensatz-Ergebnis: \n************** XXXXX INPUT-DATEI\n** Log File:   maxpage-aufbereitung_.smcl\n*************************************************************************\nset more off					// Anzeige wird nicht unterbrochen\nclear						// löscht die Daten im Memory\n\n*________Rohdaten importieren___________________\nimport delimited "${orig}history.csv", clear\n\n*__________Fragebogenseiten nummerieren___________\n// Alle Seiten mit nichtnumerischer Bezeichnung (zusätzlich zu "index" und "end")\n// müssen manuell nachkodiert werden (siehe replace-command)\ngen pagenum=.\n'''
+
         tmp_list_of_sorted_as_declared_pages = qml_reader_object.questionnaire.pages.list_of_all_pagenames()
 
         for entry in qml_reader_object.questionnaire.pages.return_list_of_pagenames_with_only_condition_false():
             if entry in tmp_list_of_sorted_as_declared_pages:
                 tmp_list_of_sorted_as_declared_pages.remove(entry)
 
-
         for i in range(len(tmp_list_of_sorted_as_declared_pages)):
             details_string += f'replace pagenum = {i} if page =="{tmp_list_of_sorted_as_declared_pages[i]}"\n'
+            details_object[
+                'stata_maxpage_declared'] += f'replace pagenum = {i} if page =="{tmp_list_of_sorted_as_declared_pages[i]}"\n'
+
         details_string += 'label var pagenum "Nummer der Fragebogenseite"'
+        details_object['stata_maxpage_declared'] += 'label var pagenum "Nummer der Fragebogenseite"'
+
         details_string += '\n\ntab pagenum, miss\nlabel var pagenum "Nummer der  Fragebogenseite"\n'
+        details_object[
+            'stata_maxpage_declared'] += '\n\ntab pagenum, miss\nlabel var pagenum "Nummer der  Fragebogenseite"\n'
+
         details_string += 'label define pagenumlb '
+        details_object['stata_maxpage_declared'] += 'label define pagenumlb '
+
         for i in range(len(tmp_list_of_sorted_as_declared_pages)):
             details_string += f' {i} "{tmp_list_of_sorted_as_declared_pages[i]}"'
-        details_string += '\nlabel val pagenum pagenumlb\n'
-        details_string += '*__________maximaler Fragebogenfortschritt___________\nsort participant_id id, stable\nbysort participant_id: egen maxpage = max(pagenum)\nlabel var maxpage "maximaler Fortschritt im Fragebogen"\n\n*________überflüssige Variablen löschen____________________\ndrop timestamp page\n\n\n*________Datensatz aggregieren____________________\n// maximaler Wert der Seitennummer, letzter Token, Mittelwert des maximalen Seitenfortschrittes\nsort id\ncollapse (last) token (max) pagenum (mean)  maxpage , by(participant_id)\n\ntab token if maxpage!=pagenum\nlabel val maxpage pagenumlb\ndrop pagenum\n\n\n*________Datensatz speichern____________________\nsave "XXXXX ${out}csv\\OUTPUT_DATEI.dta", replace\n\nlog close'
+            details_object['stata_maxpage_declared'] += f' {i} "{tmp_list_of_sorted_as_declared_pages[i]}"'
 
-        return details_string
+        details_string += '\nlabel val pagenum pagenumlb\n'
+        details_object['stata_maxpage_declared'] += '\nlabel val pagenum pagenumlb\n'
+
+        details_string += '*__________maximaler Fragebogenfortschritt___________\nsort participant_id id, stable\nbysort participant_id: egen maxpage = max(pagenum)\nlabel var maxpage "maximaler Fortschritt im Fragebogen"\n\n*________überflüssige Variablen löschen____________________\ndrop timestamp page\n\n\n*________Datensatz aggregieren____________________\n// maximaler Wert der Seitennummer, letzter Token, Mittelwert des maximalen Seitenfortschrittes\nsort id\ncollapse (last) token (max) pagenum (mean)  maxpage , by(participant_id)\n\ntab token if maxpage!=pagenum\nlabel val maxpage pagenumlb\ndrop pagenum\n\n\n*________Datensatz speichern____________________\nsave "XXXXX ${out}csv\\OUTPUT_DATEI.dta", replace\n\nlog close'
+        details_object[
+            'stata_maxpage_declared'] += '*__________maximaler Fragebogenfortschritt___________\nsort participant_id id, stable\nbysort participant_id: egen maxpage = max(pagenum)\nlabel var maxpage "maximaler Fortschritt im Fragebogen"\n\n*________überflüssige Variablen löschen____________________\ndrop timestamp page\n\n\n*________Datensatz aggregieren____________________\n// maximaler Wert der Seitennummer, letzter Token, Mittelwert des maximalen Seitenfortschrittes\nsort id\ncollapse (last) token (max) pagenum (mean)  maxpage , by(participant_id)\n\ntab token if maxpage!=pagenum\nlabel val maxpage pagenumlb\ndrop pagenum\n\n\n*________Datensatz speichern____________________\nsave "XXXXX ${out}csv\\OUTPUT_DATEI.dta", replace\n\nlog close'
+
+        # return details_string
+        return details_object
 
     def run_show_page_details_dialogue(self):
         pass
