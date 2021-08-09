@@ -682,11 +682,13 @@ class Window(tkinter.Frame):
         details_string += '\n\n'
 
         tmp_str_variables_declaration_ordered_and_commented = ''
-
+        tmp_list_of_already_declared_varnames = []
         for page_name, page_object in qml_reader_object.questionnaire.pages.pages.items():
             tmp_str_variables_declaration_ordered_and_commented += f'\n<!-- {page_name} -->\n'
-            for variable_name, variable_type in page_object.variables.variables.items():
-                tmp_str_variables_declaration_ordered_and_commented += f'<zofar:variable name="{variable_name}" type="{variable_type}"/>\n'
+            for var_name, variable_object in sorted(page_object.variables.variables.items()):
+                if var_name not in tmp_list_of_already_declared_varnames:
+                    tmp_str_variables_declaration_ordered_and_commented += f'\t\t<zofar:variable name="{var_name}" type="{variable_object.vartype}"/>\n'
+                    tmp_list_of_already_declared_varnames.append(var_name)
 
         details_string += tmp_str_variables_declaration_ordered_and_commented
 
