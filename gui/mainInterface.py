@@ -1,7 +1,7 @@
 __author__ = "Christian Friedrich"
 __maintainer__ = "Christian Friedrich"
 __license__ = "MIT"
-__version__ = "0.3.4"
+__version__ = "0.3.5"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
@@ -12,6 +12,9 @@ from os import listdir
 import os.path
 import logging
 import configparser
+import argparse
+from typing import Union, Optional
+from pathlib import Path
 
 
 class QmlDetails(dict):
@@ -32,7 +35,7 @@ class Window(tkinter.Frame):
     main application
     """
 
-    def __init__(self, config_object: configparser.ConfigParser, master=None):
+    def __init__(self, config_object: configparser.ConfigParser, args_object: argparse.Namespace, master=None):
         self.window_selection = None
         self.logger = logging.getLogger('debug')
         self.startup_logger(log_level=logging.DEBUG)
@@ -49,6 +52,14 @@ class Window(tkinter.Frame):
         self.list_of_selected_files = []
         menu = tkinter.Menu(self.master)
         self.master.config(menu=menu)
+
+        # initialize initial directory and file
+        self.initial_directory_to_load, self.initial_file_to_load = None, None
+        # set initial directory and file
+        if hasattr(args_object, 'indirectory'):
+            self.initial_directory_to_load = args_object.indirectory
+        if hasattr(args_object, 'infile'):
+            self.initial_file_to_load = args_object.infile
 
         self.config = config_object
 
@@ -131,6 +142,14 @@ class Window(tkinter.Frame):
                                        command=self.open_path)
         self.button10.grid(row=7, column=2, sticky='N')
         self.__button_dict['open_path'] = self.button10
+
+        if self.initial_file_to_load:
+            self.load_files(initial_file=self.initial_file_to_load)
+        elif self.initial_directory_to_load:
+            self.load_dir(initial_dir=self.initial_directory_to_load)
+
+        if self.initial_file_to_load or self.initial_directory_to_load:
+            self.run_qml_reader()
 
     def open_path(self):
         path = os.path.realpath(self.dirText)
@@ -217,8 +236,14 @@ class Window(tkinter.Frame):
         temp_files.sort()
         return temp_files
 
-    def load_files(self, filetypes=(("xml files", "*.xml"), ("all files", "*.*"))):
-        temp_files = self.open_files(filetypes=filetypes)
+    def load_files(self,
+                   filetypes=(("xml files", "*.xml"), ("all files", "*.*")),
+                   initial_file: Union[Path, str, None] = None):
+        if initial_file:
+            temp_files = [initial_file]
+        else:
+            temp_files = self.open_files(filetypes=filetypes)
+
         self.logger.info('opening files: ' + str(temp_files))
         if len(temp_files) == 0:
             return
@@ -246,14 +271,19 @@ class Window(tkinter.Frame):
         self.logger.info('starting file dialog askdirectory')
         return filedialog.askdirectory()
 
-    def load_dir(self):
-        selected_path = self.open_dir()
+    def load_dir(self, initial_dir: Union[Path, str, None] = None):
+        if initial_dir:
+            selected_path = initial_dir
+        else:
+            selected_path = self.open_dir()
         self.logger.info('selected path: ' + str(selected_path))
         if len(selected_path) == 0:
             return
         self.dirText = selected_path
         only_files = [f for f in listdir(selected_path) if
-                      os.path.isfile(os.path.join(selected_path, f)) and os.path.splitext(f)[1] == '.xml']
+                      os.path.isfile(os.path.join(selected_path, f)) and
+                      os.path.splitext(f)[1] == '.xml' and
+                      os.path.split(f)[1].find('questionnaire') == 0]
         self.logger.info('list of files from directory: ' + str(only_files))
         try:
             assert isinstance(only_files, list)
@@ -647,6 +677,21 @@ class Window(tkinter.Frame):
         details_string += '\n\n'
 
         details_object['unused_variables'] = str(tmp_list_unused_variables)
+
+        details_string += f'\n### variables declaration, ordered and commented\n'
+        details_string += '\n\n'
+
+        tmp_str_variables_declaration_ordered_and_commented = ''
+
+        for page_name, page_object in qml_reader_object.questionnaire.pages.pages.items():
+            tmp_str_variables_declaration_ordered_and_commented += f'\n<!-- {page_name} -->\n'
+            for variable_name, variable_type in page_object.variables.variables.items():
+                tmp_str_variables_declaration_ordered_and_commented += f'<zofar:variable name="{variable_name}" type="{variable_type}"/>\n'
+
+        details_string += tmp_str_variables_declaration_ordered_and_commented
+
+        details_object[
+            'variables_declaration_ordered_and_commented'] = tmp_str_variables_declaration_ordered_and_commented
 
         details_object['shown_variables_per_page'] = ''
         details_string += '\n### shown variables per page:\n'
