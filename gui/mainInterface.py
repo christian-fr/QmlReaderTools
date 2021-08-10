@@ -151,6 +151,10 @@ class Window(tkinter.Frame):
         if self.initial_file_to_load or self.initial_directory_to_load:
             self.run_qml_reader()
 
+
+        x = self.dict_of_questionnaires['questionnaire.xml'].return_qml_code_to_declare_non_declared_vars()
+        print(x)
+
     def open_path(self):
         path = os.path.realpath(self.dirText)
         os.system(f'pcmanfm {os.path.realpath(path)}')

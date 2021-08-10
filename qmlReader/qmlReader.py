@@ -276,6 +276,74 @@ class QmlReader:
         else:
             self.logger.info("  no page header found")
 
+    def extract_variables_from_question_element(self, qml_question_element: lxml.objectify.ObjectifiedElement,
+                                                question_type: str, page_uid: str) -> None:
+        if question_type in ['matrixQuestionSingleChoice', 'questionSingleChoice']:
+            tmp_element_list_single_choice = [element for element in qml_question_element.iterdescendants() if
+                                              'variable' in element.attrib and element.tag.find('responseDomain') != -1]
+
+            tmp_element_list_attached_open = [element for element in qml_question_element.iterdescendants() if
+                                              'variable' in element.attrib and element.tag.find('attachedOpen') != -1]
+
+            for element in tmp_element_list_single_choice:
+                tmp_variable = questionnaire.Variable(varname=element.attrib['variable'],
+                                                      vartype='singleChoiceAnswerOption',
+                                                      varplace='body',
+                                                      declared_on_page=page_uid)
+                self.questionnaire.variables_from_question_elements.add_variable(tmp_variable)
+                self.questionnaire.pages.pages[page_uid].variables.add_variable(tmp_variable)
+
+            for element in tmp_element_list_attached_open:
+                tmp_variable = questionnaire.Variable(varname=element.attrib['variable'],
+                                                      vartype='string',
+                                                      varplace='body',
+                                                      declared_on_page=page_uid)
+                self.questionnaire.variables_from_question_elements.add_variable(tmp_variable)
+                self.questionnaire.pages.pages[page_uid].variables.add_variable(tmp_variable)
+
+        elif question_type in ['multipleChoice', 'matrixMultipleChoice']:
+            tmp_element_list_bool = [element for element in qml_question_element.iterdescendants() if
+                                     'variable' in element.attrib and element.tag.find('answerOption') != -1]
+
+            tmp_element_list_attached_open = [element for element in qml_question_element.iterdescendants() if
+                                              'variable' in element.attrib and element.tag.find('attachedOpen') != -1]
+
+            for element in tmp_element_list_bool:
+                tmp_variable = questionnaire.Variable(varname=element.attrib['variable'],
+                                                      vartype='boolean',
+                                                      varplace='body',
+                                                      declared_on_page=page_uid)
+                self.questionnaire.variables_from_question_elements.add_variable(tmp_variable)
+                self.questionnaire.pages.pages[page_uid].variables.add_variable(tmp_variable)
+
+            for element in tmp_element_list_attached_open:
+                tmp_variable = questionnaire.Variable(varname=element.attrib['variable'],
+                                                      vartype='string',
+                                                      varplace='body',
+                                                      declared_on_page=page_uid)
+                self.questionnaire.variables_from_question_elements.add_variable(tmp_variable)
+                self.questionnaire.pages.pages[page_uid].variables.add_variable(tmp_variable)
+
+        elif question_type in ['questionOpen']:
+            tmp_variable = questionnaire.Variable(varname=qml_question_element.attrib['variable'],
+                                                  vartype='string',
+                                                  varplace='body',
+                                                  declared_on_page=page_uid)
+            self.questionnaire.variables_from_question_elements.add_variable(tmp_variable)
+            self.questionnaire.pages.pages[page_uid].variables.add_variable(tmp_variable)
+
+        elif question_type in ['matrixQuestionOpen']:
+            tmp_element_list_string = [element for element in qml_question_element.iterdescendants() if
+                                       'variable' in element.attrib and element.tag.find('question') != -1]
+            for element in tmp_element_list_string:
+                tmp_variable = questionnaire.Variable(varname=element.attrib['variable'],
+                                                      vartype='string',
+                                                      varplace='body',
+                                                      declared_on_page=page_uid)
+                self.questionnaire.variables_from_question_elements.add_variable(tmp_variable)
+                self.questionnaire.pages.pages[page_uid].variables.add_variable(tmp_variable)
+
+
     def extract_question_objects_from_qml_page_source(self, qml_source_page, page_uid):
         self.logger.info("extract_question_objects_from_qml_page_source; uid: " + str(page_uid))
         assert isinstance(qml_source_page, lxml.objectify.ObjectifiedElement)
@@ -288,71 +356,75 @@ class QmlReader:
             else:
                 # ToDo: check if this can be set to None instead of str
                 tmp_body_uid = 'None'
-            for element in qml_source_page.body.iterchildren():
+            for element in qml_source_page.body.iterdescendants():
                 tmp_tag = element.tag[element.tag.rfind('}') + 1:]
 
                 if tmp_tag in ['calendar', 'comparison', 'display', 'matrixDouble', 'matrixQuestionMixed',
                                'matrixQuestionOpen', 'matrixQuestionSingleChoice', 'multipleChoice', 'questionOpen',
-                               'questionPretest', 'questionSingleChoice']:
+                               'questionPretest', 'questionSingleChoice', 'matrixMultipleChoice']:
+                    self.extract_variables_from_question_element(qml_question_element=element,
+                                                                 question_type=tmp_tag,
+                                                                 page_uid=page_uid)
                     tmp_index = i
                     i += 1
 
-                if tmp_tag == 'calendar':
-                    tmp_question_header_object = self.extract_question_header_from_qml_element_source(element, page_uid)
+                    if tmp_tag == 'calendar':
+                        tmp_question_header_object = self.extract_question_header_from_qml_element_source(element,
+                                                                                                          page_uid)
 
-                elif tmp_tag == 'comparison':
-                    pass
+                    elif tmp_tag == 'comparison':
+                        pass
 
-                elif tmp_tag == 'display':
-                    pass
+                    elif tmp_tag == 'display':
+                        pass
 
-                elif tmp_tag == 'matrixDouble':
-                    pass
+                    elif tmp_tag == 'matrixDouble':
+                        pass
 
-                elif tmp_tag == 'matrixMultipleChoice':
-                    pass
+                    elif tmp_tag == 'matrixMultipleChoice':
+                        pass
 
-                elif tmp_tag == 'matrixQuestionMixed':
-                    pass
+                    elif tmp_tag == 'matrixQuestionMixed':
+                        pass
 
-                elif tmp_tag == 'matrixQuestionOpen':
-                    pass
+                    elif tmp_tag == 'matrixQuestionOpen':
+                        pass
 
-                elif tmp_tag == 'matrixQuestionSingleChoice':
-                    list_of_items_aos = []
-                    list_of_elements = []
-                    for entry in element.iterdescendants():
-                        if entry.tag[entry.tag.rfind('}') + 1:] == 'item':
-                            list_of_elements.append(entry)
+                    elif tmp_tag == 'matrixQuestionSingleChoice':
+                        list_of_items_aos = []
+                        list_of_elements = []
+                        for entry in element.iterdescendants():
+                            if entry.tag[entry.tag.rfind('}') + 1:] == 'item':
+                                list_of_elements.append(entry)
 
-                    for item in list_of_elements:
-                        list_of_answeroptions = []
-                        for item_element in item.iterdescendants():
-                            print('444')
-                            if item_element.tag[item_element.tag.rfind('}') + 1:] == 'answerOption':
-                                tmp_value = None
-                                if 'label' in item_element.attrib:
-                                    tmp_value = item_element.attrib['label']
-                                list_of_answeroptions.append(tmp_value)
-                        list_of_items_aos.append(tuple(list_of_answeroptions))
+                        for item in list_of_elements:
+                            list_of_answeroptions = []
+                            for item_element in item.iterdescendants():
+                                print('444')
+                                if item_element.tag[item_element.tag.rfind('}') + 1:] == 'answerOption':
+                                    tmp_value = None
+                                    if 'label' in item_element.attrib:
+                                        tmp_value = item_element.attrib['label']
+                                    list_of_answeroptions.append(tmp_value)
+                            list_of_items_aos.append(tuple(list_of_answeroptions))
 
-                    if list_of_items_aos:
-                        if len(set(list_of_items_aos)) != 1:
-                            print(page_uid)
-                    print(list_of_items_aos)
+                        if list_of_items_aos:
+                            if len(set(list_of_items_aos)) != 1:
+                                print(page_uid)
+                        print(list_of_items_aos)
 
 
-                elif tmp_tag == 'multipleChoice':
-                    pass
+                    elif tmp_tag == 'multipleChoice':
+                        pass
 
-                elif tmp_tag == 'questionOpen':
-                    pass
+                    elif tmp_tag == 'questionOpen':
+                        pass
 
-                elif tmp_tag == 'questionPretest':
-                    pass
+                    elif tmp_tag == 'questionPretest':
+                        pass
 
-                elif tmp_tag == 'questionSingleChoice':
-                    pass
+                    elif tmp_tag == 'questionSingleChoice':
+                        pass
 
                     # a = self.find_tag_in_descendants(element, 'responseDomain')
                     # b = self.find_attribute_in_descendants(element, 'responseDomain', 'type', 'dropDown')

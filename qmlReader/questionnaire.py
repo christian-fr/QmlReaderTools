@@ -15,6 +15,7 @@ from os import path, mkdir
 import errno
 # noinspection PyUnresolvedReferences
 import pygraphviz
+from typing import Union, Optional
 
 
 class Title:
@@ -506,7 +507,7 @@ class Sources:
 
 
 class Variable:
-    def __init__(self, varname, vartype, varplace=None):
+    def __init__(self, varname, vartype, varplace=None, declared_on_page=None):
         self.__allowed_vartypes = ['boolean', 'singleChoiceAnswerOption', 'string', 'number']
         self.__allowed_varplaces = ['body', 'triggers', 'shown', None]
         if isinstance(varname, str) and isinstance(vartype, str):
@@ -519,6 +520,15 @@ class Variable:
             raise TypeError('Input not of type string')
 
         self.set_varplace(varplace=varplace, varname=varname)
+        self.declared_on_page = []
+        self.add_declared_on_page(declared_on_page)
+
+    def add_declared_on_page(self, page_name: Optional[str]) -> None:
+        if not page_name:
+            return
+
+        if page_name not in self.declared_on_page:
+            self.declared_on_page.append(page_name)
 
     def set_varplace(self, varplace, varname):
         if isinstance(varplace, str) or varplace is None:
@@ -545,6 +555,10 @@ class Variables:
     def __str__(self):
         return str(self.list_details_str())
 
+    def get_variable_object(self, var_name: str) -> Variable:
+        if var_name in self.variables.keys():
+            return self.variables[var_name]
+
     def dict_details(self):
         """
         :return: dictionary of {varname: vartype}
@@ -557,8 +571,11 @@ class Variables:
     def list_all_shown_vars(self):
         return [var.varname for var in self.variables.values() if var.varplace == 'shown']
 
-    def list_all_vars(self):
+    def list_all_not_shown_vars(self):
         return [var.varname for var in self.variables.values() if var.varplace != 'shown']
+
+    def list_all_vars(self):
+        return [var.varname for var in self.variables.values()]
 
     def list_all_vartypes(self):
         return [var.vartype for var in self.variables.values()]
@@ -569,12 +586,15 @@ class Variables:
     def return_all_vars_as_dict(self):
         return self.variables
 
-    def add_variable(self, variable_object, replace=False):
+    def add_variable(self, variable_object, replace=False, add_pages=True):
         if isinstance(variable_object, Variable):
             if variable_object.varname not in [self.variables[var].varname for var in self.variables]:
                 self.variables[variable_object.varname] = variable_object
             else:
-                if not replace:
+                if len(variable_object.declared_on_page) == 1 and add_pages:
+                    assert isinstance(self.variables[variable_object.varname], Variable)
+                    self.variables[variable_object.varname].add_declared_on_page(variable_object.declared_on_page[0])
+                elif not replace:
                     # ToDo: error handling! maybe error message: yes/no ??
                     # raise ValueError('Variable name exists already!')
                     print("Variable " + str(variable_object.varname) + " already exists.")
@@ -780,6 +800,21 @@ class Questionnaire:
         self.variables = Variables()
         self.pages = QmlPages()
         self.details = None
+        self.variables_from_question_elements = Variables()
+
+    def get_dict_of_all_vars_found_and_not_declared(self):
+        tmp_var_name_list = [i for i in self.variables_from_question_elements.list_all_vars() if
+                             i not in self.variables.list_all_vars()]
+        tmp_dict = {}
+        for var_name in tmp_var_name_list:
+            tmp_dict[var_name] = self.variables_from_question_elements.get_variable_object(var_name=var_name)
+        return tmp_dict
+
+    def return_qml_code_to_declare_non_declared_vars(self) -> str:
+        tmp_str = ''
+        for var_name, var_object in self.get_dict_of_all_vars_found_and_not_declared().items():
+            tmp_str += f'<zofar:variable name="{var_object.varname}" type="{var_object.vartype}"/>\n'
+        return tmp_str
 
     def startup_logger(self, log_level=logging.DEBUG):
         """
