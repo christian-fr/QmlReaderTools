@@ -58,39 +58,53 @@ flag_debug = args.debug
 
 
 class AdvancedConfig(ConfigParser):
-    def __init__(self, set_config_path: Union[str, Path], set_config_template_path: Union[str, Path]):
+    def __init__(self, set_config_path: Union[str, Path], set_config_file_name: Union[str, Path],
+                 set_config_template_path: Union[str, Path]):
         super().__init__()
         self.config_path = Path(set_config_path)
+
+        # set full path of config file
+        self.config_file_full_path = Path(self.config_path, set_config_file_name)
+
         self.config_template_path = Path(set_config_template_path)
 
+        if not self.config_file_full_path.exists():
+            self.initialize_config()
+
+        self.read_config()
+        print('')
+
     def initialize_config(self):
-        shutil.copy(self.config_template_path, self.config_path)
-        self.read(self.config_path)
+        # create config dir if it not yet exists
+        os.makedirs(self.config_path, exist_ok=True)
+
+        shutil.copy(self.config_template_path, self.config_file_full_path)
+
+        self.read(self.config_file_full_path, encoding='utf-8')
         if 'paths' not in self.keys():
             self.add_section('paths')
         self.set('paths', 'home', Path.home().as_posix())
-        self.set('paths', 'workspace', Path(Path.home(), 'zofar_workspace').as_posix())
-        self.set('paths', 'faust_out',
-                 Path(Path.home(), r'\\faust\GPD-Transfer\friedrich\Out_' + os.path.split(Path.home())[1]).as_posix())
+        self.set('paths', 'workspace', Path.home().as_posix())
+        self.set('paths', 'output_path', Path.home().as_posix())
         self.write_config()
 
     def read_config(self):
-        # copy template if config file does not yet exist
-        if not self.config_path.exists():
-            self.initialize_config()
         # read config file
-        self.read(self.config_path)
+        self.read(self.config_file_full_path, encoding='utf-8')
 
     def write_config(self):
-        with open(self.config_path, 'w') as f:
+        # used "with ... as:" instead of "Path(...).write_text(...)" because self.write is a native method of ConfigParser
+        with open(str(self.config_file_full_path), 'w', encoding='utf-8') as f:
             self.write(f)
 
 
-config_path = Path(abs_dir, 'config', 'config.ini')
-config_template_path = Path(abs_dir, 'config', 'config.template')
+config_path = Path(os.path.join(os.path.expanduser('~'), '.qmlreadertools'))
+config_file = 'qmlreadertools.ini'
+config_template_path = Path(local_dir, 'config', 'config.template')
 
-config = AdvancedConfig(set_config_path=config_path, set_config_template_path=config_template_path)
-config.read_config()
+config = AdvancedConfig(set_config_path=config_path,
+                        set_config_file_name='qmlreadertools.ini',
+                        set_config_template_path=config_template_path)
 
 root = Tk()
 app = mainInterface.Window(master=root, config_object=config, args_object=args)

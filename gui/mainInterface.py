@@ -15,6 +15,7 @@ import configparser
 import argparse
 from typing import Union, Optional
 from pathlib import Path
+from collections import defaultdict
 
 
 class QmlDetails(dict):
@@ -35,7 +36,7 @@ class Window(tkinter.Frame):
     main application
     """
 
-    def __init__(self, config_object: configparser.ConfigParser, args_object: argparse.Namespace, master=None):
+    def __init__(self, config_object: "AdvancedConfig", args_object: argparse.Namespace, master=None):
         self.window_selection = None
         self.logger = logging.getLogger('debug')
         self.startup_logger(log_level=logging.DEBUG)
@@ -151,10 +152,6 @@ class Window(tkinter.Frame):
         if self.initial_file_to_load or self.initial_directory_to_load:
             self.run_qml_reader()
 
-
-        x = self.dict_of_questionnaires['questionnaire.xml'].return_qml_code_to_declare_non_declared_vars()
-        print(x)
-
     def open_path(self):
         path = os.path.realpath(self.dirText)
         os.system(f'pcmanfm {os.path.realpath(path)}')
@@ -269,11 +266,23 @@ class Window(tkinter.Frame):
 
     def open_files(self, filetypes):
         self.logger.info('starting file dialog askopenfilenames')
-        return list(filedialog.askopenfilenames(filetypes=filetypes, initialdir=self.config.get('paths', 'workspace')))
+        tmp_path_list = list(
+            filedialog.askopenfilenames(filetypes=filetypes,
+                                        initialdir=self.config.get('paths', 'workspace')))
+        if tmp_path_list:
+            tmp_workspace_path = tmp_path_list[0]
+            if Path(tmp_path_list[0]).is_file():
+                tmp_workspace_path = os.path.split(tmp_workspace_path)[0]
+            self.config.set('paths', 'workspace', tmp_workspace_path)
+            self.config.write_config()
+        return tmp_path_list
 
     def open_dir(self):
         self.logger.info('starting file dialog askdirectory')
-        return filedialog.askdirectory()
+        tmp_workspace_path = filedialog.askdirectory()
+        self.config.set('paths', 'workspace', tmp_workspace_path)
+        self.config.write_config()
+        return
 
     def load_dir(self, initial_dir: Union[Path, str, None] = None):
         if initial_dir:
@@ -620,7 +629,7 @@ class Window(tkinter.Frame):
         try:
             assert isinstance(qml_reader_object, qmlReader.QmlReader)
         except AssertionError:
-            self.logger.exception('Wrong input type: ' + str(type(qml_reader_object)))
+            self.logger.exception(f'Wrong input type: "{type(qml_reader_object)}"')
 
         details_string = ''
         details_string += '\n### title:\n'
@@ -660,6 +669,38 @@ class Window(tkinter.Frame):
         details_object[
             'number_of_variables'] = f'[{str(len(qml_reader_object.questionnaire.variables.list_all_vars()))}]'
         details_object['list_of_variables'] = str(qml_reader_object.questionnaire.variables.list_all_vars())
+
+        # ########################################################################
+        # ToDo: everything else within this method should use the following form
+        details_string += '\n\n### variable types: \n'
+
+        details_object['list_of_variables_and_types'] = '\n'.join(
+            [f'{key}\t{val.vartype}' for key, val in qml_reader_object.questionnaire.variables.variables.items()])
+
+        details_string += details_object['list_of_variables_and_types']
+        #
+        # ########################################################################
+
+        # ########################################################################
+        # variables by type
+        details_string += '\n\n### variables by type: \n'
+
+        set_of_vartypes = set([val.vartype for val in qml_reader_object.questionnaire.variables.variables.values()])
+        tmp_vartype_dict = defaultdict(list)
+        for vartype in set_of_vartypes:
+            tmp_vartype_dict[vartype].append(
+                [key for key, val in qml_reader_object.questionnaire.variables.variables.items() if
+                 val.vartype == vartype])
+
+        details_object['list_of_variables_by_type'] = ''
+        for key, val in tmp_vartype_dict.items():
+            details_object['list_of_variables_by_type'] += f'{key}: {val}'
+        details_object['list_of_variables_by_type'] = '\n'.join(
+            [f'{key}\t{val.vartype}' for key, val in qml_reader_object.questionnaire.variables.variables.items()])
+
+        details_string += details_object['list_of_variables_by_type']
+        #
+        # ########################################################################
 
         details_string += '\n#### used variables per page:\n'
 

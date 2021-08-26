@@ -1,6 +1,4 @@
-[main]
-key1 = value1
-key2 = value2
-key3 = value3
-
 [paths]
+home = HOME_DIR
+workspace = WORKSPACE_DIR
+output_path = OUTPUT_PATH
