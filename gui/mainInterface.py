@@ -688,15 +688,15 @@ class Window(tkinter.Frame):
         set_of_vartypes = set([val.vartype for val in qml_reader_object.questionnaire.variables.variables.values()])
         tmp_vartype_dict = defaultdict(list)
         for vartype in set_of_vartypes:
-            tmp_vartype_dict[vartype].append(
-                [key for key, val in qml_reader_object.questionnaire.variables.variables.items() if
-                 val.vartype == vartype])
+            tmp_vartype_dict[vartype] = [key for key, val in qml_reader_object.questionnaire.variables.variables.items()
+                                         if
+                                         val.vartype == vartype]
 
         details_object['list_of_variables_by_type'] = ''
         for key, val in tmp_vartype_dict.items():
-            details_object['list_of_variables_by_type'] += f'{key}: {val}'
-        details_object['list_of_variables_by_type'] = '\n'.join(
-            [f'{key}\t{val.vartype}' for key, val in qml_reader_object.questionnaire.variables.variables.items()])
+            details_object['list_of_variables_by_type'] += f'{key}: {val}\n\n'
+        # details_object['list_of_variables_by_type'] = '\n'.join(
+        #     [f'{key}\t{val.vartype}' for key, val in qml_reader_object.questionnaire.variables.variables.items()])
 
         details_string += details_object['list_of_variables_by_type']
         #
