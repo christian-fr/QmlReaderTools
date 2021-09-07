@@ -163,11 +163,11 @@ class Window(tkinter.Frame):
         self.activate_button(self.__button_dict.keys())
 
     def activate_button(self, button_name_list_of_strings, deactivate=False):
-        '''
+        """
         :param button_name_list_of_strings: list of strings - button names; has to correspond to the keys of self.__button_dict
         :param deactivate: False is default; if True: deactivates Buttons in argument list
         :return: no return
-        '''
+        """
         self.logger.info(
             'de-/activating buttons: ' + str(button_name_list_of_strings) + ', deactivate=' + str(deactivate))
         try:
@@ -282,7 +282,7 @@ class Window(tkinter.Frame):
         tmp_workspace_path = filedialog.askdirectory()
         self.config.set('paths', 'workspace', tmp_workspace_path)
         self.config.write_config()
-        return
+        return tmp_workspace_path
 
     def load_dir(self, initial_dir: Union[Path, str, None] = None):
         if initial_dir:
