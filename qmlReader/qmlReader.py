@@ -5,8 +5,6 @@ __version__ = "0.2.5"
 __status__ = "Prototype"
 __name__ = "QmlReader"
 
-# last edited: 2020-04-16
-
 import lxml
 from lxml import objectify
 import logging
