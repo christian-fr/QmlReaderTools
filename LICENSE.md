@@ -1,6 +1,6 @@
 # MIT License
 
-_Copyright (c) 2020 Christian Friedrich_
+_Copyright (c) 2021 Christian Friedrich_
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
