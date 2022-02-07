@@ -192,9 +192,6 @@ class QmlReader:
                                                       '<zofar:triggers>']
                 for entry in tmp_tags_with_newlines_before_list:
                     tmp_xml_source_str = tmp_xml_source_str.replace(entry, '\n\t\t' + entry)
-                tmp_tags_with_newlines_after_list = ['</' + entry[1:] for entry in tmp_tags_with_newlines_before_list]
-                for entry in tmp_tags_with_newlines_after_list:
-                    tmp_xml_source_str = tmp_xml_source_str.replace(entry, entry + '\n')
 
                 # save the objectified xml within the QmlPage object
                 tmp_qml_page_object.set_xml_source(tmp_qml_page_source)
