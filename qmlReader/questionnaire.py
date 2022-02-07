@@ -15,6 +15,7 @@ from os import path, mkdir
 import errno
 ## noinspection PyUnresolvedReferences
 import pygraphviz
+from lxml import objectify
 
 
 class Title:
@@ -688,6 +689,14 @@ class QmlPage(UniqueObject):
         self.sources = Sources()
         self.duplicate_variables = DuplicateVariables()
         self.questions = Questions()
+        self.xml_source = None
+        self.xml_source_str = None
+
+    def set_xml_source(self, xml_source_code: objectify.ObjectifiedElement):
+        self.xml_source = xml_source_code
+
+    def set_xml_source_str(self, xml_source_code_str: str):
+        self.xml_source_str = xml_source_code_str
 
     def add_sources(self, source):
         self.sources.add_source(source)

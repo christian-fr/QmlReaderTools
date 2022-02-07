@@ -7,8 +7,9 @@ __name__ = "QmlReader"
 
 # last edited: 2020-04-16
 
+import html
 import lxml
-from lxml import objectify
+from lxml import objectify, etree
 import logging
 from qmlReader import questionnaire
 import re
@@ -165,10 +166,41 @@ class QmlReader:
     def extract_pages_to_self(self):
         self.logger.info("extract_pages_to_self")
         for i in range(0, len(self.root.page)):
+            # get the objectified xml object of the xml page
             tmp_qml_page_source = self.root.page[i]
+
             tmp_page_uid = tmp_qml_page_source.attrib['uid']
-            self.questionnaire.pages.add_page(questionnaire.QmlPage(tmp_page_uid, declared=True))
-            # self.extract_transitions_from_qml_page_source(tmp_qml_page_source, tmp_page_uid)
+            tmp_qml_page_object = questionnaire.QmlPage(tmp_page_uid, declared=True)
+
+            if tmp_qml_page_source is not None:
+                # get the objectified xml, represented as bytes
+                tmp_xml_source_bytes = etree.tostring(tmp_qml_page_source)
+
+                # encode bytes to a string
+                tmp_xml_source_str_escaped = tmp_xml_source_bytes.decode('utf-8')
+                # unescape the html/xml escaped characters
+                tmp_xml_source_str = html.unescape(tmp_xml_source_str_escaped)
+                # clean the string (of namespace declarations)
+                search_string = ' xmlns:zofar="http://www.his.de/zofar/xml/questionnaire" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:display="http://www.dzhw.eu/zofar/xml/display"'
+                tmp_xml_source_str = tmp_xml_source_str.replace(search_string, '')
+                # add newlines
+                tmp_tags_with_newlines_before_list = ['<zofar:transition',
+                                                      '<zofar:transitions>',
+                                                      '<zofar:body>',
+                                                      '<zofar:header>',
+                                                      '<zofar:trigger',
+                                                      '<zofar:triggers>']
+                for entry in tmp_tags_with_newlines_before_list:
+                    tmp_xml_source_str = tmp_xml_source_str.replace(entry, '\n\t\t' + entry)
+                tmp_tags_with_newlines_after_list = ['</' + entry[1:] for entry in tmp_tags_with_newlines_before_list]
+                for entry in tmp_tags_with_newlines_after_list:
+                    tmp_xml_source_str = tmp_xml_source_str.replace(entry, entry + '\n')
+
+                # save the objectified xml within the QmlPage object
+                tmp_qml_page_object.set_xml_source(tmp_qml_page_source)
+                # save the unescaped xml string of the page within the QmlPage object
+                tmp_qml_page_object.set_xml_source_str(tmp_xml_source_str)
+            self.questionnaire.pages.add_page(tmp_qml_page_object)
 
     def extract_transitions_to_self(self):
         self.logger.info("extract_transitions_to_self")
