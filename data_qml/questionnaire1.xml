@@ -124,7 +124,7 @@
 	</zofar:page>
     
     
-	<zofar:page uid="A59">create_gra
+	<zofar:page uid="A59">
 		<zofar:body uid="body">
 			<zofar:questionOpen variable="var06" uid="qopen1"
 					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
