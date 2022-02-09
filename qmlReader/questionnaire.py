@@ -24,7 +24,7 @@ class Title:
 
 
 class UniqueObject(object):
-    def __init__(self, uid):
+    def __init__(self, uid: str):
         self.uid = None
         self.change_uid(uid)
 
@@ -507,7 +507,7 @@ class Sources:
 
 
 class Variable:
-    def __init__(self, varname, vartype, varplace=None, declared_on_page=None):
+    def __init__(self, varname: str, vartype: str, varplace: bool =None, declared_on_page: bool=None):
         self.__allowed_vartypes = ['boolean', 'singleChoiceAnswerOption', 'string', 'number']
         self.__allowed_varplaces = ['body', 'triggers', 'shown', None]
         if isinstance(varname, str) and isinstance(vartype, str):
@@ -627,70 +627,6 @@ class Variables:
             raise TypeError('Input was not of type string!')
 
 
-class QmlPages:
-    def __init__(self):
-        self.pages = {}
-
-    def add_page(self, qmlpage, replace=False):
-        assert isinstance(qmlpage, QmlPage)
-        if qmlpage.uid in self.pages.keys():
-            if not replace:
-                raise KeyError('Page already exists and overwrite is False.')
-            else:
-                ('Page "' + qmlpage.uid + '" will be replaced.')
-                self.pages[qmlpage.uid] = qmlpage
-        else:
-            self.pages[qmlpage.uid] = qmlpage
-
-    def drop_page(self, uid):
-        assert isinstance(uid, str)
-        if uid in self.pages:
-            self.pages.pop(uid)
-        else:
-            raise ValueError('Pagename "' + str(uid) + '" not found in self.pages!')
-
-    def list_of_all_pagenames(self):
-        tmp_list = []
-        for key in self.pages:
-            tmp_list.append(key)
-        return tmp_list
-
-    def return_list_of_pagenames_with_condition_false(self) -> list:
-        tmp_list = []
-        for page_uid, page_object in self.pages.items():
-            for source_uid, transition_list in page_object.sources.sources.items():
-                for entry in transition_list:
-                    if entry.condition == 'false':
-                        if page_uid not in tmp_list:
-                            tmp_list.append(page_uid)
-        return tmp_list
-
-    def return_list_of_pagenames_with_only_condition_false(self) -> list:
-        tmp_list_of_pagenames_with_condition_false = self.return_list_of_pagenames_with_condition_false()
-        tmp_list = []
-
-        # iterate through all pages
-        for page_uid, page_object in self.pages.items():
-            # continue on next loop if page is not in list of pages with transition condition == false
-            if page_uid not in tmp_list_of_pagenames_with_condition_false:
-                continue
-
-            # initiate a flag
-            flag_non_false_transition = False
-
-            # iterate through all sources Transition objects of this page
-            for source_uid, transition_list in page_object.sources.sources.items():
-                # iterate through all sources within list:
-                for entry in transition_list:
-                    # set flag = True if at least one condition is not 'false'
-                    if entry.condition != 'false':
-                        flag_non_false_transition = True
-            if not flag_non_false_transition:
-                tmp_list.append(page_uid)
-
-        return tmp_list
-
-
 class DuplicateVariables(Variables):
     def __init__(self):
         super().__init__()
@@ -781,6 +717,70 @@ class QmlPage(UniqueObject):
                                                                                             key]['condition_python'])
 
 
+class QmlPages:
+    def __init__(self):
+        self.pages = {}
+
+    def add_page(self, qmlpage: QmlPage, replace=False) -> None:
+        assert isinstance(qmlpage, QmlPage)
+        if qmlpage.uid in self.pages.keys():
+            if not replace:
+                raise KeyError(f'Page {qmlpage.uid=} already exists and overwrite is False.')
+            else:
+                ('Page "' + qmlpage.uid + '" will be replaced.')
+                self.pages[qmlpage.uid] = qmlpage
+        else:
+            self.pages[qmlpage.uid] = qmlpage
+
+    def drop_page(self, uid):
+        assert isinstance(uid, str)
+        if uid in self.pages:
+            self.pages.pop(uid)
+        else:
+            raise ValueError('Pagename "' + str(uid) + '" not found in self.pages!')
+
+    def list_of_all_pagenames(self):
+        tmp_list = []
+        for key in self.pages:
+            tmp_list.append(key)
+        return tmp_list
+
+    def return_list_of_pagenames_with_condition_false(self) -> list:
+        tmp_list = []
+        for page_uid, page_object in self.pages.items():
+            for source_uid, transition_list in page_object.sources.sources.items():
+                for entry in transition_list:
+                    if entry.condition == 'false':
+                        if page_uid not in tmp_list:
+                            tmp_list.append(page_uid)
+        return tmp_list
+
+    def return_list_of_pagenames_with_only_condition_false(self) -> list:
+        tmp_list_of_pagenames_with_condition_false = self.return_list_of_pagenames_with_condition_false()
+        tmp_list = []
+
+        # iterate through all pages
+        for page_uid, page_object in self.pages.items():
+            # continue on next loop if page is not in list of pages with transition condition == false
+            if page_uid not in tmp_list_of_pagenames_with_condition_false:
+                continue
+
+            # initiate a flag
+            flag_non_false_transition = False
+
+            # iterate through all sources Transition objects of this page
+            for source_uid, transition_list in page_object.sources.sources.items():
+                # iterate through all sources within list:
+                for entry in transition_list:
+                    # set flag = True if at least one condition is not 'false'
+                    if entry.condition != 'false':
+                        flag_non_false_transition = True
+            if not flag_non_false_transition:
+                tmp_list.append(page_uid)
+
+        return tmp_list
+
+
 class Questionnaire:
     def __init__(self, file=None, filename='questionnaire', title='Zofar Survey'):
         """
@@ -801,6 +801,10 @@ class Questionnaire:
         self.pages = QmlPages()
         self.details = None
         self.variables_from_question_elements = Variables()
+        self.variables_and_labels_list = []
+
+    def add_entry_to_variables_and_labels_dict(self, input_dict: dict) -> None:
+        self.variables_and_labels_list.append(input_dict)
 
     def get_dict_of_all_vars_found_and_not_declared(self):
         tmp_var_name_list = [i for i in self.variables_from_question_elements.list_all_vars() if

@@ -849,6 +849,12 @@ class Window(tkinter.Frame):
         details_object[
             'stata_maxpage_declared'] += '*__________maximaler Fragebogenfortschritt___________\nsort participant_id id, stable\nbysort participant_id: egen maxpage = max(pagenum)\nlabel var maxpage "maximaler Fortschritt im Fragebogen"\n\n*________überflüssige Variablen löschen____________________\ndrop timestamp page\n\n\n*________Datensatz aggregieren____________________\n// maximaler Wert der Seitennummer, letzter Token, Mittelwert des maximalen Seitenfortschrittes\nsort id\ncollapse (last) token (max) pagenum (mean)  maxpage , by(participant_id)\n\ntab token if maxpage!=pagenum\nlabel val maxpage pagenumlb\ndrop pagenum\n\n\n*________Datensatz speichern____________________\nsave "XXXXX ${out}csv\\OUTPUT_DATEI.dta", replace\n\nlog close'
 
+        details_string += '\n\n### variables and question labels: \n'
+
+        details_object['list_of_variables_and_question_labels'] = ''
+        print()
+
+
         # return details_string
         return details_object
 
