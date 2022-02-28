@@ -11,6 +11,7 @@ import logging
 from qmlReader import questionnaire
 import re
 from typing import Union, Optional
+from collections import defaultdict
 
 
 class CanHaveCondition(questionnaire.UniqueObject):
@@ -112,6 +113,18 @@ class QmlReader:
 
         self.extract_headers_and_questions_from_pages()
         self.logger.info("QmlReader object is done.")
+        self.dict_of_all_spel_expressions = defaultdict(list)
+        self.return_all_spel_expressions()
+        self.prepare_qml_code_from_spel_expressions()
+        print()
+
+    def prepare_qml_code_from_spel_expressions(self):
+        tmp_str = ''
+        for page_uid, spel_expression_list in self.dict_of_all_spel_expressions.items():
+            tmp_str += f'\n\n### {page_uid} ####{{layout.BREAK}}\n'
+            for entry in spel_expression_list:
+               tmp_str += f'#{{({entry})}} #{{layout.BREAK}}\n'
+        print()
 
     def list_of_variables_from_pages(self):
         pass
@@ -450,6 +463,19 @@ class QmlReader:
             print()
 
         print()
+
+    def return_all_spel_expressions(self):
+        for page in enumerate(self.root.page):
+            page_uid = None
+            if hasattr(page[1], 'attrib'):
+                if 'uid' in page[1].attrib:
+                    page_uid = page[1].attrib['uid']
+            for element in page[1].iterdescendants():
+                if hasattr(element, 'attrib'):
+                    if 'visible' in element.attrib:
+                        self.dict_of_all_spel_expressions[page_uid].append(element.attrib['visible'])
+                    if 'condition' in element.attrib:
+                        self.dict_of_all_spel_expressions[page_uid].append(element.attrib['condition'])
 
     @staticmethod
     def find_tag_in_descendants(objectified_xml_element: lxml.objectify.ObjectifiedElement, tag_str: str) -> bool:
