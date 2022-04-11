@@ -659,7 +659,7 @@ class QmlReader:
             print(list_of_items_aos)
 
         elif tmp_tag == 'multipleChoice':
-            x = question_object.responseDomain.answerOption.attrib
+            # x = question_object.responseDomain.answerOption.attrib
             pass
 
         elif tmp_tag == 'questionOpen':
