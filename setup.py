@@ -13,10 +13,7 @@ setup(
                       'pygraphviz>=1.7',
                       'Pillow>=9.0.1',
                       'lxml>=4.6.2',
-                      'selenium>=3.141.0',
                       'pandas>=1.0.5',
-                      'matplotlib>=3.4.3',
                       'numpy>=1.19.1',
                       'setuptools>=57.0.0']
-
 )
