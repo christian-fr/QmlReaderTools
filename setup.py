@@ -2,6 +2,7 @@ from setuptools import setup
 
 setup(
     name='QmlReaderTools',
+    python_requires='>=3.8',
     version='1.0.14',
     packages=['gui', 'tests', 'codebook', 'pdfOutput', 'qmlReader', 'screenshotter', 'advancedFlowchart'],
     url='https://github.com/christian-fr/QmlReaderTools',
