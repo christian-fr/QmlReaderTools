@@ -5,6 +5,9 @@ __version__ = "0.3.5"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
+import subprocess
+import sys
+
 from qmlReader import qmlReader, questionnaire
 import tkinter
 from tkinter import filedialog, scrolledtext, IntVar, messagebox
@@ -152,9 +155,16 @@ class Window(tkinter.Frame):
         if self.initial_file_to_load or self.initial_directory_to_load:
             self.run_qml_reader()
 
-    def open_path(self):
-        path = os.path.realpath(self.dirText)
-        os.system(f'pcmanfm {os.path.realpath(path)}')
+    def open_path(self, path: Union[None, Path, str] = None):
+
+        if path is not None:
+            path = os.path.realpath(path)
+        else:
+            path = os.path.realpath(self.dirText)
+        if sys.platform == 'win32':
+            os.startfile(path)
+        elif sys.platform == 'linux':
+            os.system(f'pcmanfm {path}')
 
     def deactivate_all_buttons(self):
         self.activate_button(self.__button_dict.keys(), deactivate=True)
@@ -509,6 +519,8 @@ class Window(tkinter.Frame):
     def action_flowchart_create(self, show_varnames=True, show_conditions=True, create_biderectional_edges=False):
         self.logger.info('clicked on "flowchart"')
         output_dir = self.open_dir()
+        if output_dir == '':
+            return None
         self.logger.info(f'output_dir: "{output_dir}"')
         self.logger.info('list of filenames from selection: ' + str(self.list_of_filenames_from_selection()))
         temp_list = [os.path.split(path)[1] for path in self.list_of_selected_files]
@@ -521,10 +533,13 @@ class Window(tkinter.Frame):
 
         [self.prepare_flowcharts(key=key, output_dir=output_dir) for key in temp_list]
         count = len(self.list_of_selected_files)
-        if count == 1:
-            tkinter.messagebox.showinfo('Success', str(count) + ' flowchart has been created.')
-        if count > 1:
-            tkinter.messagebox.showinfo('Success', str(count) + ' flowcharts have been created.')
+        self.window_selection.destroy()
+        self.open_path(output_dir)
+
+        # if count == 1:
+        #     tkinter.messagebox.showinfo('Success', str(count) + ' flowchart has been created.')
+        # if count > 1:
+        #     tkinter.messagebox.showinfo('Success', str(count) + ' flowcharts have been created.')
         self.activate_button(['weighted_flowchart'])
         # self.window_selection.destroy()
 

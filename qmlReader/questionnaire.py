@@ -660,61 +660,6 @@ class QmlPage(UniqueObject):
     def add_header(self, header_text):
         self.header.add_header_object(header_text)
 
-    def __translate_transition_condition_to_python_syntax(self):
-        regex1 = re.compile(r'==')  # 'is'
-        regex2 = re.compile(r'!=')  # 'is not'
-        regex3 = re.compile(r'gt')  # '>'
-        regex4 = re.compile(r'ge')  # '>='
-        regex5 = re.compile(r'lt')  # '<'
-        regex6 = re.compile(r'le')  # '<='
-        regex7 = re.compile(r'zofar.asNumber')  # 'int'
-        regex8 = re.compile(r'zofar.isMissing\(([a-zA-Z0-9\-_]+)\)')  # '(\1 is None)'
-        regex9 = re.compile(r'.value')  # 'is True'
-        regex10 = re.compile(r'!')  # 'not'
-        regex11 = re.compile(r' AND ')  # ' and '
-        regex12 = re.compile(r' OR ')  # ' or '
-
-        if self.transitions is not {}:
-            for key in self.transitions.keys():
-                if self.transitions.transitions[key]['condition'] is None:
-                    self.transitions.transitions[key]['condition_python'] = 'True'
-                else:
-                    self.transitions.transitions[key]['condition_python'] = regex1.sub('is',
-                                                                                       self.transitions.transitions[
-                                                                                           key]['condition'])
-                    self.transitions.transitions[key]['condition_python'] = regex2.sub('is not',
-                                                                                       self.transitions.transitions[
-                                                                                           key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex3.sub('>',
-                                                                                       self.transitions.transitions[
-                                                                                           key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex4.sub('>=',
-                                                                                       self.transitions.transitions[
-                                                                                           key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex5.sub('<',
-                                                                                       self.transitions.transitions[
-                                                                                           key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex6.sub('<=',
-                                                                                       self.transitions.transitions[
-                                                                                           key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex7.sub('int',
-                                                                                       self.transitions.transitions[
-                                                                                           key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex8.sub('(\g<1> is None)',
-                                                                                       self.transitions.transitions[
-                                                                                           key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex9.sub('is True',
-                                                                                       self.transitions.transitions[
-                                                                                           key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex10.sub('not ',
-                                                                                        self.transitions.transitions[
-                                                                                            key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex11.sub(' and ',
-                                                                                        self.transitions.transitions[
-                                                                                            key]['condition_python'])
-                    self.transitions.transitions[key]['condition_python'] = regex12.sub(' or ',
-                                                                                        self.transitions.transitions[
-                                                                                            key]['condition_python'])
 
 
 class QmlPages:
