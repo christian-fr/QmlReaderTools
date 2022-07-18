@@ -11,7 +11,7 @@ import html
 import lxml
 from lxml import objectify, etree
 import logging
-from qmlReader import questionnaire
+from qrt.util import questionnaire
 import re
 
 

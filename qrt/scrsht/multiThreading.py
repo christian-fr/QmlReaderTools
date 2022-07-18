@@ -1,5 +1,5 @@
 import threading
-import screenshotter
+from qrt import scrsht
 import os
 import time
 
@@ -170,13 +170,13 @@ def prepare_thread_list(tokens_languages_and_resolutions_list, start_index_int, 
     tmp_i = 0
     for item in tokens_languages_and_resolutions_list:
         drivers_list.append(
-            screenshotter.Screenshotter(url_server=item[0], url_port=item[1], url_survey=item[2], token=item[3],
-                                        language_suffix=item[4], carousel=item[5], viewport_width=item[6],
-                                        click_on_next_and_screenshot=click_on_next_and_screenshot_bool,
-                                        end_when_done=end_when_done_bool, headless=item[7]))
+            scrsht.Screenshotter(url_server=item[0], url_port=item[1], url_survey=item[2], token=item[3],
+                                 language_suffix=item[4], carousel=item[5], viewport_width=item[6],
+                                 click_on_next_and_screenshot=click_on_next_and_screenshot_bool,
+                                 end_when_done=end_when_done_bool, headless=item[7]))
         drivers_list[tmp_i].add_pages(pages)
         drivers_list[tmp_i].driver.set_window_size(item[6], standard_viewport_height)
-        threads_list.append(threading.Thread(name='screenshotter nr ' + str(start_index_int),
+        threads_list.append(threading.Thread(name='scrsht nr ' + str(start_index_int),
                                              target=drivers_list[tmp_i].iterate_through_dict_of_pages))
         start_index_int += 1
         tmp_i += 1
@@ -215,10 +215,10 @@ if multi_threaded:
 
 else:
     for item in list_of_tokens_languages_and_resolutions:
-        driver = screenshotter.Screenshotter(url_server=item[0], url_port=item[1], url_survey=item[2], token=item[3],
-                                             language_suffix=item[4], carousel=item[5], viewport_width=item[6],
-                                             click_on_next_and_screenshot=click_on_next_and_screenshot,
-                                             end_when_done=end_when_done, headless=item[7])
+        driver = scrsht.Screenshotter(url_server=item[0], url_port=item[1], url_survey=item[2], token=item[3],
+                                      language_suffix=item[4], carousel=item[5], viewport_width=item[6],
+                                      click_on_next_and_screenshot=click_on_next_and_screenshot,
+                                      end_when_done=end_when_done, headless=item[7])
         driver.add_pages(pages)
         driver.driver.set_window_size(item[6], standard_viewport_height)
         driver.iterate_through_dict_of_pages(output_token=True)

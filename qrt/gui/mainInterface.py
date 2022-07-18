@@ -5,7 +5,7 @@ __version__ = "0.3.4"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
-from qmlReader import qmlReader, questionnaire
+from qrt.util import qmlReader, questionnaire
 import tkinter
 from tkinter import filedialog, scrolledtext, IntVar, messagebox
 from os import listdir
@@ -545,10 +545,10 @@ class Window(tkinter.Frame):
         details_string += f'\n### list of all transitions: [{str(len(tmp_list_of_all_transitions))}]\n'
         for entry in tmp_list_of_all_transitions:
             details_string += str(entry) + '\t' + str(entry.condition) + '\n'
-        # details_string += '\npages declared in data_qml:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
+        # details_string += '\npages declared in example:  ['+ str(len(set(qml_reader_object.list_of_pages_declared))) + ']\n'
         # details_string += str(set(qml_reader_object.list_of_pages_declared))
         # details_string += '\n\n'
-        # details_string += '\npages not declared in data_qml, but mentioned in transitions:  [' + str(len(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))) + ']\n'
+        # details_string += '\npages not declared in example, but mentioned in transitions:  [' + str(len(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))) + ']\n'
         # details_string += str(set(qml_reader_object.list_of_pages_not_declared_but_in_transitions))
 
         details_string += '\n### STATA code for maxpage (topologically sorted):\n'

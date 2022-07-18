@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     name='QmlReaderTools',
     version='1.0.14',
-    packages=['gui', 'tests', 'codebook', 'pdfOutput', 'qmlReader', 'screenshotter', 'advancedFlowchart'],
+    packages=['gui', 'tests', 'codebook', 'pdfOutput', 'qmlReader', 'scrsht', 'advancedFlowchart'],
     url='',
     license='',
     author='christian-fr',

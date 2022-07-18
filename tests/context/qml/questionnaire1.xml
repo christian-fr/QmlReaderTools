@@ -154,6 +154,9 @@
 				</zofar:postfix>
 			</zofar:questionOpen>
 		</zofar:body>
+		<zofar:triggers>
+
+		</zofar:triggers>
 		<zofar:transitions>
 			<zofar:transition target="A60"/>
 		</zofar:transitions>

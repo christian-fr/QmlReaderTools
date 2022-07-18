@@ -3,8 +3,8 @@
 /docs/
 /.idea/
 /examples/
-/data_qml/flowcharts/
-/data_qml/other/
+/example/flowcharts/
+/example/other/
 /flowcharts/
 /__pycache__/
 *.log
@@ -12,7 +12,7 @@
 *.pdf
 *.gml
 *.*old
-/data_qml/
+/example/
 /questionnaire_generated*.xml
 /data/
 /graphs/

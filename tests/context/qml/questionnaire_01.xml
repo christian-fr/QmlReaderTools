@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zofar:questionnaire xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:zofar="http://www.his.de/zofar/xml/questionnaire" xmlns:display="http://www.dzhw.eu/zofar/xml/display"
+	language="de">
+	<zofar:name>TEST</zofar:name>
+	<zofar:description></zofar:description>
+	<zofar:preloads>
+		<zofar:preload password="part1" name="part1"></zofar:preload>
+		<zofar:preload password="part2" name="part2"></zofar:preload>
+		<zofar:preload password="part3" name="part3"></zofar:preload>
+		<zofar:preload password="tester1" name="tester1"></zofar:preload>
+		<zofar:preload password="tester2" name="tester2"></zofar:preload>
+		<zofar:preload password="tester3" name="tester3"></zofar:preload>				
+	</zofar:preloads>
+
+	<zofar:variables>
+		<!-- index		 -->
+		<zofar:variable name="width" type="number"/>
+		<zofar:variable name="height" type="number"/>
+		<zofar:variable name="isMobile" type="boolean"/>
+		<zofar:variable name="jsCheck" type="boolean"/>
+		<zofar:variable name="url" type="string"/>
+		<zofar:variable name="flag_index" type="boolean"/>
+		<zofar:variable name="var01" type="boolean"/>
+		<!-- A01		 -->
+		<zofar:variable name="var02" type="singleChoiceAnswerOption"/>
+		<zofar:variable name="flag_A01" type="boolean"/>
+		<!-- A02 -->
+		<zofar:variable name="var03a" type="string"/>
+		<zofar:variable name="var03b" type="string"/>
+		<zofar:variable name="var03c" type="string"/>
+		<zofar:variable name="var03d" type="string"/>
+		<zofar:variable name="var03e" type="string"/>
+		<zofar:variable name="var03f" type="string"/>
+		<zofar:variable name="var03g" type="string"/>
+		<zofar:variable name="var03h" type="string"/>
+		<zofar:variable name="var03i" type="string"/>
+		<zofar:variable name="var03j" type="string"/>
+		<zofar:variable name="var03k" type="string"/>
+		<!-- A03 -->
+		<zofar:variable name="var04" type="string"/>
+		<!-- A04 -->
+		<zofar:variable name="var05" type="singleChoiceAnswerOption"/>
+		<!-- A05 -->
+		<zofar:variable name="var06" type="string"/>
+	</zofar:variables>
+ 
+    <zofar:page uid="index">
+        <zofar:header>
+            <zofar:title uid="t1"></zofar:title>
+            <zofar:text uid="t2"></zofar:text>
+        </zofar:header>
+        <zofar:body uid="body">
+        	<zofar:section uid="s1">
+        		<zofar:header>
+        			<zofar:text uid="t3">
+        			#{layout.BOLD_START}Herzlich willkommen!#{layout.BOLD_END}!
+        			#{layout.BREAK}
+        			#{layout.BREAK}
+					#{layout.BOLD_START}For an English version of the survey please click the flag in the header#{layout.BOLD_END}!
+					#{layout.BREAK}
+					#{layout.BREAK}
+					In Abhängigkeit von Ihrer persönlichen Lebenssituation wird die Befragung etwa 25 Minuten dauern. Sie können die Befragung auch am Smartphone ausfüllen, allerdings ist die Beantwortung an einem größeren Bildschirm bequemer und schneller. Sie haben jederzeit die Möglichkeit, die Befragung zu unterbrechen und zu einem späteren Zeitpunkt fortzuführen. Wenn Sie alle Fragen beantwortet haben, haben Sie anschließend die Gelegenheit, an der angekündigten Verlosung teilzunehmen.
+					#{layout.BREAK}#{layout.BREAK}
+					Für Ihre Teilnahme danken wir Ihnen bereits an dieser Stelle ganz herzlich!
+					#{layout.BREAK}#{layout.BREAK}
+					#{layout.BREAK}
+					Ihre Teilnahme ist selbstverständlich freiwillig. Ihre Angaben werden für Forschungs- und Evaluationszwecke genutzt. Sämtliche Nacaps-Daten werden nur in anonymisierter Form publiziert und anderen Wissenschaftler(inne)n nur anonymisiert zur Verfügung gestellt. Ihre Kontaktdaten werden stets getrennt von den Befragungsdaten verarbeitet und gespeichert. Keinesfalls werden Ihre Kontaktdaten an Dritte weitergegeben.
+        			</zofar:text>
+        		</zofar:header>
+        	</zofar:section>
+        	 
+        	<zofar:section uid="s2">
+        		<zofar:header>
+        			<zofar:text uid="t4" block="true">
+        				#{layout.BREAK}
+        				#{layout.BREAK}
+        				#{layout.BOLD_START}Kontakt#{layout.BOLD_END}
+        				#{layout.BREAK}
+        				#{layout.BREAK}
+						Bei allen #{layout.BOLD_START}anderen Fragen und Anmerkungen#{layout.BOLD_END} stehen wir Ihnen gerne zur Verfügung.
+        			</zofar:text>
+        		</zofar:header>
+        	</zofar:section>
+			
+			<zofar:questionSingleChoice uid="qsc1">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Handelt es sich um eine offizielle Tätigkeit?
+					</zofar:question>
+				</zofar:header>
+				<zofar:responseDomain variable="var01" uid="rd" itemClasses="true">
+					<zofar:answerOption uid="ao1" value="1" label="Ja"/>
+					<zofar:answerOption uid="ao2" value="2" label="Nein"/>
+				</zofar:responseDomain>
+			</zofar:questionSingleChoice>
+        	
+		</zofar:body>
+		<zofar:triggers>
+			<zofar:variable variable="url" value="zofar.baseUrl()"></zofar:variable>
+			<zofar:jsCheck variable="jsCheck" xvar="width" yvar="height"></zofar:jsCheck>
+			<zofar:variable variable="isMobile" value="zofar.isMobile()"></zofar:variable>
+		</zofar:triggers>
+		
+		<zofar:transitions>
+			<zofar:transition target="A01" condition="var01.value" />
+			<zofar:transition target="A02" condition="true"/>
+			<zofar:transition target="A03" condition="false"/>
+		</zofar:transitions>
+   	</zofar:page>
+   
+	
+    <zofar:page uid="A01">
+		<zofar:header>
+			<zofar:instruction uid="abc">
+				Blabla instr
+			</zofar:instruction>
+
+			<zofar:introduction uid="abc2" visible="zofar.asNumber(testvar) == 1">
+				blabla intro
+			</zofar:introduction>
+
+			<zofar:text uid="abc3" visible="false">
+				blabla text
+			</zofar:text>
+
+			<zofar:title uid="abc4" visible="true">
+				bla bla bkla title
+			</zofar:title>
+
+
+		</zofar:header>
+		<zofar:body uid="b">
+    		<zofar:questionSingleChoice uid="sc1">
+    			<zofar:header>
+    				<zofar:question uid="q1" visible="true">
+						Bitte geben Sie an, was aktuell auf Sie zutrifft.
+    				</zofar:question>
+					<zofar:question uid="q2" visible="false">
+						Bitte geben Sie an, was aktuell auf Sie zutrifft.
+    				</zofar:question>
+    				<zofar:instruction uid="is1" visible="true">Ihr Promotionsverfahren gilt als abgeschlossen, wenn Sie die letzte Prüfung (in der Regel: Disputation oder Rigorosum) erfolgreich abgelegt haben.
+    				</zofar:instruction>
+    				<zofar:instruction uid="is2" visible="false">Ihr Promotionsverfahren gilt als abgeschlossen, wenn Sie die letzte Prüfung (in der Regel: Disputation oder Rigorosum) erfolgreich abgelegt haben.
+    				</zofar:instruction>
+    			</zofar:header>
+    			<zofar:responseDomain variable="var02" uid="rd">
+    				<zofar:answerOption uid="ao1" value="1" label="Ich tue nichts."></zofar:answerOption>
+    				<zofar:answerOption uid="ao2" value="2" label="Ich tue viel."></zofar:answerOption>
+    				<zofar:answerOption uid="ao3" value="3" label="Ich habe mal etwas getan."></zofar:answerOption>
+    				<zofar:answerOption uid="ao4" value="4" label="Ich werde wieder etwas tun."></zofar:answerOption>
+    			</zofar:responseDomain>
+    		</zofar:questionSingleChoice>
+
+    	  		<zofar:questionSingleChoice uid="sc2">
+    			<zofar:header>
+    				<zofar:question uid="q1">
+						Bitte geben Sie an, was aktuell auf Sie zutrifft.
+    				</zofar:question>
+    				<zofar:instruction uid="is">Ihr Promotionsverfahren gilt als abgeschlossen, wenn Sie die letzte Prüfung (in der Regel: Disputation oder Rigorosum) erfolgreich abgelegt haben.
+    				</zofar:instruction>
+    			</zofar:header>
+    			<zofar:responseDomain variable="var02" uid="rd">
+    				<zofar:answerOption uid="ao1" value="1" label="Ich tue nichts."></zofar:answerOption>
+    				<zofar:answerOption uid="ao2" value="2" label="Ich tue viel."></zofar:answerOption>
+    				<zofar:answerOption uid="ao3" value="3" label="Ich habe mal etwas getan."></zofar:answerOption>
+    				<zofar:answerOption uid="ao4" value="4" label="Ich werde wieder etwas tun."></zofar:answerOption>
+    			</zofar:responseDomain>
+    		</zofar:questionSingleChoice>
+
+    		<zofar:section uid="sw" visible="navigatorBean.isSame() or zofar.isBooleanSet('flag_A01',sessionController.participant)">
+				<zofar:header>
+					<zofar:text uid="t" block="true">
+						#{layout.BREAK}#{layout.WARNING_START}
+						Für den weiteren Verlauf der Befragung ist diese Frage wichtig. Ohne eine Angabe würden Sie Fragen
+						erhalten, die nicht auf Ihre Situation zutreffen. Beantworten Sie deshalb bitte diese Frage, um fortfahren zu
+						können.
+						#{layout.WARNING_END}
+					</zofar:text>
+				</zofar:header>
+				<zofar:body uid="bb">
+				</zofar:body>
+			</zofar:section>
+    	</zofar:body>
+    	<zofar:triggers>
+    		<zofar:variable variable="flag_A01" value="true" direction="same" onExit="false"></zofar:variable>
+    	</zofar:triggers>
+    	<zofar:transitions>
+			<zofar:transition target="A03"/>
+    	</zofar:transitions>
+    </zofar:page>
+    
+
+	<zofar:page uid="A02">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var03a" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03b" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03c" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03d" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03e" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03f" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03g" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03h" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03i" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03j" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+			<zofar:questionOpen variable="var03k" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum haben Sie etwas getan?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A04" />
+		</zofar:transitions>
+	</zofar:page>
+
+	<zofar:page uid="A03">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var04" uid="qopen" columns="110" rows="4" smallOption="false">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Warum taten sie mal etwas?
+					</zofar:question>
+				</zofar:header>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A05" />
+		</zofar:transitions>
+	</zofar:page>    
+    
+	<zofar:page uid="A04">
+		<zofar:body uid="body">
+			<zofar:questionSingleChoice uid="qsc1">
+				<zofar:header>
+					<zofar:question uid="q1" block="true">
+						Handelt es sich um eine offizielle Tätigkeit?
+					</zofar:question>
+				</zofar:header>
+				<zofar:responseDomain variable="var05" uid="rd" itemClasses="true">
+					<zofar:answerOption uid="ao1" value="1" label="Ja"/>
+					<zofar:answerOption uid="ao2" value="2" label="Nein"/>
+				</zofar:responseDomain>
+			</zofar:questionSingleChoice>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A06" />
+		</zofar:transitions>
+	</zofar:page>
+    
+    
+	<zofar:page uid="A05">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var06" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="A06"/>
+		</zofar:transitions>
+	</zofar:page>
+    
+
+	<zofar:page uid="A06">
+		<zofar:body uid="body">
+			<zofar:questionOpen variable="var07" uid="qopen1"
+					size="4" type="number" validationMessage="Bitte geben Sie einen Wert zwischen 0 und 100 an."
+					minValue="0" maxValue="100">
+				<zofar:header>
+					<zofar:question uid="q1" block="true" visible="zofar.asNumber(var02)==4">
+						Wie viel Prozent?
+					</zofar:question>
+					<zofar:question uid="q2" block="true" visible="zofar.asNumber(var02)==1 or zofar.asNumber(var02)==3">
+						Wie viele Prozente?
+					</zofar:question>
+					<zofar:instruction uid="instr1" block="true">
+						Bitte geben Sie nur Zahlen ein und verzichten Sie auf Nachkommastellen.
+						#{layout.BREAK}
+						(Beispiel: 25 und nicht 25,00)
+					</zofar:instruction>
+				</zofar:header>
+				<zofar:prefix>
+					<zofar:label uid="label1">
+						Ich habe ca. 
+					</zofar:label>
+				</zofar:prefix>
+				<zofar:postfix>
+					<zofar:label uid="label2">
+						% Prozent(e).
+					</zofar:label>
+				</zofar:postfix>
+			</zofar:questionOpen>
+		</zofar:body>
+		<zofar:transitions>
+			<zofar:transition target="end"/>
+		</zofar:transitions>
+	</zofar:page>
+  
+    
+    <zofar:page uid="end">
+    	<zofar:header>
+    	</zofar:header>
+    	<zofar:body uid="b">
+    	</zofar:body>
+    </zofar:page>
+    
+</zofar:questionnaire>
