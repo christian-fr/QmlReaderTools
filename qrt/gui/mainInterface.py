@@ -5,7 +5,7 @@ __version__ = "0.3.4"
 __status__ = "Prototype"
 __name__ = "QmlReader_GUI"
 
-from qrt.util import qmlReader, questionnaire
+from qrt.util import xml, qml
 import tkinter
 from tkinter import filedialog, scrolledtext, IntVar, messagebox
 from os import listdir
@@ -29,7 +29,7 @@ class Window(tkinter.Frame):
         # self.questionnaire = Questionnaire.Questionnaire()
         self.master = master
         self.dict_of_qmls = {}
-        self.questionnaire_combined = questionnaire.Questionnaire()
+        self.questionnaire_combined = qml.Questionnaire()
         self.listOfFiles = []
         self.listOfFilesFull = []
         self.list_of_selected_files = []
@@ -259,7 +259,7 @@ class Window(tkinter.Frame):
             return
         for entry in self.listOfFilesFull:
             print(entry)
-            self.dict_of_qmls[os.path.split(entry)[1]] = qmlReader.QmlReader(entry)
+            self.dict_of_qmls[os.path.split(entry)[1]] = xml.QmlReader(entry)
 
         for key in self.dict_of_qmls:
             self.read_into_questionnaire_objects(key=key)
@@ -268,7 +268,7 @@ class Window(tkinter.Frame):
 
     def run_combine_questionnaires(self):
         print("run_combine_questionnaires")
-        self.questionnaire_combined = questionnaire.Questionnaire()
+        self.questionnaire_combined = qml.Questionnaire()
         self.selection_dialogue('combine')
 
     def read_into_questionnaire_objects(self, key):
@@ -493,7 +493,7 @@ class Window(tkinter.Frame):
         """
 
         try:
-            assert isinstance(qml_reader_object, qmlReader.QmlReader)
+            assert isinstance(qml_reader_object, xml.QmlReader)
         except AssertionError:
             logger.exception('Wrong input type: ' + str(type(qml_reader_object)))
 

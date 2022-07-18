@@ -1,18 +1,98 @@
-__author__ = "Christian Friedrich"
-__maintainer__ = "Christian Friedrich"
-__license__ = "MIT"
-__version__ = "0.2.6"
-__status__ = "Prototype"
-__name__ = "QmlReader"
-
-# last edited: 2020-04-16
-
 import html
+import os.path
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Optional, List, Dict
+
 import lxml
 from lxml import objectify, etree
 import logging
-from qrt.util import questionnaire
+from qrt.util import qml
 import re
+from xml.etree import ElementTree
+
+NS = {'zofar': 'http://www.his.de/zofar/xml/questionnaire'}
+
+
+@dataclass
+class Transition:
+    target_uid: str
+    # condition as spring expression that has to be fulfilled on order to follow the transition
+    condition: Optional[str] = None
+
+
+@dataclass
+class Variable:
+    name: str
+    type: str
+    is_preload: bool = False
+
+
+@dataclass
+class VarRef:
+    variable: Variable
+    # list of conditions (as spring expression) that have to be fulfilled in order to reach the variable reference
+    condition: List[str] = field(default_factory=list)
+
+
+@dataclass
+class EnumValue:
+    uid: str
+    value: int
+    label: str
+
+
+@dataclass
+class EnumValues:
+    variable: Variable
+    values: List[EnumValue]
+
+
+@dataclass
+class Page:
+    uid: str
+    transitions: List[Transition]
+    var_refs: List[VarRef]
+    enum_values: List[EnumValues]
+
+
+@dataclass
+class Questionnaire:
+    variables: Dict[str, Variable]
+    pages: List[Page]
+
+
+@dataclass
+class NewQuestionnaire(Questionnaire):
+    pass
+
+
+def read_xml(xml_path: Path) -> NewQuestionnaire:
+    xml_root = ElementTree.parse(xml_path)
+
+    for page in xml_root.findall('./zofar:page', NS):
+        page_uid = page.attrib['uid']
+        t = transitions(page)
+        vr = var_refs(page)
+        vu = var_usages(page)
+        vc = visible_conditions()
+
+    return None
+
+def transitions(element: ElementTree.Element) -> List[Transition]:
+    pass
+
+
+def var_refs(element: ElementTree.Element) -> List[Variable]:
+    pass
+
+
+def var_usages(element: ElementTree.Element) -> List[Variable]:
+    pass
+
+
+def visible_conditions(element: ElementTree.Element) -> List[str]:
+    pass
 
 
 class QmlReader:
@@ -36,7 +116,7 @@ class QmlReader:
 
         self.title = None
         self.set_title()
-        self.questionnaire = questionnaire.Questionnaire(file=self.file, title=self.title)
+        self.questionnaire = qml.Questionnaire(file=self.file, title=self.title)
 
         self.extract_declared_variables()
 
@@ -105,7 +185,7 @@ class QmlReader:
             for shown_variable in shown_var_list:
                 if shown_variable not in self.questionnaire.pages.pages[tmp_pagename].variables.list_all_shown_vars():
                     self.questionnaire.pages.pages[tmp_pagename].variables.add_variable(
-                        questionnaire.Variable(varname=shown_variable, vartype='string', varplace='shown'))
+                        qml.Variable(varname=shown_variable, vartype='string', varplace='shown'))
 
                 # print(f'## shown: {shown_variable}')
 
@@ -155,8 +235,8 @@ class QmlReader:
             # print(self.questionnaire.filename)
             # print(self.root.variables.variable[i].attrib['name'])
             self.questionnaire.variables.add_variable(
-                questionnaire.Variable(self.root.variables.variable[i].attrib["name"],
-                                       self.root.variables.variable[i].attrib["type"]))
+                qml.Variable(self.root.variables.variable[i].attrib["name"],
+                             self.root.variables.variable[i].attrib["type"]))
 
     # def extract_pages_into_tmp_dict(self):
     #     self.logger.info("extract_pages_into_tmp_dict")
@@ -170,7 +250,7 @@ class QmlReader:
             tmp_qml_page_source = self.root.page[i]
 
             tmp_page_uid = tmp_qml_page_source.attrib['uid']
-            tmp_qml_page_object = questionnaire.QmlPage(tmp_page_uid, declared=True)
+            tmp_qml_page_object = qml.QmlPage(tmp_page_uid, declared=True)
 
             if tmp_qml_page_source is not None:
                 # get the objectified xml, represented as bytes
@@ -222,7 +302,7 @@ class QmlReader:
 
                     source_page_index = self.list_of_pages().index(uid)
                     if tmp_target not in self.list_of_pages():
-                        self.questionnaire.pages.add_page(qmlpage=questionnaire.QmlPage(uid=tmp_target, declared=False))
+                        self.questionnaire.pages.add_page(qmlpage=qml.QmlPage(uid=tmp_target, declared=False))
                     target_page_index = self.list_of_pages().index(tmp_target)
                     tmp_distance = target_page_index - source_page_index
                     if 'condition' in tmp_transition_dict:
@@ -230,11 +310,11 @@ class QmlReader:
                     else:
                         tmp_condition = None
 
-                    tmp_transition_object = questionnaire.Transition(index=tmp_index,
-                                                                     target=tmp_target,
-                                                                     condition=tmp_condition,
-                                                                     source=uid,
-                                                                     distance=tmp_distance)
+                    tmp_transition_object = qml.Transition(index=tmp_index,
+                                                           target=tmp_target,
+                                                           condition=tmp_condition,
+                                                           source=uid,
+                                                           distance=tmp_distance)
                     self.questionnaire.pages.pages[uid].transitions.add_transitions(tmp_transition_object)
 
                     # add transition to sources for each page
@@ -291,9 +371,9 @@ class QmlReader:
 
                     tmp_tag = header.tag[header.tag.rfind('}') + 1:]
                     self.logger.info("  found tag: '" + str(tmp_tag) + "'")
-                    tmp_object = questionnaire.PageHeaderObject(uid=tmp_uid, tag=tmp_tag, text=tmp_text,
-                                                                index=tmp_index,
-                                                                visible_conditions=tmp_visible_conditions)
+                    tmp_object = qml.PageHeaderObject(uid=tmp_uid, tag=tmp_tag, text=tmp_text,
+                                                      index=tmp_index,
+                                                      visible_conditions=tmp_visible_conditions)
 
                     self.logger.info(
                         "  adding PageHeaderObject: '" + str(tmp_object.tag) + "' to page: " + str(page_uid))
@@ -449,7 +529,7 @@ class QmlReader:
                     tmp_dict_of_additional_pages[transition.target] = page.uid
         # ToDo: (see above) the following is just a workaround until option "combine" is implemented issue#9
         for newpagename in tmp_dict_of_additional_pages.keys():
-            self.questionnaire.pages.add_page(questionnaire.QmlPage(newpagename, declared=False))
+            self.questionnaire.pages.add_page(qml.QmlPage(newpagename, declared=False))
             self.questionnaire.pages.pages[newpagename].sources.add_source(tmp_dict_of_additional_pages[newpagename])
 
     def extract_triggers_from_pages(self):
@@ -471,7 +551,7 @@ class QmlReader:
         flag_question = False
         flag_instruction = False
         flag_introduction = False
-        tmp_header = questionnaire.QuestionHeader()
+        tmp_header = qml.QuestionHeader()
         if hasattr(qml_source_element, 'header'):
             for header_question_object in qml_source_element.header.iterchildren():
                 j = 0
@@ -505,8 +585,8 @@ class QmlReader:
                     tmp_visible = None
                 tmp_tag = header_question_object.tag[header_question_object.tag.rfind('}') + 1:]
                 tmp_header.add_header_object(
-                    questionnaire.QuestionHeaderObject(uid=tmp_uid, text=tmp_text, tag=tmp_tag, index=tmp_index,
-                                                       visible_conditions=tmp_visible))
+                    qml.QuestionHeaderObject(uid=tmp_uid, text=tmp_text, tag=tmp_tag, index=tmp_index,
+                                             visible_conditions=tmp_visible))
         return tmp_header
 
         # for header_element in qml_source_element.header:
@@ -517,3 +597,8 @@ class QmlReader:
         #     tmp_page_header_object = Questionnaire.PageHeaderObject()
         #     tmp_header.add_header_object()
         pass
+
+
+if __name__ == '__main__':
+    input_xml = Path(os.path.abspath('.'), 'tests','context','qml','questionnaire.xml')
+    read_xml(input_xml)
