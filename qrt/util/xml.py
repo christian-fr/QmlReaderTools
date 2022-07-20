@@ -1,17 +1,33 @@
+import dataclasses
 import html
 import os.path
+from abc import ABC
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, NewType, Union, Tuple
 
 import lxml
 from lxml import objectify, etree
+
 import logging
 from qrt.util import qml
 import re
 from xml.etree import ElementTree
 
 NS = {'zofar': 'http://www.his.de/zofar/xml/questionnaire'}
+
+ON_EXIT_DEFAULT = 'true'
+DIRECTION_DEFAULT = 'forward'
+
+
+def flatten(ll):
+    """
+    Flattens given list of lists by one level
+
+    :param ll: list of lists
+    :return: flattened list
+    """
+    return [it for li in ll for it in li]
 
 
 @dataclass
@@ -25,7 +41,45 @@ class Transition:
 class Variable:
     name: str
     type: str
-    is_preload: bool = False
+
+
+TriggerVariable = NewType('TriggerVariable', None)
+
+
+@dataclass(kw_only=True)
+class Trigger:
+    condition: Optional[str] = 'true'
+    children: Optional[TriggerVariable] = None
+    on_exit: Optional[str] = ON_EXIT_DEFAULT
+    direction: Optional[str] = DIRECTION_DEFAULT
+
+
+# noinspection PyDataclass
+@dataclass(kw_only=True)
+class TriggerRedirect(Trigger):
+    target_uid: Optional[str]
+    aux_var_val_condition: Tuple[str]
+
+
+# noinspection PyDataclass
+@dataclass(kw_only=True)
+class TriggerVariable(Trigger):
+    variable: str
+    value: str
+
+
+# noinspection PyDataclass
+@dataclass(kw_only=True)
+class TriggerAction(Trigger):
+    command: str
+
+
+# noinspection PyDataclass
+@dataclass(kw_only=True)
+class TriggerJsCheck(Trigger):
+    variable: str
+    x_var: str
+    y_var: str
 
 
 @dataclass
@@ -67,32 +121,197 @@ class NewQuestionnaire(Questionnaire):
     pass
 
 
+def transitions(page: ElementTree.Element) -> List[Transition]:
+    print(page.attrib['uid'])
+    transitions_list = page.find('./zofar:transitions', NS)
+    if transitions_list:
+        return [Transition(t.attrib['target'], t.attrib['condition']) if 'condition' in t.attrib else
+                Transition(t.attrib['target']) for t in transitions_list]
+    return []
+
+
+RE_VAL = re.compile(r'#\{([a-zA-Z0-9_]+)\.value\}')
+RE_VAL_OF = re.compile(r'#\{zofar\.valueOf\(([a-zA-Z0-9_]+)\)\}')
+RE_AS_NUM = re.compile(r'#\{zofar\.asNumber\(([a-zA-Z0-9_]+)\)\}')
+
+
+def extract_var_ref(input: str) -> List[str]:
+    # find all strings that match the given regular expressions;
+    #  returns list of VARNAMEs for: "#{VARNAME.value}", "#{zofar.valueOf(VARNAME)}", "#{zofar.asNumber(VARNAME)}"
+    return RE_VAL.findall(input) + RE_VAL_OF.findall(input) + RE_AS_NUM.findall(input)
+
+
+def var_refs(page: ElementTree.Element) -> List[str]:
+    # get a list of all variables that are used in the texts
+    texts = [elmnt.text for elmnt in page.iter() if elmnt.text is not None and len(elmnt.text) > 0]
+    return list(set(flatten([extract_var_ref(text) for text in texts])))
+
+
+def visible_conditions(page: ElementTree.Element) -> List[str]:
+    return [element.attrib['visible'] for element in page.iter() if 'visible' in element.attrib]
+
+
+def zofar_tag(ns: Dict[str, str], ns_name: str, tag_name: str) -> str:
+    return f'{{{ns[ns_name]}}}{tag_name}'
+
+
+def action_trigger(trigger: ElementTree.Element) -> TriggerAction:
+    on_exit = None
+    direction = None
+    condition = None
+    if 'onExit' in trigger.attrib:
+        on_exit = trigger.attrib['onExit']
+    if 'direction' in trigger.attrib:
+        direction = trigger.attrib['direction']
+    if 'condition' in trigger.attrib:
+        condition = trigger.attrib['condition']
+    if 'command' in trigger.attrib:
+        return TriggerAction(command=trigger.attrib['command'],
+                             on_exit=on_exit,
+                             direction=direction,
+                             condition=condition)
+    print(ElementTree.tostring(trigger))
+    raise KeyError('Key "command" not found for variable trigger.')
+
+
+def variable_trigger(trigger: ElementTree.Element) -> TriggerVariable:
+    if 'variable' in trigger.attrib and 'value' in trigger.attrib:
+        condition = None
+        if 'condition' in trigger.attrib:
+            condition = trigger.attrib['condition']
+        return TriggerVariable(variable=trigger.attrib['variable'], value=trigger.attrib['value'], condition=condition)
+    print(ElementTree.tostring(trigger))
+    raise KeyError('Keys "variable" and/or "value" not found for variable trigger.')
+
+
+def js_check_trigger(trigger: ElementTree.Element) -> TriggerJsCheck:
+    if 'variable' in trigger.attrib and 'xvar' in trigger.attrib and 'yvar' in trigger.attrib:
+        return TriggerJsCheck(variable=trigger.attrib['variable'], x_var=trigger.attrib['xvar'],
+                              y_var=trigger.attrib['yvar'])
+    print(ElementTree.tostring(trigger))
+    raise KeyError('Keys "variable" and/or "xvar" and/or "yvar" not found for variable trigger.')
+
+
+def process_trigger(trigger: ElementTree.Element) -> Union[TriggerVariable, TriggerAction, TriggerJsCheck]:
+    if trigger.tag == zofar_tag(NS, 'zofar', 'action'):
+        return action_trigger(trigger)
+    elif trigger.tag == zofar_tag(NS, 'zofar', 'variable'):
+        return variable_trigger(trigger)
+    elif trigger.tag == zofar_tag(NS, 'zofar', 'jsCheck'):
+        return js_check_trigger(trigger)
+    else:
+        print('XML string:')
+        print(ElementTree.tostring(trigger))
+        raise NotImplementedError(f'triggers: tag not yet implemented: {trigger.tag}')
+
+
+def process_triggers(page: ElementTree.Element) -> List[Union[TriggerVariable, TriggerAction, TriggerJsCheck]]:
+    # gather all variable triggers
+    triggers = page.find('./zofar:triggers', NS)
+    if triggers:
+        # variable triggers
+        trig_list = page.findall('./zofar:triggers/*', NS)
+        if trig_list:
+            return [process_trigger(trigger) for trigger in trig_list]
+    return []
+
+
+def trig_json_vars_reset(page: ElementTree.Element) -> List[str]:
+    x = trig_action_script_items(page, None, 'false')
+    return []
+
+
+def trig_action_redirect(page: ElementTree.Element) -> List[Transition]:
+    # action_trigger()
+    x = (page, None, 'false')
+    return []
+
+
+def trig_json_vars_load(page: ElementTree.Element) -> List[str]:
+    x = trig_action_script_items(page, None, 'false')
+    return []
+
+
+def trig_json_vars_save(page: ElementTree.Element) -> List[str]:
+    x = trig_action_script_items(page, None, 'true')
+    return []
+
+
+def trig_action_script_items(page: ElementTree.Element,
+                             direction: Optional[str],
+                             on_exit: Optional[str]) -> List[ElementTree.Element]:
+    act_trig = [elmnt for elmnt in page.findall('./zofar:triggers/zofar:action', NS)]
+    return_list = []
+    for element in act_trig:
+        add_element = True
+        if 'onExit' in element.attrib and on_exit is not None:
+            if element.attrib['onExit'] != on_exit:
+                add_element = False
+        if 'direction' in element.attrib and direction is not None:
+            if element.attrib['direction'] != direction:
+                add_element = False
+        if add_element:
+            return_list.append(element)
+    return return_list
+
+
+def variables(xml_root: ElementTree.ElementTree):
+    # gather all preload variables
+    pi_list = flatten([pr.findall('./zofar:preloadItem', NS) for pr in xml_root.find('./zofar:preloads', NS)])
+    pl_var_list = [Variable('PRELOAD' + pi.attrib['variable'], 'string') for pi in pi_list]
+    # gather all regular variable declarations and add preload variables, return
+    return pl_var_list + [Variable(v.attrib['name'], v.attrib['type']) for v in
+                          xml_root.find('./zofar:variables', NS).findall('./zofar:variable', NS)]
+
+
+def redirect_triggers(trig_list: List[Trigger], on_exit: str) -> List[TriggerRedirect]:
+    _RE_REDIR_TRIG = re.compile(r"^\s*navigatorBean\.redirect\('([a-zA-Z0-9_]+)'\)\s*$")
+    _RE_REDIR_TRIG_AUX = re.compile(r"^\s*navigatorBean\.redirect\(([a-zA-Z0-9_]+)\)\s*$")
+    filtered_trig_list = []
+    for trigger in trig_list:
+        if not isinstance(trigger, TriggerAction):
+            continue
+        if trigger.on_exit is None and on_exit == ON_EXIT_DEFAULT:
+            filtered_trig_list.append(trigger)
+        elif trigger.on_exit == on_exit:
+            filtered_trig_list.append(trigger)
+
+    helper_vars_list = flatten([_RE_REDIR_TRIG_AUX.findall(trigger.command) for trigger in filtered_trig_list
+                                if _RE_REDIR_TRIG_AUX.match(trigger.command) is not None])
+
+    return_list = []
+    for trigger in filtered_trig_list:
+        if not _RE_REDIR_TRIG.match(trigger.command) and \
+                not _RE_REDIR_TRIG_AUX.match(trigger.command):
+            continue
+        if _RE_REDIR_TRIG.match(trigger.command):
+            return_list.append(TriggerRedirect(condition=trigger.condition, target_uid=_RE_REDIR_TRIG.findall(trigger.command), aux_var_val_condition=None))
+        elif _RE_REDIR_TRIG_AUX.match(trigger.command):
+            return_list.append(TriggerRedirect(condition=trigger.condition, target_uid=_RE_REDIR_TRIG.findall(trigger.command), aux_var_val_condition=None))
+
+    return return_list
+
+
 def read_xml(xml_path: Path) -> NewQuestionnaire:
     xml_root = ElementTree.parse(xml_path)
+    vd = variables(xml_root)
 
     for page in xml_root.findall('./zofar:page', NS):
         page_uid = page.attrib['uid']
-        t = transitions(page)
-        vr = var_refs(page)
-        vu = var_usages(page)
-        vc = visible_conditions()
+        trans = transitions(page)
+        var_ref = var_refs(page)
+        trig_list = process_triggers(page)
+        trig_json_save = trig_json_vars_save(page)
+        trig_json_load = trig_json_vars_load(page)
+        trig_json_reset = trig_json_vars_reset(page)
+        vis_cond = visible_conditions(page)
+
+        trig_redirect_on_exit_true = redirect_triggers(trig_list, 'true')
+        trig_redirect_on_exit_false = redirect_triggers(trig_list, 'false')
+
+        pass
 
     return None
-
-def transitions(element: ElementTree.Element) -> List[Transition]:
-    pass
-
-
-def var_refs(element: ElementTree.Element) -> List[Variable]:
-    pass
-
-
-def var_usages(element: ElementTree.Element) -> List[Variable]:
-    pass
-
-
-def visible_conditions(element: ElementTree.Element) -> List[str]:
-    pass
 
 
 class QmlReader:
@@ -339,7 +558,7 @@ class QmlReader:
         if hasattr(qml_source_page, 'header'):
             self.logger.info("  found page header")
             i = -1
-            if len([i for i in qml_source_page.header.iterchildren()]) > 0:
+            if len([j for j in qml_source_page.header.iterchildren()]) > 0:
                 self.logger.info("  page header has length > 0")
                 for header in qml_source_page.header.iterchildren():
                     tmp_object = None
@@ -595,10 +814,10 @@ class QmlReader:
         #     tmp_tag = header.tag[header.tag.rfind('}') + 1:]
         #     tmp_index =
         #     tmp_page_header_object = Questionnaire.PageHeaderObject()
-        #     tmp_header.add_header_object()
+        #     tmp_header.add_header_object()file:///home/christian/zofar_workspace/lhc_methodentest/src/main/resources/questionnaire.xml
         pass
 
 
 if __name__ == '__main__':
-    input_xml = Path(os.path.abspath('.'), 'tests','context','qml','questionnaire.xml')
+    input_xml = Path(os.path.abspath('.'), 'tests', 'context', 'qml', 'questionnaire_lhc.xml')
     read_xml(input_xml)
