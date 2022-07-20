@@ -18,6 +18,7 @@ NS = {'zofar': 'http://www.his.de/zofar/xml/questionnaire'}
 
 ON_EXIT_DEFAULT = 'true'
 DIRECTION_DEFAULT = 'forward'
+CONDITION_DEFAULT = 'true'
 
 
 def flatten(ll):
@@ -57,8 +58,7 @@ class Trigger:
 # noinspection PyDataclass
 @dataclass(kw_only=True)
 class TriggerRedirect(Trigger):
-    target_uid: Optional[str]
-    aux_var_val_condition: Tuple[str]
+    target_cond_list: List[Tuple[str, str]]
 
 
 # noinspection PyDataclass
@@ -116,13 +116,7 @@ class Questionnaire:
     pages: List[Page]
 
 
-@dataclass
-class NewQuestionnaire(Questionnaire):
-    pass
-
-
 def transitions(page: ElementTree.Element) -> List[Transition]:
-    print(page.attrib['uid'])
     transitions_list = page.find('./zofar:transitions', NS)
     if transitions_list:
         return [Transition(t.attrib['target'], t.attrib['condition']) if 'condition' in t.attrib else
@@ -158,7 +152,7 @@ def zofar_tag(ns: Dict[str, str], ns_name: str, tag_name: str) -> str:
 def action_trigger(trigger: ElementTree.Element) -> TriggerAction:
     on_exit = None
     direction = None
-    condition = None
+    condition = CONDITION_DEFAULT
     if 'onExit' in trigger.attrib:
         on_exit = trigger.attrib['onExit']
     if 'direction' in trigger.attrib:
@@ -176,7 +170,7 @@ def action_trigger(trigger: ElementTree.Element) -> TriggerAction:
 
 def variable_trigger(trigger: ElementTree.Element) -> TriggerVariable:
     if 'variable' in trigger.attrib and 'value' in trigger.attrib:
-        condition = None
+        condition = CONDITION_DEFAULT
         if 'condition' in trigger.attrib:
             condition = trigger.attrib['condition']
         return TriggerVariable(variable=trigger.attrib['variable'], value=trigger.attrib['value'], condition=condition)
@@ -216,31 +210,36 @@ def process_triggers(page: ElementTree.Element) -> List[Union[TriggerVariable, T
     return []
 
 
-def trig_json_vars_reset(page: ElementTree.Element) -> List[str]:
-    x = trig_action_script_items(page, None, 'false')
-    return []
-
-
 def trig_action_redirect(page: ElementTree.Element) -> List[Transition]:
     # action_trigger()
     x = (page, None, 'false')
     return []
 
 
+RE_TO_LOAD = re.compile(r"^\s*toLoad\.add\('([0-9a-zA-Z_]+)'\)")
+RE_TO_RESET = re.compile(r"^\s*toReset\.add\('([0-9a-zA-Z_]+)'\)")
+RE_TO_PERSIST = re.compile(r"^\s*toPersist\.put\('([0-9a-zA-Z_]+)',[a-zA-Z0-9_.]+\)")
+
+
+def trig_json_vars_reset(page: ElementTree.Element) -> List[str]:
+    return flatten([RE_TO_RESET.findall(si.attrib['value']) for si in
+                    trig_action_script_items(page=page, direction=None, on_exit='false')])
+
+
 def trig_json_vars_load(page: ElementTree.Element) -> List[str]:
-    x = trig_action_script_items(page, None, 'false')
-    return []
+    return flatten([RE_TO_LOAD.findall(si.attrib['value']) for si in
+                    trig_action_script_items(page=page, direction=None, on_exit='false')])
 
 
 def trig_json_vars_save(page: ElementTree.Element) -> List[str]:
-    x = trig_action_script_items(page, None, 'true')
-    return []
+    return flatten([RE_TO_PERSIST.findall(si.attrib['value']) for si in
+                    trig_action_script_items(page=page, direction=None, on_exit='true')])
 
 
 def trig_action_script_items(page: ElementTree.Element,
                              direction: Optional[str],
                              on_exit: Optional[str]) -> List[ElementTree.Element]:
-    act_trig = [elmnt for elmnt in page.findall('./zofar:triggers/zofar:action', NS)]
+    act_trig = [elmnt for elmnt in page.findall('./zofar:triggers/zofar:action/zofar:scriptItem', NS)]
     return_list = []
     for element in act_trig:
         add_element = True
@@ -279,39 +278,88 @@ def redirect_triggers(trig_list: List[Trigger], on_exit: str) -> List[TriggerRed
     helper_vars_list = flatten([_RE_REDIR_TRIG_AUX.findall(trigger.command) for trigger in filtered_trig_list
                                 if _RE_REDIR_TRIG_AUX.match(trigger.command) is not None])
 
+    trig_var_val_cond_tuple_list = flatten([[(trig.variable, trig.value, trig.condition) for trig in trig_list if
+                                             isinstance(trig, TriggerVariable) and trig.variable == var] for var in
+                                            helper_vars_list])
+
+    aux_var_dict = {var_name: [] for var_name in helper_vars_list}
+    for var in helper_vars_list:
+        for trigger in trig_list:
+            if isinstance(trigger, TriggerVariable) and trigger.variable == var:
+                aux_var_dict[var].append((trigger.value, trigger.condition))
+
     return_list = []
     for trigger in filtered_trig_list:
         if not _RE_REDIR_TRIG.match(trigger.command) and \
                 not _RE_REDIR_TRIG_AUX.match(trigger.command):
             continue
         if _RE_REDIR_TRIG.match(trigger.command):
-            return_list.append(TriggerRedirect(condition=trigger.condition, target_uid=_RE_REDIR_TRIG.findall(trigger.command), aux_var_val_condition=None))
+            return_list.append(
+                TriggerRedirect(target_cond_list=[(_RE_REDIR_TRIG.findall(trigger.command)[0], trigger.condition)],
+                                on_exit=trigger.on_exit,
+                                direction=trigger.direction))
         elif _RE_REDIR_TRIG_AUX.match(trigger.command):
-            return_list.append(TriggerRedirect(condition=trigger.condition, target_uid=_RE_REDIR_TRIG.findall(trigger.command), aux_var_val_condition=None))
+            aux_var = _RE_REDIR_TRIG_AUX.findall(trigger.command)[0]
+            return_list.append(
+                TriggerRedirect(target_cond_list=aux_var_dict[aux_var],
+                                on_exit=trigger.on_exit,
+                                direction=trigger.direction))
 
     return return_list
 
 
+def body_vars(page: ElementTree.Element) -> List[str]:
+    if page.find('./zofar:body', NS) is not None:
+        return [b.attrib['variable'] for b in page.find('./zofar:body', NS).iterfind('.//*[@variable]')]
+    return []
+
+
+@dataclass
+class NewPage:
+    uid: str
+    transitions: List[Transition] = field(default_factory=list)
+    var_refs: List[str] = field(default_factory=list)
+    _triggers_list: List[Trigger] = field(default_factory=list)
+    triggers_vars: List[str] = field(default_factory=list)
+    triggers_json_save: List[str] = field(default_factory=list)
+    triggers_json_load: List[str] = field(default_factory=list)
+    triggers_json_reset: List[str] = field(default_factory=list)
+    visible_conditions: List[str] = field(default_factory=list)
+    trig_redirect_on_exit_true: List[TriggerRedirect] = field(default_factory=list)
+    trig_redirect_on_exit_false: List[TriggerRedirect] = field(default_factory=list)
+
+
+@dataclass
+class NewQuestionnaire:
+    pages: List[NewPage] = field(default_factory=list)
+    var_declarations: List[Variable] = field(default_factory=list)
+
+
 def read_xml(xml_path: Path) -> NewQuestionnaire:
     xml_root = ElementTree.parse(xml_path)
-    vd = variables(xml_root)
+    q = NewQuestionnaire()
+
+    q.var_declarations = variables(xml_root)
 
     for page in xml_root.findall('./zofar:page', NS):
-        page_uid = page.attrib['uid']
-        trans = transitions(page)
-        var_ref = var_refs(page)
-        trig_list = process_triggers(page)
-        trig_json_save = trig_json_vars_save(page)
-        trig_json_load = trig_json_vars_load(page)
-        trig_json_reset = trig_json_vars_reset(page)
-        vis_cond = visible_conditions(page)
+        p = NewPage(page.attrib['uid'])
 
-        trig_redirect_on_exit_true = redirect_triggers(trig_list, 'true')
-        trig_redirect_on_exit_false = redirect_triggers(trig_list, 'false')
+        p.transitions = transitions(page)
+        p.var_ref = var_refs(page)
+        p._triggers_list = process_triggers(page)
+        p.body_var = body_vars(page)
+        p.trig_var = [trig.variable for trig in p._triggers_list if isinstance(trig, TriggerVariable)]
+        p.trig_json_save = trig_json_vars_save(page)
+        p.trig_json_load = trig_json_vars_load(page)
+        p.trig_json_reset = trig_json_vars_reset(page)
+        p.visible_conditions = visible_conditions(page)
 
-        pass
+        p.trig_redirect_on_exit_true = redirect_triggers(p._triggers_list, 'true')
+        p.trig_redirect_on_exit_false = redirect_triggers(p._triggers_list, 'false')
 
-    return None
+        q.pages.append(p)
+
+    return q
 
 
 class QmlReader:
@@ -820,4 +868,5 @@ class QmlReader:
 
 if __name__ == '__main__':
     input_xml = Path(os.path.abspath('.'), 'tests', 'context', 'qml', 'questionnaire_lhc.xml')
-    read_xml(input_xml)
+    questionnaire = read_xml(input_xml)
+    pass
