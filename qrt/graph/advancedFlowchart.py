@@ -227,8 +227,8 @@ class AdvancedFlowchart:
                 list_of_used_nodes_strings.append(node)
                 print('weight from dict: ' + str(dict_of_weights_of_nodes[node]))
                 node.attr['penwidth'] = ceil(dict_of_weights_of_nodes[node] * 10 + 1)
-                print('color: ' + str(self.colorfader[ceil(dict_of_weights_of_nodes[node] * 255)]))
-                node.attr['color'] = self.colorfader[ceil(dict_of_weights_of_nodes[node] * 255)]
+                print('color: ' + str(self._colorfader[ceil(dict_of_weights_of_nodes[node] * 255)]))
+                node.attr['color'] = self._colorfader[ceil(dict_of_weights_of_nodes[node] * 255)]
                 print('penwidth at node: ' + str(node.attr['penwidth']))
 
             else:
