@@ -1,5 +1,4 @@
-setuptools~=57.0.0
-Pillow~=7.0.0
-lxml>=4.5.0
-networkx~=2.6.3
-pygraphviz~=1.7
+setuptools>=57.0.0
+Pillow>=7.0.0
+networkx>=2.6.3
+pygraphviz>=1.7
