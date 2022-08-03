@@ -45,80 +45,112 @@ def create_digraph(q: Questionnaire) -> nx.DiGraph:
 
     l = create_blue_red_color_gradient_list()
 
+    blac_list_cumu = []
+    blue_list_cumu = []
+    pink_list_cumu = []
+    gree_list_cumu = []
+    oran_list_cumu = []
+    cyan_list_cumu = []
+    red_list_cumu = []
+    lime_list_cumu = []
+    yell_list_cumu = []
+
     for page in q.pages:
         # regular transitions
-        [g.add_edge(page.uid, transition.target_uid, color=color_str_to_hex('black')) for transition in
-         page.transitions if transition.target_uid != 'episodeDispatcher' or page.uid == 'calendar']
-        [g.add_edge(page.uid, transition.target_uid, color=color_str_to_hex('blue')) for transition in
-         page.transitions if transition.target_uid == 'episodeDispatcher' and page.uid != 'calendar']
+        # black
+        blac_list = [transition for transition in page.transitions
+                     if transition.target_uid != 'episodeDispatcher' or page.uid == 'calendar']
+        blac_list_cumu += blac_list
+        [g.add_edge(page.uid, transition.target_uid, color=color_str_to_hex('black')) for transition in blac_list]
+
+        # blue
+        blue_list = [transition for transition in page.transitions
+                     if transition.target_uid == 'episodeDispatcher' and page.uid != 'calendar']
+        blue_list_cumu += blue_list
+        [g.add_edge(page.uid, transition.target_uid, color=color_str_to_hex('blue')) for transition in blue_list]
+
         # trigger redirects
-        [g.add_edge(page.uid, target_uid, color=color_str_to_hex('pink')) for target_uid in flatten([[target_tuple[0]
-                                                                                                      for target_tuple
-                                                                                                      in
-                                                                                                      trigger.target_cond_list
-                                                                                                      if target_tuple[
-                                                                                                          0] not in ['calendar', 'episodeDispatcher'] and
-                                                                                                      target_tuple[1] not in ['episodeDispatcher']]
-                                                                                                     for trigger in
-                                                                                                     page.trig_redirect_on_exit_false])]
+        # red
+        red_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list
+                      if target_tuple[0] not in ['calendar', 'episodeDispatcher']
+                      and target_tuple[1] not in ['episodeDispatcher']]
+                     for trigger in page.trig_redirect_on_exit_false]
+        red_list_flat = flatten(red_list)
+        if red_list_flat:
+            red_list_cumu.append((page.uid, red_list_flat))
+        [g.add_edge(page.uid, target_uid, color=color_str_to_hex('red')) for target_uid in red_list_flat]
 
-        [g.add_edge(page.uid, target_uid, color=color_str_to_hex('green')) for target_uid in flatten([[target_tuple[0]
-                                                                                                       for target_tuple
-                                                                                                       in
-                                                                                                       trigger.target_cond_list
-                                                                                                       if target_tuple[
-                                                                                                           0] == 'calendar' and
-                                                                                                       target_tuple[
-                                                                                                           1] == 'zofar.asNumber(episode_index) lt 0']
-                                                                                                      for trigger in
-                                                                                                      page.trig_redirect_on_exit_false])]
+        # green
+        gree_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list
+                      if 'zofar.asNumber(episode_index) lt 0' in target_tuple[1]]
+                     for trigger in page.trig_redirect_on_exit_false]
+        gree_list_flat = flatten(gree_list)
+        if gree_list_flat:
+            gree_list_cumu.append((page.uid, gree_list_flat))
+            [g.add_edge(page.uid, target_uid, color=color_str_to_hex('green')) for
+             target_uid in gree_list_flat]
 
-        [g.add_edge(page.uid, target_uid, color=color_str_to_hex('orange')) for target_uid in flatten([[target_tuple[0]
-                                                                                                       for target_tuple
-                                                                                                       in
-                                                                                                       trigger.target_cond_list
-                                                                                                       if target_tuple[
-                                                                                                           0] == 'episodeDispatcher']
-                                                                                                      for trigger in
-                                                                                                      page.trig_redirect_on_exit_false])]
+        # orange
+        orange_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list
+                        if target_tuple[0] == 'episodeDispatcher']
+                       for trigger in page.trig_redirect_on_exit_false]
+        orange_list_flat = flatten(orange_list)
+        if orange_list_flat:
+            oran_list_cumu.append((page.uid, orange_list_flat))
+            [g.add_edge(page.uid, target_uid, color=color_str_to_hex('orange')) for target_uid in orange_list_flat]
 
-        [g.add_edge(page.uid, target_uid, color=color_str_to_hex('cyan')) for target_uid in flatten([[target_tuple[0]
-                                                                                                       for target_tuple
-                                                                                                       in
-                                                                                                       trigger.target_cond_list
-                                                                                                       if target_tuple[
-                                                                                                           1] == 'episodeDispatcher']
-                                                                                                      for trigger in
-                                                                                                      page.trig_redirect_on_exit_false])]
+        # cyan
+        cyan_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list if
+                      page.uid == 'episodeDispatcher']
+                     for trigger in page.trig_redirect_on_exit_false]
+        cyan_list_flat = flatten(cyan_list)
+        if cyan_list_flat:
+            cyan_list_cumu.append((page.uid, cyan_list_flat))
+            [g.add_edge(page.uid, target_uid, color=color_str_to_hex('cyan')) for target_uid in cyan_list_flat]
 
-        [g.add_edge(page.uid, target_uid, color=color_str_to_hex('violet')) for target_uid in flatten([[target_tuple[0]
-                                                                                                        for target_tuple
-                                                                                                        in
-                                                                                                        trigger.target_cond_list
-                                                                                                        if target_tuple[
-                                                                                                            0] == 'calendar' and
-                                                                                                        target_tuple[
-                                                                                                            1] != 'zofar.asNumber(episode_index) lt 0']
-                                                                                                       for trigger in
-                                                                                                       page.trig_redirect_on_exit_false])]
-        [g.add_edge(page.uid, target_uid, color=color_str_to_hex('blue')) for target_uid in
-         flatten([[target_tuple[0] for target_tuple in trigger.target_cond_list] for trigger in
-                  page.trig_redirect_on_exit_true])]
+        # pink
+        pink_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list if
+                      target_tuple[0] == 'calendar']
+                     for trigger in page.trig_redirect_on_exit_false]
+        pink_list_flat = flatten(pink_list)
+        if pink_list_flat:
+            pink_list_cumu.append((page.uid, pink_list_flat))
+            [g.add_edge(page.uid, target_uid, color=color_str_to_hex('pink')) for target_uid in pink_list_flat]
 
-        # remove all nodes that have an out_degree of 0 (except end)
-        # remove all nodes that have an in_degree of 0 (except index)
+        # lime
+        lime_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list]
+                     for trigger in page.trig_redirect_on_exit_true]
+        lime_list_flat = flatten(lime_list)
+        if lime_list_flat:
+            lime_list_cumu.append((page.uid, lime_list_flat))
+            [g.add_edge(page.uid, target_uid, color=color_str_to_hex('lime')) for target_uid in
+             lime_list_flat]
+
+    print(f'{blac_list_cumu=}')
+    print(f'{blue_list_cumu=}')
+    print(f'{pink_list_cumu=}')
+    print(f'{gree_list_cumu=}')
+    print(f'{oran_list_cumu=}')
+    print(f'{cyan_list_cumu=}')
+    print(f'{red_list_cumu=}')
+    print(f'{lime_list_cumu=}')
 
     while [node for node in g if node not in [edge[0] for edge in g.edges] if node != 'end'] + \
-        [node for node in g if node not in [edge[1] for edge in g.edges] if node != 'index'] != []:
-
+            [node for node in g if node not in [edge[1] for edge in g.edges] if node != 'index'] != []:
         no_out_edges = [node for node in g if node not in [edge[0] for edge in g.edges] if node != 'end']
         no_in_edges = [node for node in g if node not in [edge[1] for edge in g.edges] if node != 'index']
 
         [g.remove_node(node) for node in no_in_edges + no_out_edges]
 
     t = nx.nx_agraph.to_agraph(g)
+
     t.layout('dot')
-    t.draw('test.png')
+
+    t.draw('output/test.png')
+    t.draw('output/test.svg')
+
+    t.write('output/test.dot')
+
     return g
 
 

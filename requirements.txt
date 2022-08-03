@@ -2,3 +2,6 @@ setuptools>=57.0.0
 Pillow>=7.0.0
 networkx>=2.6.3
 pygraphviz>=1.7
+numpy~=1.23.1
+matplotlib~=3.5.2
+lxml

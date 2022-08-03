@@ -1,9 +1,15 @@
 import os.path
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Optional, List, Dict, NewType, Union, Tuple
 import re
 from xml.etree import ElementTree
+
+try:
+    assert sys.version_info.major == 3 and sys.version_info.minor >= 10
+except AssertionError:
+    raise AssertionError('programs needs Python version >= 3.10')
 
 NS = {'zofar': 'http://www.his.de/zofar/xml/questionnaire'}
 
