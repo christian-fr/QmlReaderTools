@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 from qrt.util.xml import flatten
 import networkx as nx
 from qrt.util.xml import Questionnaire, read_xml
@@ -36,14 +36,10 @@ def color_str_to_hex(color_str: str) -> str:
     return mpl.colors.to_hex(np.array(mpl.colors.to_rgb(color_str)))
 
 
-def create_digraph(q: Questionnaire) -> nx.DiGraph:
-    # color scheme
-    COL_TRANS = color_str_to_hex('black')
-    COL_RED_ON_EXIT_FALSE = color_str_to_hex('red')
-    COL_RED_ON_EXIT_TRUE = color_str_to_hex('blue')
+def create_digraph(q: Questionnaire, color_edges: Optional[dict], color_nodes: Optional[dict], remove_dead_ends: bool = True) -> nx.DiGraph:
     g = nx.DiGraph()
 
-    l = create_blue_red_color_gradient_list()
+    # l = create_blue_red_color_gradient_list()
 
     blac_list_cumu = []
     blue_list_cumu = []
@@ -61,24 +57,24 @@ def create_digraph(q: Questionnaire) -> nx.DiGraph:
         blac_list = [transition for transition in page.transitions
                      if transition.target_uid != 'episodeDispatcher' or page.uid == 'calendar']
         blac_list_cumu += blac_list
-        [g.add_edge(page.uid, transition.target_uid, color=color_str_to_hex('black')) for transition in blac_list]
+        [g.add_edge(page.uid, transition.target_uid, color=color_edges[0]) for transition in blac_list]
 
         # blue
         blue_list = [transition for transition in page.transitions
                      if transition.target_uid == 'episodeDispatcher' and page.uid != 'calendar']
         blue_list_cumu += blue_list
-        [g.add_edge(page.uid, transition.target_uid, color=color_str_to_hex('blue')) for transition in blue_list]
+        [g.add_edge(page.uid, transition.target_uid, color=color_edges[1]) for transition in blue_list]
 
         # trigger redirects
         # red
         red_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list
-                      if target_tuple[0] not in ['calendar', 'episodeDispatcher']
-                      and target_tuple[1] not in ['episodeDispatcher']]
-                     for trigger in page.trig_redirect_on_exit_false]
+                     if target_tuple[0] not in ['calendar', 'episodeDispatcher']
+                     and target_tuple[1] not in ['episodeDispatcher']]
+                    for trigger in page.trig_redirect_on_exit_false]
         red_list_flat = flatten(red_list)
         if red_list_flat:
             red_list_cumu.append((page.uid, red_list_flat))
-        [g.add_edge(page.uid, target_uid, color=color_str_to_hex('red')) for target_uid in red_list_flat]
+        [g.add_edge(page.uid, target_uid, color=color_edges[2]) for target_uid in red_list_flat]
 
         # green
         gree_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list
@@ -87,7 +83,7 @@ def create_digraph(q: Questionnaire) -> nx.DiGraph:
         gree_list_flat = flatten(gree_list)
         if gree_list_flat:
             gree_list_cumu.append((page.uid, gree_list_flat))
-            [g.add_edge(page.uid, target_uid, color=color_str_to_hex('green')) for
+            [g.add_edge(page.uid, target_uid, color=color_edges[3]) for
              target_uid in gree_list_flat]
 
         # orange
@@ -97,7 +93,7 @@ def create_digraph(q: Questionnaire) -> nx.DiGraph:
         orange_list_flat = flatten(orange_list)
         if orange_list_flat:
             oran_list_cumu.append((page.uid, orange_list_flat))
-            [g.add_edge(page.uid, target_uid, color=color_str_to_hex('orange')) for target_uid in orange_list_flat]
+            [g.add_edge(page.uid, target_uid, color=color_edges[4]) for target_uid in orange_list_flat]
 
         # cyan
         cyan_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list if
@@ -106,7 +102,7 @@ def create_digraph(q: Questionnaire) -> nx.DiGraph:
         cyan_list_flat = flatten(cyan_list)
         if cyan_list_flat:
             cyan_list_cumu.append((page.uid, cyan_list_flat))
-            [g.add_edge(page.uid, target_uid, color=color_str_to_hex('cyan')) for target_uid in cyan_list_flat]
+            [g.add_edge(page.uid, target_uid, color=color_edges[5]) for target_uid in cyan_list_flat]
 
         # pink
         pink_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list if
@@ -115,7 +111,7 @@ def create_digraph(q: Questionnaire) -> nx.DiGraph:
         pink_list_flat = flatten(pink_list)
         if pink_list_flat:
             pink_list_cumu.append((page.uid, pink_list_flat))
-            [g.add_edge(page.uid, target_uid, color=color_str_to_hex('pink')) for target_uid in pink_list_flat]
+            [g.add_edge(page.uid, target_uid, color=color_edges[6]) for target_uid in pink_list_flat]
 
         # lime
         lime_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list]
@@ -123,8 +119,16 @@ def create_digraph(q: Questionnaire) -> nx.DiGraph:
         lime_list_flat = flatten(lime_list)
         if lime_list_flat:
             lime_list_cumu.append((page.uid, lime_list_flat))
-            [g.add_edge(page.uid, target_uid, color=color_str_to_hex('lime')) for target_uid in
+            [g.add_edge(page.uid, target_uid, color=color_edges[7]) for target_uid in
              lime_list_flat]
+
+
+        # page colors
+        if color_nodes is not None:
+            if page.uid.startswith('defaultLanding'):
+                g.add_node(page.uid, {"color": color_nodes[1]})
+            if page.uid.startswith('splitLanding'):
+                g.add_node(page.uid, {"color": color_nodes[2]})
 
     print(f'{blac_list_cumu=}')
     print(f'{blue_list_cumu=}')
@@ -135,12 +139,15 @@ def create_digraph(q: Questionnaire) -> nx.DiGraph:
     print(f'{red_list_cumu=}')
     print(f'{lime_list_cumu=}')
 
-    while [node for node in g if node not in [edge[0] for edge in g.edges] if node != 'end'] + \
-            [node for node in g if node not in [edge[1] for edge in g.edges] if node != 'index'] != []:
-        no_out_edges = [node for node in g if node not in [edge[0] for edge in g.edges] if node != 'end']
-        no_in_edges = [node for node in g if node not in [edge[1] for edge in g.edges] if node != 'index']
+    if remove_dead_ends:
+        while [node for node in g if node not in [edge[0] for edge in g.edges] if node != 'end'] + \
+                [node for node in g if node not in [edge[1] for edge in g.edges] if node != 'index'] != []:
+            no_out_edges = [node for node in g if node not in [edge[0] for edge in g.edges] if node != 'end']
+            no_in_edges = [node for node in g if node not in [edge[1] for edge in g.edges] if node != 'index']
 
-        [g.remove_node(node) for node in no_in_edges + no_out_edges]
+            [g.remove_node(node) for node in no_in_edges + no_out_edges]
+
+    # change color of nodes
 
     t = nx.nx_agraph.to_agraph(g)
 
@@ -156,8 +163,17 @@ def create_digraph(q: Questionnaire) -> nx.DiGraph:
 
 def main():
     input_xml = Path(os.path.abspath('.'), 'tests', 'context', 'qml', 'questionnaire_lhc.xml')
+    if 'XML_PATH' in os.environ:
+        input_xml = Path(os.environ.get('XML_PATH'))
     q = read_xml(input_xml)
-    g = create_digraph(q)
+
+    _COLOR_STR_DICT = {0: 'black', 1: 'blue', 2: 'pink',
+                       3: 'green', 4: 'orange', 5: 'cyan',
+                       6: 'red', 7: 'lime', 8: 'yellow'}
+    color_edges = {k: color_str_to_hex(v) for k, v in _COLOR_STR_DICT.items()}
+    color_grey = {k: color_str_to_hex('grey') for k in _COLOR_STR_DICT.keys()}
+    g = create_digraph(q, color_edges, None, False)
+    # g = create_digraph(q, color_grey, color_edges, False)
 
 
 if __name__ == '__main__':
