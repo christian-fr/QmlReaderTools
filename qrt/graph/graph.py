@@ -1,3 +1,4 @@
+import argparse
 import os
 from pathlib import Path
 from typing import List, Optional
@@ -36,7 +37,12 @@ def color_str_to_hex(color_str: str) -> str:
     return mpl.colors.to_hex(np.array(mpl.colors.to_rgb(color_str)))
 
 
-def create_digraph(q: Questionnaire, color_edges: Optional[dict], color_nodes: Optional[dict], remove_dead_ends: bool = True) -> nx.DiGraph:
+def create_digraph(q: Questionnaire, color_edges: Optional[dict],
+                   output_file: str,
+                   color_nodes: Optional[dict] = None,
+                   remove_dead_ends: bool = True,
+                   label_edges: bool = False
+                   ) -> nx.DiGraph:
     g = nx.DiGraph()
 
     # l = create_blue_red_color_gradient_list()
@@ -51,13 +57,22 @@ def create_digraph(q: Questionnaire, color_edges: Optional[dict], color_nodes: O
     lime_list_cumu = []
     yell_list_cumu = []
 
+    frag_vars_str = ','.join([f'episodes_fragment_{i}' for i in range(1, 101)])
+
     for page in q.pages:
         # regular transitions
         # black
         blac_list = [transition for transition in page.transitions
                      if transition.target_uid != 'episodeDispatcher' or page.uid == 'calendar']
         blac_list_cumu += blac_list
-        [g.add_edge(page.uid, transition.target_uid, color=color_edges[0]) for transition in blac_list]
+
+        if label_edges:
+            [g.add_edge(page.uid, transition.target_uid, label=transition.condition.replace(frag_vars_str, '...'),
+                        color=color_edges[0]) for transition in blac_list if transition.condition is not None]
+            [g.add_edge(page.uid, transition.target_uid, color=color_edges[0]) for transition in blac_list if
+             transition.condition is None]
+        else:
+            [g.add_edge(page.uid, transition.target_uid, color=color_edges[0]) for transition in blac_list]
 
         # blue
         blue_list = [transition for transition in page.transitions
@@ -74,7 +89,7 @@ def create_digraph(q: Questionnaire, color_edges: Optional[dict], color_nodes: O
         red_list_flat = flatten(red_list)
         if red_list_flat:
             red_list_cumu.append((page.uid, red_list_flat))
-        [g.add_edge(page.uid, target_uid, color=color_edges[2]) for target_uid in red_list_flat]
+        [g.add_edge(page.uid, target_uid, color=color_edges[6]) for target_uid in red_list_flat]
 
         # green
         gree_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list
@@ -111,7 +126,7 @@ def create_digraph(q: Questionnaire, color_edges: Optional[dict], color_nodes: O
         pink_list_flat = flatten(pink_list)
         if pink_list_flat:
             pink_list_cumu.append((page.uid, pink_list_flat))
-            [g.add_edge(page.uid, target_uid, color=color_edges[6]) for target_uid in pink_list_flat]
+            [g.add_edge(page.uid, target_uid, color=color_edges[2]) for target_uid in pink_list_flat]
 
         # lime
         lime_list = [[target_tuple[0] for target_tuple in trigger.target_cond_list]
@@ -121,7 +136,6 @@ def create_digraph(q: Questionnaire, color_edges: Optional[dict], color_nodes: O
             lime_list_cumu.append((page.uid, lime_list_flat))
             [g.add_edge(page.uid, target_uid, color=color_edges[7]) for target_uid in
              lime_list_flat]
-
 
         # page colors
         if color_nodes is not None:
@@ -153,28 +167,53 @@ def create_digraph(q: Questionnaire, color_edges: Optional[dict], color_nodes: O
 
     t.layout('dot')
 
-    t.draw('output/test.png')
-    t.draw('output/test.svg')
+    t.draw(output_file)
+    # t.draw('output/test.svg')
 
-    t.write('output/test.dot')
+    # t.write('output/test.dot')
 
     return g
 
 
-def main():
-    input_xml = Path(os.path.abspath('.'), 'tests', 'context', 'qml', 'questionnaire_lhc.xml')
-    if 'XML_PATH' in os.environ:
-        input_xml = Path(os.environ.get('XML_PATH'))
-    q = read_xml(input_xml)
+def main(xml_source: str, output_file: str):
+    q = read_xml(Path(xml_source))
 
     _COLOR_STR_DICT = {0: 'black', 1: 'blue', 2: 'pink',
                        3: 'green', 4: 'orange', 5: 'cyan',
                        6: 'red', 7: 'lime', 8: 'yellow'}
     color_edges = {k: color_str_to_hex(v) for k, v in _COLOR_STR_DICT.items()}
     color_grey = {k: color_str_to_hex('grey') for k in _COLOR_STR_DICT.keys()}
-    g = create_digraph(q, color_edges, None, False)
-    # g = create_digraph(q, color_grey, color_edges, False)
 
+    module_prefixes = ['emp', 'voc', 'int', 'job', 'sem', 'fam', 'mpl', 'sco', 'stu', 'oth', 'doc']
+    for module_prefix in module_prefixes:
+        module_output_file = f'{os.path.splitext(output_file)[0]}_{module_prefix}{os.path.splitext(output_file)[1]}'
+        filter_list = ['episodeDispatcher', 'calendar']
+        filter_startswith_list = [f'{module_prefix}', f'backwardsBlock_{module_prefix}',
+                                  f'defaultLanding_{module_prefix}', f'splitLanding_{module_prefix}']
+        filter_startswith_list = [f'{module_prefix}', f'backwardsBlock_{module_prefix}',
+                                  f'defaultLanding_{module_prefix}']
+        q.filter(filter_list=filter_list, filter_startswith_list=filter_startswith_list)
+        # remove_trigger__list = []
+        # remove_trigger_startswith_list = ['defaultLanding_', 'splitLanding_']
+        # q.remove_trigger(remove_trigger_list=remove_trigger__list,remove_trigger_startswith_list=remove_trigger_startswith_list)
+        collapse_list = []
+        collapse_startswith_list = ['backwardsBlock_']
+        q.collapse_pages(collapse_list=collapse_list, collapse_startswith_list=collapse_startswith_list)
+        page_to_remove_transitions = ['episodeDispatcher']
+        q.remove_transitions(page_to_remove_transitions)
+        g = create_digraph(q=q, color_edges=color_edges,
+                           color_nodes=None,
+                           remove_dead_ends=True,
+                           output_file=module_output_file,
+                           label_edges=False)
+        # g = create_digraph(q, color_grey, color_edges, False)
 
 if __name__ == '__main__':
-    main()
+    version = '0.0.1'
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("xml_source", help="XML input file")
+    parser.add_argument("output_file", help="output file")
+    ns = parser.parse_args()
+
+    main(**ns.__dict__)

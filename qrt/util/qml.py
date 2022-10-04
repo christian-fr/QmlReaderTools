@@ -8,6 +8,8 @@ __name__ = "Questionnaire"
 # last edited: 2020-07-03
 
 import re
+from typing import List
+
 import networkx as nx
 import logging
 import time
@@ -1108,3 +1110,4 @@ class Questionnaire:
     def set_filename(self, filename):
         assert isinstance(filename, str)
         self.filename = filename
+
