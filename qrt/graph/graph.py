@@ -38,7 +38,6 @@ def color_str_to_hex(color_str: str) -> str:
 
 
 def create_digraph(q: Questionnaire, color_edges: Optional[dict],
-                   output_file: str,
                    color_nodes: Optional[dict] = None,
                    remove_dead_ends: bool = True,
                    label_edges: bool = False
@@ -161,17 +160,6 @@ def create_digraph(q: Questionnaire, color_edges: Optional[dict],
 
             [g.remove_node(node) for node in no_in_edges + no_out_edges]
 
-    # change color of nodes
-
-    t = nx.nx_agraph.to_agraph(g)
-
-    t.layout('dot')
-
-    t.draw(output_file)
-    # t.draw('output/test.svg')
-
-    # t.write('output/test.dot')
-
     return g
 
 
@@ -204,9 +192,14 @@ def main(xml_source: str, output_file: str):
         g = create_digraph(q=q, color_edges=color_edges,
                            color_nodes=None,
                            remove_dead_ends=True,
-                           output_file=module_output_file,
                            label_edges=False)
+        g = nx.nx_agraph.to_agraph(g)
+
+        g.layout('dot')
+
+        g.draw(output_file)
         # g = create_digraph(q, color_grey, color_edges, False)
+
 
 if __name__ == '__main__':
     version = '0.0.1'
