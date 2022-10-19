@@ -197,7 +197,7 @@ def main(xml_source: str, output_file: str):
 
         g.layout('dot')
 
-        g.draw(output_file)
+        g.draw(module_output_file)
         # g = create_digraph(q, color_grey, color_edges, False)
 
 
