@@ -561,6 +561,9 @@ class Variables:
     def list_all_vars(self):
         return [var.varname for var in self.variables.values() if var.varplace != 'shown']
 
+    def list_all_vars_types(self):
+        return [(var.varname, var.vartype) for var in self.variables.values() if var.varplace != 'shown']
+
     def list_all_vartypes(self):
         return [var.vartype for var in self.variables.values()]
 

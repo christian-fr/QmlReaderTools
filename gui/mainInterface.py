@@ -519,6 +519,11 @@ class Window(tkinter.Frame):
         details_string += str(qml_reader_object.questionnaire.variables.list_all_vars())
         details_string += '\n\n'
 
+        details_string += '\n### variables and types: [' + str(
+            len(qml_reader_object.questionnaire.variables.list_all_vars_types())) + ']\n'
+        details_string += '),\n('.join(str(qml_reader_object.questionnaire.variables.list_all_vars_types()).split('), ('))
+        details_string += '\n\n'
+
         details_string += '\n#### used variables per page:\n'
         for page_name, page_object in qml_reader_object.questionnaire.pages.pages.items():
             details_string += f'{page_name}\t{[var_name for var_name in page_object.variables.variables.keys()]}\n'
